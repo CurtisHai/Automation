@@ -1,5 +1,7 @@
 from django.test import TestCase
-from . import file_utils
+from django.contrib.auth.models import User
+from .models import Workflow
+from . import file_utils, views
 import os
 import tempfile
 
@@ -29,5 +31,16 @@ class FileUtilsTests(TestCase):
             self.assertEqual(len(paths), 1)
             self.assertTrue(paths[0].startswith(os.path.join(out_root, "SITE")))
             self.assertTrue(os.path.exists(paths[0] + ".convert"))
+
+
+class WorkflowMatchTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="tester")
+        self.wf = Workflow.objects.create(name="SL-SL-SR-101A", created_by=self.user)
+
+    def test_match_workflow_from_path(self):
+        path = os.path.join("/tmp", "foo", "SL-SL-SR-101A")
+        match = views.match_workflow_from_path(path, self.user)
+        self.assertEqual(match, self.wf)
 
 
