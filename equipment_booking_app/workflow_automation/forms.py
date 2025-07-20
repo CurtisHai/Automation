@@ -127,7 +127,10 @@ class RunWorkflowForm(forms.Form):
 
     workflow = forms.ModelChoiceField(queryset=Workflow.objects.none())
     input_path = forms.CharField(label="Input Folder", max_length=255)
-    output_path = forms.CharField(label="Output Folder", max_length=255)
+    use_input_path = forms.BooleanField(
+        label="Save to input folder", required=False, initial=True
+    )
+    output_path = forms.CharField(label="Output Folder", max_length=255, required=False)
     project_code = forms.CharField(label="Project Code", max_length=100, required=False)
     initials = forms.CharField(label="Initials", max_length=20, required=False)
     run_mode = forms.ChoiceField(label="Run Mode", choices=RUN_MODES)
@@ -137,6 +140,14 @@ class RunWorkflowForm(forms.Form):
         super().__init__(*args, **kwargs)
         if user:
             self.fields["workflow"].queryset = Workflow.objects.filter(created_by=user)
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("use_input_path"):
+            cleaned["output_path"] = cleaned["input_path"]
+        elif not cleaned.get("output_path"):
+            raise ValidationError("Output folder required when not saving to input folder")
+        return cleaned
 
 
 class StepSettingsForm(forms.Form):
