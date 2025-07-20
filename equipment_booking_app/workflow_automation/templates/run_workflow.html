@@ -8,6 +8,16 @@
             <strong>Input Folder:</strong> {{ input_folder }}<br>
             <strong>Output Folder:</strong> {{ output_folder }}
         </div>
+        {% if suggested_workflow %}
+            <div class="alert alert-info">
+                Suggested Workflow: {{ suggested_workflow.name }} — Use this?
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" name="accept_suggested" value="1" class="btn btn-sm btn-success ml-2">Yes</button>
+                    <button type="submit" name="reject_suggested" value="1" class="btn btn-sm btn-danger ml-1">No</button>
+                </form>
+            </div>
+        {% endif %}
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
