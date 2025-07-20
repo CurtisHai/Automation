@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
+from django import forms
 from datetime import timedelta
 
 from .models import (
@@ -373,6 +374,10 @@ def create_workflow(request):
         if wf_form.is_valid():
             workflow = wf_form.save(commit=False)
             workflow.created_by = request.user
+            if request.user.is_superuser:
+                workflow.is_published = True
+                workflow.published_by = request.user
+                workflow.published_at = timezone.now()
             workflow.save()
 
             for idx, step in enumerate(WorkflowStep.STEP_CHOICES, start=1):
@@ -395,6 +400,56 @@ def create_workflow(request):
         'step_choices': WorkflowStep.STEP_CHOICES,
     }
     return render(request, 'bookings/create_workflow.html', context)
+
+
+@login_required
+def my_workflows(request):
+    workflows = Workflow.objects.filter(created_by=request.user)
+    return render(request, 'bookings/my_workflows.html', {'workflows': workflows})
+
+
+@login_required
+def request_review(request, workflow_id):
+    workflow = get_object_or_404(Workflow, id=workflow_id, created_by=request.user)
+    if request.method == 'POST':
+        form = MessageForm(request.POST, user=request.user)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.sender = request.user
+            msg.recipient = User.objects.filter(is_superuser=True).first()
+            msg.workflow = workflow
+            msg.is_review_request = True
+            msg.save()
+            messages.success(request, 'Review request submitted successfully.')
+            return redirect('my_workflows')
+    else:
+        form = MessageForm(user=request.user, initial={'workflow': workflow})
+        form.fields['workflow'].widget = forms.HiddenInput()
+    return render(request, 'bookings/request_review.html', {'form': form, 'workflow': workflow})
+
+
+@login_required
+def shared_workflows(request):
+    workflows = Workflow.objects.filter(is_published=True)
+    return render(request, 'bookings/shared_workflows.html', {'workflows': workflows})
+
+
+@login_required
+def use_shared_workflow(request, workflow_id):
+    workflow = get_object_or_404(Workflow, id=workflow_id, is_published=True)
+    new_wf = Workflow.objects.create(
+        name=workflow.name,
+        description=workflow.description,
+        created_by=request.user,
+    )
+    for step in workflow.steps.all():
+        WorkflowStep.objects.create(
+            workflow=new_wf,
+            step_type=step.step_type,
+            order=step.order,
+        )
+    messages.success(request, 'Workflow copied to your account.')
+    return redirect('my_workflows')
 
 
 @login_required

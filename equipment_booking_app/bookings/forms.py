@@ -100,7 +100,7 @@ class NoticeForm(forms.ModelForm):
 class WorkflowForm(forms.ModelForm):
     class Meta:
         model = Workflow
-        fields = ['name']
+        fields = ['name', 'description']
 
 
 class WorkflowStepForm(forms.ModelForm):
