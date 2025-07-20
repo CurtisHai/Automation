@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Booking, Profile, Equipment, Message, Notice
+from .models import Booking, Profile, Equipment, Message, Notice, Workflow, WorkflowStep
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -93,3 +93,23 @@ class NoticeForm(forms.ModelForm):
         widgets = {
             'message': forms.Textarea(attrs={'rows': 5}),  # Set the textarea to have 5 rows
         }
+
+
+class WorkflowForm(forms.ModelForm):
+    class Meta:
+        model = Workflow
+        fields = ['name']
+
+
+class WorkflowStepForm(forms.ModelForm):
+    class Meta:
+        model = WorkflowStep
+        fields = ['step_type', 'order']
+
+
+WorkflowStepFormSet = forms.modelformset_factory(
+    WorkflowStep,
+    form=WorkflowStepForm,
+    extra=0,
+    can_delete=True
+)

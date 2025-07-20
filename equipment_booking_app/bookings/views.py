@@ -6,8 +6,24 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import Booking, Profile, Message, Notice, LoginAttempt, UnknownLoginAttempt
-from .forms import BookingForm, ProfileForm, MessageForm, NoticeForm
+from .models import (
+    Booking,
+    Profile,
+    Message,
+    Notice,
+    LoginAttempt,
+    UnknownLoginAttempt,
+    Workflow,
+    WorkflowStep,
+)
+from .forms import (
+    BookingForm,
+    ProfileForm,
+    MessageForm,
+    NoticeForm,
+    WorkflowForm,
+    WorkflowStepFormSet,
+)
 
 # Number of allowed failed attempts before locking an account
 LOCKOUT_THRESHOLD = 5
@@ -372,3 +388,40 @@ def remove_notice(request):
 def security_notice(request):
     """Render a notice page when users access a restricted admin URL."""
     return render(request, 'bookings/security_notice.html')
+
+
+@login_required
+def workflow_dashboard(request):
+    workflows = Workflow.objects.all()
+    return render(request, 'bookings/workflow_dashboard.html', {'workflows': workflows})
+
+
+@login_required
+def create_workflow(request):
+    if request.method == 'POST':
+        wf_form = WorkflowForm(request.POST)
+        if wf_form.is_valid():
+            workflow = wf_form.save(commit=False)
+            workflow.created_by = request.user
+            workflow.save()
+
+            for idx, step in enumerate(WorkflowStep.STEP_CHOICES, start=1):
+                if request.POST.get(f'include_step_{idx}'):
+                    order = request.POST.get(f'order_{idx}')
+                    if order:
+                        WorkflowStep.objects.create(
+                            workflow=workflow,
+                            step_type=step[0],
+                            order=int(order),
+                        )
+
+            messages.success(request, 'Workflow created successfully.')
+            return redirect('workflow_dashboard')
+    else:
+        wf_form = WorkflowForm()
+
+    context = {
+        'form': wf_form,
+        'step_choices': WorkflowStep.STEP_CHOICES,
+    }
+    return render(request, 'bookings/create_workflow.html', context)

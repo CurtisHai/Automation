@@ -127,6 +127,7 @@
                     <a href="{% url 'my_bookings' %}" class="nav-link">My Bookings</a>
                 {% endif %}
                 <a href="{% url 'create_booking' %}" class="nav-link">Create Booking</a>
+                <a href="{% url 'workflow_dashboard' %}" class="nav-link">Automation Workflows</a>
                 <a href="{% url 'accounts' %}" class="nav-link">View Account</a>
                 {% if not user.is_superuser %}
                     <a href="{% url 'contact' %}" class="nav-link">Contact</a>

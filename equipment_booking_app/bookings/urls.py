@@ -22,4 +22,6 @@ urlpatterns = [
     path('manage-notice/', views.manage_notice, name='manage_notice'),
     path('remove_notice/', views.remove_notice, name='remove_notice'),
     path('security-notice/', views.security_notice, name='security_notice'),
+    path('workflows/', views.workflow_dashboard, name='workflow_dashboard'),
+    path('workflows/create/', views.create_workflow, name='create_workflow'),
 ]
