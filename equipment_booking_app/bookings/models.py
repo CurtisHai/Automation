@@ -148,6 +148,7 @@ class WorkflowRun(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     input_path = models.CharField(max_length=255)
+    output_path = models.CharField(max_length=255, default="", blank=True)
     project_code = models.CharField(max_length=100, blank=True)
     initials = models.CharField(max_length=20, blank=True)
     started_at = models.DateTimeField(auto_now_add=True)

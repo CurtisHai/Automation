@@ -10,8 +10,12 @@
             {{ form.workflow }}
         </div>
         <div class="form-group">
-            <label for="id_input_path">File Path</label>
+            <label for="id_input_path">Input Folder</label>
             {{ form.input_path }}
+        </div>
+        <div class="form-group">
+            <label for="id_output_path">Output Folder</label>
+            {{ form.output_path }}
         </div>
         <div class="form-group">
             <label for="id_project_code">Project Code</label>
@@ -21,16 +25,21 @@
             <label for="id_initials">Initials</label>
             {{ form.initials }}
         </div>
+        <div class="form-group">
+            <label for="id_run_mode">Run Mode</label>
+            {{ form.run_mode }}
+        </div>
+
+        {% if step_pairs %}
+            <h4 class="mt-4">Step Settings</h4>
+            {% for step, step_form in step_pairs %}
+                <div class="border rounded p-2 mb-2">
+                    <strong>{{ step.get_step_type_display }}</strong>
+                    {{ step_form.as_p }}
+                </div>
+            {% endfor %}
+        {% endif %}
         <button type="submit" class="btn btn-primary mt-3">Run Workflow</button>
     </form>
 </div>
-
-{% if logs %}
-<h3 class="mt-4">Progress</h3>
-<ul class="list-group w-75 mx-auto" style="color:#192d38;">
-    {% for line in logs %}
-    <li class="list-group-item">{{ line }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
 {% endblock %}
