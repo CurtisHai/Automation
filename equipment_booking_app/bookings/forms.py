@@ -115,3 +115,18 @@ WorkflowStepFormSet = forms.modelformset_factory(
     extra=0,
     can_delete=True
 )
+
+
+class RunWorkflowForm(forms.Form):
+    """Collects information required to execute a workflow."""
+    workflow = forms.ModelChoiceField(queryset=Workflow.objects.none())
+    input_path = forms.CharField(label="File Path", max_length=255)
+    project_code = forms.CharField(label="Project Code", max_length=100, required=False)
+    initials = forms.CharField(label="Initials", max_length=20, required=False)
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields["workflow"].queryset = Workflow.objects.filter(created_by=user)
+

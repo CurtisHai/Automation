@@ -139,3 +139,23 @@ class WorkflowStep(models.Model):
 
     def __str__(self):
         return f"{self.get_step_type_display()} ({self.order})"
+
+
+class WorkflowRun(models.Model):
+    """Represents a single execution of a workflow with user provided inputs."""
+    workflow = models.ForeignKey(
+        Workflow, related_name="runs", on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    input_path = models.CharField(max_length=255)
+    project_code = models.CharField(max_length=100, blank=True)
+    initials = models.CharField(max_length=20, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    log = models.TextField(blank=True)
+
+    def __str__(self):
+        return (
+            f"Run of {self.workflow.name} by {self.user.username} on"
+            f" {self.started_at:%Y-%m-%d %H:%M}"
+        )

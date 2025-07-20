@@ -15,6 +15,7 @@ from .models import (
     UnknownLoginAttempt,
     Workflow,
     WorkflowStep,
+    WorkflowRun,
 )
 from .forms import (
     BookingForm,
@@ -23,7 +24,10 @@ from .forms import (
     NoticeForm,
     WorkflowForm,
     WorkflowStepFormSet,
+    RunWorkflowForm,
 )
+
+from .workflow_runner import WorkflowRunner
 
 # Number of allowed failed attempts before locking an account
 LOCKOUT_THRESHOLD = 5
@@ -391,3 +395,38 @@ def create_workflow(request):
         'step_choices': WorkflowStep.STEP_CHOICES,
     }
     return render(request, 'bookings/create_workflow.html', context)
+
+
+@login_required
+def run_workflow(request):
+    if request.method == 'POST':
+        form = RunWorkflowForm(request.POST, user=request.user)
+        if form.is_valid():
+            workflow = form.cleaned_data['workflow']
+            run_obj = WorkflowRun.objects.create(
+                workflow=workflow,
+                user=request.user,
+                input_path=form.cleaned_data['input_path'],
+                project_code=form.cleaned_data.get('project_code', ''),
+                initials=form.cleaned_data.get('initials', ''),
+            )
+
+            runner = WorkflowRunner(
+                workflow,
+                form.cleaned_data['input_path'],
+                form.cleaned_data.get('project_code'),
+                form.cleaned_data.get('initials'),
+            )
+            logs = runner.run()
+            run_obj.log = "\n".join(logs)
+            run_obj.completed_at = timezone.now()
+            run_obj.save()
+            return render(
+                request,
+                'bookings/run_workflow.html',
+                {'form': form, 'logs': logs, 'run': run_obj},
+            )
+    else:
+        form = RunWorkflowForm(user=request.user)
+
+    return render(request, 'bookings/run_workflow.html', {'form': form})

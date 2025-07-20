@@ -20,4 +20,5 @@ urlpatterns = [
     path('security-notice/', views.security_notice, name='security_notice'),
     path('workflows/', views.workflow_dashboard, name='workflow_dashboard'),
     path('workflows/create/', views.create_workflow, name='create_workflow'),
+    path('workflows/run/', views.run_workflow, name='run_workflow'),
 ]
