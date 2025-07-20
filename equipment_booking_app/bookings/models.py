@@ -108,3 +108,35 @@ class UnknownLoginAttempt(models.Model):
 
     def __str__(self):
         return f"{self.username} - {self.failed_attempts} failed attempts"
+
+
+# Models for automation workflows
+class Workflow(models.Model):
+    """A reusable collection of ordered processing steps."""
+    name = models.CharField(max_length=200)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="workflows")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class WorkflowStep(models.Model):
+    STEP_CHOICES = [
+        ("rename", "Rename"),
+        ("trim", "Trim"),
+        ("remove_audio", "Remove Audio"),
+        ("convert_360_video", "Convert 360 Video"),
+        ("pause_manual", "Pause for Manual Edit"),
+        ("zip_files", "Zip Files"),
+    ]
+
+    workflow = models.ForeignKey(Workflow, related_name="steps", on_delete=models.CASCADE)
+    step_type = models.CharField(max_length=50, choices=STEP_CHOICES)
+    order = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ["order"]
+
+    def __str__(self):
+        return f"{self.get_step_type_display()} ({self.order})"
