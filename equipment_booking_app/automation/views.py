@@ -42,7 +42,7 @@ from django.contrib.auth import authenticate, login, logout
 @login_required
 def home(request):
     """Render the dashboard-style home page."""
-    notices = Notice.objects.last()
+    notice = Notice.objects.last()
     pending_count = 0
 
     if request.user.is_superuser:
@@ -64,7 +64,7 @@ def home(request):
             return redirect("home")
 
     context = {
-        "notices": notices,
+        "notice": notice,
         "pending_count": pending_count,
     }
     return render(request, "automation/home.html", context)

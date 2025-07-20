@@ -8,42 +8,44 @@
     {% if user.is_authenticated %}
         <h4 class="text-center mb-4">Welcome, {{ user.username }}!</h4>
 
-        <!-- Priority automation actions -->
-        <div class="row text-center mb-4">
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'create_workflow' %}" class="btn btn-primary btn-lg w-100">Create Workflow</a>
+        <div class="container">
+            <!-- Priority automation actions -->
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'create_workflow' %}" class="btn btn-primary btn-lg w-100">Create Workflow</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'run_workflow' %}" class="btn btn-primary btn-lg w-100">Run Workflow</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'my_workflows' %}" class="btn btn-primary btn-lg w-100">My Workflows</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'shared_workflows' %}" class="btn btn-primary btn-lg w-100">Shared Workflows</a>
+                </div>
+                {% if user.is_superuser %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'inbox' %}" class="btn btn-primary btn-lg w-100">Review Requests{% if pending_count %} ({{ pending_count }}){% endif %}</a>
+                </div>
+                {% endif %}
             </div>
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'run_workflow' %}" class="btn btn-primary btn-lg w-100">Run Workflow</a>
+
+            <!-- Secondary actions -->
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'create_booking' %}" class="btn btn-secondary btn-lg w-100">Book Equipment</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'contact' %}" class="btn btn-secondary btn-lg w-100">Contact / Help</a>
+                </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'my_workflows' %}" class="btn btn-primary btn-lg w-100">My Workflows</a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'shared_workflows' %}" class="btn btn-primary btn-lg w-100">Shared Workflows</a>
-            </div>
-            {% if user.is_superuser %}
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'inbox' %}" class="btn btn-primary btn-lg w-100">Review Requests{% if pending_count %} ({{ pending_count }}){% endif %}</a>
-            </div>
-            {% endif %}
         </div>
 
-        <!-- Secondary actions -->
-        <div class="row text-center mb-4">
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'create_booking' %}" class="btn btn-secondary btn-lg w-100">Book Equipment</a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{% url 'contact' %}" class="btn btn-secondary btn-lg w-100">Contact / Help</a>
-            </div>
-        </div>
-
-        {% if notices %}
+        {% if notice %}
         <div class="card w-75 mb-3 mx-auto" style="color:#192d38;">
             <div class="card-body">
                 <h5 class="card-title">Notice Board</h5>
-                <p class="card-text">{{ notices.message }}</p>
+                <p class="card-text">{{ notice.message }}</p>
                 {% if user.is_superuser %}
                     <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
                         {% csrf_token %}
