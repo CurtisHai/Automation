@@ -79,15 +79,60 @@ def trim_video(src: str, dst: str, start: int, end: int) -> str:
     return dst
 
 
+PHOTO_EXTS = {".jpg", ".jpeg", ".png", ".dng", ".insp"}
+VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".insv"}
+PHOTO_360_EXTS = {".insp"}
+VIDEO_360_EXTS = {".insv"}
+
+
+def classify_media(path: str) -> dict:
+    """Return type info and destination folder for a media file."""
+    ext = os.path.splitext(path)[1].lower()
+    info = {
+        "extension": ext,
+        "is_photo": ext in PHOTO_EXTS,
+        "is_video": ext in VIDEO_EXTS,
+        "is_360": ext in PHOTO_360_EXTS or ext in VIDEO_360_EXTS,
+    }
+    if info["is_photo"]:
+        base_folder = "360_photos" if info["is_360"] else "standard_photos"
+    else:
+        base_folder = "360_videos" if info["is_360"] else "standard_videos"
+    info["dest_folder"] = base_folder
+    info["needs_conversion"] = ext in PHOTO_360_EXTS or ext in VIDEO_360_EXTS
+    return info
+
+
+def smart_rename(path: str, site_code: str) -> str:
+    """Rename a file to [prefix]-[zone]-3V-[YYMMDD].ext if needed."""
+    name = os.path.basename(path)
+    try:
+        prefix, zone = site_code.rsplit("-", 1)
+    except ValueError:
+        prefix, zone = site_code, ""
+    pattern = rf"^{re.escape(prefix)}-{re.escape(zone)}-3V-\d{{6}}"
+    ext = os.path.splitext(name)[1].lower()
+    if re.match(pattern + re.escape(ext) + "$", name):
+        return path
+
+    stamp = extract_timestamp(path)
+    try:
+        dt = datetime.strptime(stamp, "%Y%m%d")
+        stamp = dt.strftime("%y%m%d")
+    except ValueError:
+        stamp = datetime.now().strftime("%y%m%d")
+    new_name = f"{prefix}-{zone}-3V-{stamp}{ext}" if zone else f"{prefix}-3V-{stamp}{ext}"
+    new_path = os.path.join(os.path.dirname(path), new_name)
+    os.rename(path, new_path)
+    return new_path
+
+
 def organize_files(files, output_root, site_code="", target_folder=""):
     paths = []
     os.makedirs(output_root, exist_ok=True)
     for f in files:
-        ext = os.path.splitext(f)[1].lower()
-        if ext in {".jpg", ".jpeg", ".png"}:
-            folder = "360_photos"
-        else:
-            folder = "360_videos"
+        info = classify_media(f)
+        folder = info["dest_folder"]
         if site_code:
             folder = os.path.join(site_code, folder)
         if target_folder:
@@ -96,5 +141,7 @@ def organize_files(files, output_root, site_code="", target_folder=""):
         os.makedirs(out_dir, exist_ok=True)
         dst = os.path.join(out_dir, os.path.basename(f))
         shutil.move(f, dst)
+        if info.get("needs_conversion"):
+            open(dst + ".convert", "w").close()
         paths.append(dst)
     return paths
