@@ -28,6 +28,7 @@ from .forms import (
     WorkflowForm,
     WorkflowStepFormSet,
     RunWorkflowForm,
+    StepSettingsFormSet,
 )
 
 from .workflow_runner import WorkflowRunner
@@ -467,9 +468,26 @@ def request_review(request, workflow_id):
 
 
 @login_required
-def shared_workflows(request):
+def shared_workflow_list_view(request):
+    """List published workflows with optional search by name or tag."""
     workflows = Workflow.objects.filter(is_published=True)
-    return render(request, 'workflow_automation/shared_workflows.html', {'workflows': workflows})
+    query = request.GET.get("q", "")
+    if query:
+        if hasattr(Workflow, "tags"):
+            workflows = workflows.filter(
+                Q(name__icontains=query) | Q(tags__name__icontains=query)
+            ).distinct()
+        else:
+            workflows = workflows.filter(name__icontains=query)
+    return render(
+        request,
+        "workflow_automation/shared_workflows.html",
+        {"workflows": workflows, "search_query": query},
+    )
+
+
+# Backwards compatibility for templates using old view name
+shared_workflows = shared_workflow_list_view
 
 
 @login_required
@@ -536,6 +554,7 @@ def run_workflow(request):
             confirm = True
             form = RunWorkflowForm(user=request.user)
             StepFormSet = StepSettingsFormSet()
+            messages.info(request, "No workflow matched — please choose an option.")
         else:
             form = RunWorkflowForm(request.POST, user=request.user)
             if form.is_valid():
@@ -549,6 +568,8 @@ def run_workflow(request):
                 suggested_workflow = match_workflow_from_path(output_folder, request.user)
                 if suggested_workflow:
                     request.session["suggested_wf_id"] = suggested_workflow.id
+                else:
+                    messages.info(request, "No workflow matched — please choose an option.")
             StepFormSet = StepSettingsFormSet(request.POST)
     else:
         form = RunWorkflowForm(user=request.user)
@@ -563,7 +584,7 @@ def run_workflow(request):
 
     return render(
         request,
-        "workflow_automation/run_workflow.html",
+        "run_workflow.html",
         {
             "form": form,
             "step_forms": StepFormSet,
