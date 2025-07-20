@@ -2,72 +2,37 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Admin Message Inbox</h2>
-
-    <!-- Unsettled messages section -->
-    <h3 class="text-center mb-3" style="color: #FFFFFF;">Unsettled Messages</h3>
-    {% if unsettled_messages %}
-        <form method="POST">
-            {% csrf_token %}
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover w-150" style="background-color: #ffffff; width: 100%;">
-                    <thead style="background-color: #BE02F8; color: #ffffff; font-size: 1.25rem; text-align: center;">
-                        <tr class="text-center">
-                            <th>Subject</th>
-                            <th>Confirmation Number</th>
-                            <th>Sender Email</th>
-                            <th>Message</th>
-                            <th>Status</th>
-                            <th>Mark as Replied</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for message in unsettled_messages %}
-                        <tr class="text-center">
-                            <td>{{ message.subject|default:"No Subject Provided" }}</td>
-                            <td>{{ message.confirmation_number|stringformat:"s"|slice:":8" }}</td>
-                            <td>{{ message.sender.email }}</td>
-                            <td>{{ message.content }}</td>
-                            <td>{{ message.read|yesno:"Read,Unread" }}</td>
-                            <td><input type="checkbox" name="replied_messages" value="{{ message.id }}"></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Mark as Replied</button>
-        </form>
-    {% else %}
-        <p>No unsettled messages.</p>
-    {% endif %}
-
-    <!-- Settled messages section -->
-    <h3 class="text-center mt-5 mb-3" style="color: #FFFFFF;">Settled Messages</h3>
-    {% if settled_messages %}
+    <h2 class="text-center mb-4">Workflow Submissions</h2>
+    {% if messages_list %}
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
                 <thead style="background-color: #BE02F8; color: #ffffff; font-size: 1.25rem; text-align: center;">
                     <tr class="text-center">
                         <th>Subject</th>
-                        <th>Confirmation Number</th>
-                        <th>Sender Email</th>
+                        <th>Sender</th>
                         <th>Message</th>
-                        <th>Responded By</th>
+                        <th>Workflow</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for message in settled_messages %}
+                    {% for message in messages_list %}
                     <tr class="text-center">
-                        <td>{{ message.subject|default:"No Subject Provided" }}</td>
-                        <td>{{ message.confirmation_number|stringformat:"s"|slice:":8" }}</td>
-                        <td>{{ message.sender.email }}</td>
+                        <td>{{ message.subject }}</td>
+                        <td>{{ message.sender.username }}</td>
                         <td>{{ message.content }}</td>
                         <td>
-                            {% if message.responded_by %}
-                                {{ message.responded_by.username }}
-                            {% else %}
-                                Unknown
-                            {% endif %}
+                            {% if message.workflow %}
+                                {{ message.workflow.name }}
+                                {% if not message.workflow.is_published %}
+                                <form method="post" class="mt-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="publish_workflow" value="{{ message.workflow.id }}">
+                                    <button type="submit" class="btn btn-sm btn-success">Publish</button>
+                                </form>
+                                {% else %}
+                                    <span class="badge badge-success">Published</span>
+                                {% endif %}
+                            {% else %}-{% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -75,7 +40,7 @@
             </table>
         </div>
     {% else %}
-        <p>No settled messages.</p>
+        <p>No messages found.</p>
     {% endif %}
 </div>
 {% endblock %}

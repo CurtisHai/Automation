@@ -65,25 +65,27 @@ class ProfileForm(forms.ModelForm):
 
 
 class MessageForm(forms.ModelForm):
+    workflow = forms.ModelChoiceField(queryset=Workflow.objects.none(), required=False)
+
     class Meta:
         model = Message
-        fields = ['subject', 'content']  
+        fields = ['subject', 'content', 'workflow']
         widgets = {
             'subject': forms.TextInput(attrs={'placeholder': 'Enter subject here...'}),
             'content': forms.Textarea(attrs={'placeholder': 'Type your message here...'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['workflow'].queryset = Workflow.objects.filter(created_by=user)
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         if commit:
-            instance.save()  # Save the message
+            instance.save()
         return instance
-
-
-class ResponseForm(forms.ModelForm):
-    class Meta:
-        model = Message
-        fields = ['response', 'read']  # Assuming 'read' indicates if the message has been responded to
 
 
 class NoticeForm(forms.ModelForm):
