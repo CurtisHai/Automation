@@ -21,4 +21,5 @@ urlpatterns = [
     path('workflows/', views.workflow_dashboard, name='workflow_dashboard'),
     path('workflows/create/', views.create_workflow, name='create_workflow'),
     path('workflows/run/', views.run_workflow, name='run_workflow'),
+    path('workflows/progress/<int:run_id>/', views.workflow_progress, name='workflow_progress'),
 ]

@@ -118,15 +118,47 @@ WorkflowStepFormSet = forms.modelformset_factory(
 
 
 class RunWorkflowForm(forms.Form):
-    """Collects information required to execute a workflow."""
+    """Collect top level inputs for running a workflow."""
+
+    RUN_MODES = [
+        ("run_all", "Run All"),
+        ("pause", "Pause Between Steps"),
+    ]
+
     workflow = forms.ModelChoiceField(queryset=Workflow.objects.none())
-    input_path = forms.CharField(label="File Path", max_length=255)
+    input_path = forms.CharField(label="Input Folder", max_length=255)
+    output_path = forms.CharField(label="Output Folder", max_length=255)
     project_code = forms.CharField(label="Project Code", max_length=100, required=False)
     initials = forms.CharField(label="Initials", max_length=20, required=False)
+    run_mode = forms.ChoiceField(label="Run Mode", choices=RUN_MODES)
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         if user:
             self.fields["workflow"].queryset = Workflow.objects.filter(created_by=user)
+
+
+class StepSettingsForm(forms.Form):
+    """Dynamic form for per-step configuration."""
+
+    step_type = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, *args, step_type=None, **kwargs):
+        initial = kwargs.setdefault("initial", {})
+        if step_type:
+            initial.setdefault("step_type", step_type)
+        else:
+            step_type = initial.get("step_type")
+
+        super().__init__(*args, **kwargs)
+
+        self.step_type = step_type
+        if step_type == "trim":
+            self.fields["trim_seconds"] = forms.IntegerField(label="Trim Seconds", required=False, initial=0)
+        elif step_type == "rename":
+            self.fields["rename_pattern"] = forms.CharField(label="Rename Pattern", required=False)
+
+
+StepSettingsFormSet = forms.formset_factory(StepSettingsForm, extra=0)
 

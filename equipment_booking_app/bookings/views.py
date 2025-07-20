@@ -399,34 +399,98 @@ def create_workflow(request):
 
 @login_required
 def run_workflow(request):
-    if request.method == 'POST':
-        form = RunWorkflowForm(request.POST, user=request.user)
-        if form.is_valid():
-            workflow = form.cleaned_data['workflow']
-            run_obj = WorkflowRun.objects.create(
-                workflow=workflow,
-                user=request.user,
-                input_path=form.cleaned_data['input_path'],
-                project_code=form.cleaned_data.get('project_code', ''),
-                initials=form.cleaned_data.get('initials', ''),
-            )
+    user_wfs = Workflow.objects.filter(created_by=request.user)
+    workflow = user_wfs.first() if user_wfs else None
 
-            runner = WorkflowRunner(
-                workflow,
-                form.cleaned_data['input_path'],
-                form.cleaned_data.get('project_code'),
-                form.cleaned_data.get('initials'),
+    if request.method == "POST":
+        form = RunWorkflowForm(request.POST, user=request.user)
+        workflow = None
+        if form.is_valid():
+            workflow = form.cleaned_data["workflow"]
+            StepFormSet = StepSettingsFormSet(
+                request.POST,
+                initial=[{"step_type": s.step_type} for s in workflow.steps.all()],
             )
-            logs = runner.run()
-            run_obj.log = "\n".join(logs)
-            run_obj.completed_at = timezone.now()
-            run_obj.save()
-            return render(
-                request,
-                'bookings/run_workflow.html',
-                {'form': form, 'logs': logs, 'run': run_obj},
-            )
+            if StepFormSet.is_valid():
+                run_obj = WorkflowRun.objects.create(
+                    workflow=workflow,
+                    user=request.user,
+                    input_path=form.cleaned_data["input_path"],
+                    output_path=form.cleaned_data["output_path"],
+                    project_code=form.cleaned_data.get("project_code", ""),
+                    initials=form.cleaned_data.get("initials", ""),
+                )
+
+                request.session[f"run_{run_obj.id}_configs"] = StepFormSet.cleaned_data
+                request.session[f"run_{run_obj.id}_mode"] = form.cleaned_data["run_mode"]
+                request.session[f"run_{run_obj.id}_index"] = 0
+                request.session.modified = True
+
+                return redirect("workflow_progress", run_id=run_obj.id)
+        else:
+            StepFormSet = StepSettingsFormSet(request.POST)
     else:
         form = RunWorkflowForm(user=request.user)
+        if workflow:
+            StepFormSet = StepSettingsFormSet(
+                initial=[{"step_type": s.step_type} for s in workflow.steps.all()]
+            )
+        else:
+            StepFormSet = StepSettingsFormSet()
 
-    return render(request, 'bookings/run_workflow.html', {'form': form})
+    step_pairs = list(zip(workflow.steps.all(), StepFormSet)) if workflow else []
+
+    return render(
+        request,
+        "bookings/run_workflow.html",
+        {"form": form, "step_forms": StepFormSet, "workflow": workflow, "step_pairs": step_pairs},
+    )
+
+
+@login_required
+def workflow_progress(request, run_id):
+    """Display progress and execute steps one by one."""
+
+    run = get_object_or_404(WorkflowRun, id=run_id, user=request.user)
+    configs = request.session.get(f"run_{run_id}_configs", [])
+    run_mode = request.session.get(f"run_{run_id}_mode", "run_all")
+    step_index = request.session.get(f"run_{run_id}_index", 0)
+
+    runner = WorkflowRunner(
+        run.workflow,
+        run.input_path,
+        run.output_path,
+        project_code=run.project_code,
+        initials=run.initials,
+        step_configs=configs,
+        run_mode=run_mode,
+    )
+    runner.current_step = step_index
+    runner.logs = run.log.splitlines() if run.log else []
+
+    if run.completed_at is None:
+        if run_mode == "run_all":
+            runner.run_all()
+            run.completed_at = timezone.now()
+            request.session.pop(f"run_{run_id}_index", None)
+        else:
+            if request.method == "POST" or step_index == 0:
+                runner.run_next()
+                step_index = runner.current_step
+                if step_index >= run.workflow.steps.count():
+                    run.completed_at = timezone.now()
+                    request.session.pop(f"run_{run_id}_index", None)
+                else:
+                    request.session[f"run_{run_id}_index"] = step_index
+                request.session.modified = True
+
+        run.log = "\n".join(runner.logs)
+        run.save()
+
+    done = run.completed_at is not None
+
+    return render(
+        request,
+        "bookings/workflow_progress.html",
+        {"run": run, "logs": runner.logs, "done": done, "run_mode": run_mode},
+    )
