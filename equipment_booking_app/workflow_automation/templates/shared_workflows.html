@@ -2,6 +2,12 @@
 
 {% block content %}
 <h2 class="text-center mb-4">Shared Workflows</h2>
+
+<form method="get" class="form-inline mb-3 justify-content-center">
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name or tag" class="form-control mr-2">
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
 <div class="table-responsive">
 <table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
 <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color:#192d38; text-align:center;">
@@ -16,7 +22,7 @@
 <td>
 <form method="post" action="{% url 'use_shared_workflow' wf.id %}">
 {% csrf_token %}
-<button type="submit" class="btn btn-sm btn-primary">Use This Workflow</button>
+<button type="submit" class="btn btn-sm btn-primary">Download</button>
 </form>
 </td>
 </tr>

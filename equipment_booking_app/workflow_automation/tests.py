@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
+from django.urls import reverse
 from .models import Workflow
 from . import file_utils, views
 import os
@@ -42,5 +44,26 @@ class WorkflowMatchTests(TestCase):
         path = os.path.join("/tmp", "foo", "SL-SL-SR-101A")
         match = views.match_workflow_from_path(path, self.user)
         self.assertEqual(match, self.wf)
+
+
+class RunWorkflowNoMatchTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="runner", password="pass")
+        self.client.force_login(self.user)
+        self.wf = Workflow.objects.create(name="MyFlow", created_by=self.user)
+
+    def test_no_match_shows_message(self):
+        data = {
+            "workflow": self.wf.id,
+            "input_path": "/tmp/foo",
+            "use_input_path": "True",
+            "output_path": "/tmp/foo",
+            "project_code": "",
+            "initials": "",
+            "run_mode": "run_all",
+        }
+        response = self.client.post(reverse("run_workflow"), data)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("No workflow matched" in str(m) for m in messages))
 
 

@@ -1,4 +1,4 @@
-{% extends 'workflow_automation/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <h2 class="text-center mb-4">Run Workflow</h2>
@@ -16,6 +16,15 @@
                     <button type="submit" name="accept_suggested" value="1" class="btn btn-sm btn-success ml-2">✅ Yes</button>
                     <button type="submit" name="reject_suggested" value="1" class="btn btn-sm btn-danger ml-1">❌ No</button>
                 </form>
+            </div>
+        {% else %}
+            <div class="alert alert-warning text-center">
+                No workflow matched — please choose an option:
+                <div class="mt-2">
+                    <a href="{% url 'create_workflow' %}" class="btn btn-sm btn-primary mr-2">🔧 Create New Workflow</a>
+                    <a href="{% url 'shared_workflows' %}" class="btn btn-sm btn-primary mr-2">☁️ Search Shared Workflows</a>
+                    <a href="{% url 'run_workflow' %}" class="btn btn-sm btn-primary">⏪ Choose a Different Folder</a>
+                </div>
             </div>
         {% endif %}
     {% endif %}
