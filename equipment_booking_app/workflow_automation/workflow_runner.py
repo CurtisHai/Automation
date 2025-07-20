@@ -65,20 +65,30 @@ class WorkflowRunner:
         return "Step completed"
 
     def run_rename(self, config):
-        pattern = config.get("rename_pattern") or "{site}-{index}-{timestamp}{ext}"
+        pattern = config.get("rename_pattern", "")
         new_files = []
         for idx, f in enumerate(self.files, 1):
-            timestamp = file_utils.extract_timestamp(f)
-            ext = os.path.splitext(f)[1]
-            new_name = pattern.format(
-                site=self.site_code,
-                index=idx,
-                timestamp=timestamp,
-                ext=ext,
-            )
-            new_path = os.path.join(os.path.dirname(f), new_name)
-            os.rename(f, new_path)
-            self.logs.append(f"Renamed {os.path.basename(f)} -> {new_name}")
+            if pattern:
+                timestamp = file_utils.extract_timestamp(f)
+                ext = os.path.splitext(f)[1]
+                new_name = pattern.format(
+                    site=self.site_code,
+                    index=idx,
+                    timestamp=timestamp,
+                    ext=ext,
+                )
+                new_path = os.path.join(os.path.dirname(f), new_name)
+                os.rename(f, new_path)
+                if os.path.basename(f) != new_name:
+                    self.logs.append(
+                        f"Renamed {os.path.basename(f)} -> {new_name}"
+                    )
+            else:
+                new_path = file_utils.smart_rename(f, self.site_code)
+                if new_path != f:
+                    self.logs.append(
+                        f"Renamed {os.path.basename(f)} -> {os.path.basename(new_path)}"
+                    )
             new_files.append(new_path)
         self.files = new_files
         return "Rename completed"

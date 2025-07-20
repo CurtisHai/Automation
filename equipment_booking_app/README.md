@@ -13,6 +13,7 @@ Originally created for equipment bookings, this Django project now focuses on au
 -   **Messaging System**: Users can send messages to superadmins, and superadmins can respond via the inbox.
 -   **Notice Board**: Admins can post system-wide notices that users can view on the home page.
 -   **Past and Upcoming Bookings**: Users can view their past and upcoming bookings, while superusers can see all bookings.
+-   **Workflow Utilities**: Media files can be automatically classified as photos or videos, sorted into 360 vs standard folders and renamed using folder information and timestamps.
 
 ## Installation
 
