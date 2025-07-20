@@ -1,0 +1,97 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Your Account Details</h2>
+
+    <!-- Card for form layout with Bootstrap styling -->
+    <div class="card p-4 w-50 mx-auto mb-5" style="color: #192d38;">
+        <form method="post" action="{% url 'accounts' %}">
+            {% csrf_token %}
+
+            <!-- Display username as plaintext -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label>Username:</label>
+                </div>
+                <div class="col-8">
+                    <p class="form-control-plaintext">{{ user.username }}</p>
+                </div>
+            </div>
+
+            <!-- Email input field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_email">Email:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.email }}
+                </div>
+            </div>
+
+            <!-- Phone number input field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_phone_number">Phone Number:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.phone_number }}
+                </div>
+            </div>
+
+            <!-- Work address input field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_work_address">Work Address:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.work_address }}
+                </div>
+            </div>
+
+            <!-- Display fixed company name as plaintext -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label>Company:</label>
+                </div>
+                <div class="col-8">
+                    <p class="form-control-plaintext">{{ fixed_company }}</p>
+                </div>
+            </div>
+
+            <!-- Work division input field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_work_division">Work Division:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.work_division }}
+                </div>
+            </div>
+
+            <!-- Job role input field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_job_role">Job Role:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.job_role }}
+                </div>
+            </div>
+
+            <!-- Display user type as plaintext -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label>User Type:</label>
+                </div>
+                <div class="col-8">
+                    <p class="form-control-plaintext">{{ user_type }}</p>
+                </div>
+            </div>
+
+            <!-- Submit button to save changes -->
+            <button type="submit" class="btn btn-primary btn-block mt-4">Save Changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

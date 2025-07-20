@@ -1,0 +1,29 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<h2 class="text-center mb-4">Shared Workflows</h2>
+<div class="table-responsive">
+<table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
+<thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color:#192d38; text-align:center;">
+<tr><th>Name</th><th>Description</th><th>Author</th><th>Actions</th></tr>
+</thead>
+<tbody>
+{% for wf in workflows %}
+<tr class="text-center">
+<td>{{ wf.name }}</td>
+<td>{{ wf.description }}</td>
+<td>{% if wf.published_by %}{{ wf.published_by.username }}{% elif wf.created_by %}{{ wf.created_by.username }}{% else %}-{% endif %}</td>
+<td>
+<form method="post" action="{% url 'use_shared_workflow' wf.id %}">
+{% csrf_token %}
+<button type="submit" class="btn btn-sm btn-primary">Use This Workflow</button>
+</form>
+</td>
+</tr>
+{% empty %}
+<tr><td colspan="4" class="text-center">No shared workflows.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
