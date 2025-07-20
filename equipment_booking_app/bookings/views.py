@@ -32,17 +32,16 @@ LOCKOUT_DURATION = timedelta(hours=1)
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
-from django.core.mail import send_mail
 
 
 @login_required
 def home(request):
     # Display the most recent notice and handle notice creation for superusers
     notices = Notice.objects.last()
-    unread_messages = Message.objects.filter(recipient=request.user, read=False)
-
-    if request.user.is_superuser and unread_messages.exists():
-        messages.info(request, f'You have {unread_messages.count()} unread messages.')
+    if request.user.is_superuser:
+        pending = Message.objects.filter(recipient=request.user, workflow__isnull=False, workflow__is_published=False)
+        if pending.exists():
+            messages.info(request, f'You have {pending.count()} workflow submissions pending review.')
 
     if request.method == 'POST' and request.user.is_superuser:
         message = request.POST.get('message')
@@ -197,11 +196,10 @@ def login_view(request):
             login_attempt.save()
             messages.success(request, 'Successfully logged in!')
 
-            # Check for unread messages for superadmins
             if user.is_superuser:
-                unread_messages = Message.objects.filter(recipient=user, read=False)
-                if unread_messages.exists():
-                    messages.info(request, f'You have {unread_messages.count()} unread messages.')
+                pending = Message.objects.filter(recipient=user, workflow__isnull=False, workflow__is_published=False)
+                if pending.exists():
+                    messages.info(request, f'You have {pending.count()} workflow submissions pending review.')
 
             return redirect('home')
         else:
@@ -271,7 +269,7 @@ def contact(request):
         return redirect('accounts')
 
     if request.method == 'POST':
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, user=request.user)
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user
@@ -296,65 +294,33 @@ def contact(request):
         else:
             messages.error(request, 'Please correct the errors in the form.')
     else:
-        form = MessageForm()
+        form = MessageForm(user=request.user)
 
     return render(request, 'bookings/contact.html', {'form': form})
 
 
 
-@login_required
-def admin_messages(request):
-    if not request.user.is_superuser:
-        return HttpResponseForbidden("You are not allowed to access this page.")
-
-    messages = Message.objects.filter(recipient=request.user).order_by('-created_at')
-    return render(request, 'bookings/admin_messages.html', {'messages': messages})
 
 
-@login_required
-def user_messages(request):
-    messages = Message.objects.filter(recipient=request.user).order_by('-created_at')
-    return render(request, 'bookings/user_messages.html', {'messages': messages})
-
-
-@login_required
-def respond_to_message(request, message_id):
-    if request.user.is_superuser:
-        message = get_object_or_404(Message, id=message_id)
-
-        if request.method == 'POST':
-            response_content = request.POST.get('response')
-            message.response = response_content
-            message.read = True
-            message.save()
-            messages.success(request, 'Response saved successfully.')
-
-            send_mail(
-                subject='New response to your message',
-                message=f'You have received a new response: {message.response}',
-                from_email='no-reply@yourdomain.com',
-                recipient_list=[message.sender.email],
-            )
-            return redirect('inbox')
-
-        return render(request, 'bookings/respond_message.html', {'message': message})
-
-    return HttpResponseForbidden("You are not allowed to respond to messages.")
 
 
 @user_passes_test(lambda u: u.is_superuser)
 def inbox(request):
-    unsettled_messages = Message.objects.filter(read=False)
-    settled_messages = Message.objects.filter(read=True)
+    messages_qs = Message.objects.select_related('workflow', 'sender').order_by('-created_at')
 
     if request.method == "POST":
-        replied_message_ids = request.POST.getlist('replied_messages')
-        Message.objects.filter(id__in=replied_message_ids).update(read=True, responded_by=request.user)
-        return redirect('inbox')
+        wf_id = request.POST.get('publish_workflow')
+        if wf_id:
+            workflow = get_object_or_404(Workflow, id=wf_id)
+            workflow.is_published = True
+            workflow.published_by = request.user
+            workflow.published_at = timezone.now()
+            workflow.save()
+            messages.success(request, 'Workflow published successfully.')
+            return redirect('inbox')
 
     return render(request, 'bookings/inbox.html', {
-        'unsettled_messages': unsettled_messages,
-        'settled_messages': settled_messages
+        'messages_list': messages_qs,
     })
 
 
@@ -392,7 +358,7 @@ def security_notice(request):
 
 @login_required
 def workflow_dashboard(request):
-    workflows = Workflow.objects.all()
+    workflows = Workflow.objects.filter(is_published=True)
     return render(request, 'bookings/workflow_dashboard.html', {'workflows': workflows})
 
 

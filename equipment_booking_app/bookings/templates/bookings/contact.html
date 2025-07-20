@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Need Help?</h2>
+    <h2 class="text-center mb-4">Submit Question or Workflow</h2>
 
     <!-- Card for styling the content, similar to booking form design -->
     <div class="card p-4 w-75 mx-auto mb-5" style="color: #192d38;">
@@ -12,17 +12,7 @@
             
             <!-- Check if the user has a valid email associated with their account -->
             {% if user.email %}
-                <p>Our support team is here for you. Use the form below to contact us, and we&rsquo;ll reply via email.</p>
-
-                <p>We can assist with:</p>
-                <ul>
-                    <li><strong>Technical Issues</strong> &ndash; Report problems for prompt resolution.</li>
-                    <li><strong>General Questions</strong> &ndash; Ask about the booking system or policies.</li>
-                    <li><strong>Booking Deletion</strong> &ndash; Can&rsquo;t delete a booking? We&rsquo;ll help.</li>
-                    <li><strong>Special Requests</strong> &ndash; Submit equipment or accessibility needs.</li>
-                    <li><strong>Backdating Bookings</strong> &ndash; Forgot to log usage? Contact us to update.</li>
-                    <li><strong>Other Queries</strong> &ndash; Feedback or suggestions are always welcome.</li>
-                </ul>
+                <p>Use the form below to ask a question or submit one of your saved workflows for review.</p>
 
                 <!-- Display form errors if there are any -->
                 {% if form.errors %}
@@ -52,6 +42,13 @@
                         <label for="content" class="col-2 text-right">Message:</label>
                         <div class="col-8">
                             {{ form.content }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-3 justify-content-center">
+                        <label for="workflow" class="col-2 text-right">Attach Workflow:</label>
+                        <div class="col-8">
+                            {{ form.workflow }}
                         </div>
                     </div>
 

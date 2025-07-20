@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-import uuid
 
 # Model representing different equipment types available for booking
 class Equipment(models.Model):
@@ -69,10 +68,7 @@ class Message(models.Model):
     content = models.TextField()
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
-    confirmation_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    response = models.TextField(blank=True, null=True)
-    responded_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='responded_messages')
-    read = models.BooleanField(default=False)
+    workflow = models.ForeignKey('Workflow', null=True, blank=True, on_delete=models.SET_NULL, related_name='messages')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -116,6 +112,9 @@ class Workflow(models.Model):
     name = models.CharField(max_length=200)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="workflows")
     created_at = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=False)
+    published_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='published_workflows')
+    published_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name
