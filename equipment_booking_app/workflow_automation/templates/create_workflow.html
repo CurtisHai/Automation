@@ -12,18 +12,74 @@
         <label for="id_description">Description</label>
         {{ form.description }}
     </div>
-    <h4>Steps</h4>
-    {% for step in step_choices %}
-    <div class="form-row align-items-center mb-2">
-        <div class="col-auto">
-            <input type="checkbox" id="step{{ forloop.counter }}" name="include_step_{{ forloop.counter }}" value="1">
-            <label for="step{{ forloop.counter }}">{{ step.1 }}</label>
+    <h4>Tasks</h4>
+    <div class="mb-3">
+        <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="convert_settings" type="checkbox" id="convert_cb" name="include_convert_360_video">
+            <label class="form-check-label" for="convert_cb">Convert media</label>
         </div>
-        <div class="col-auto">
-            <input type="number" name="order_{{ forloop.counter }}" min="1" class="form-control" placeholder="Order">
+        <div id="convert_settings" class="ml-4 mt-2" style="display:none;">
+            <label for="id_convert_format">Convert To</label>
+            <select name="convert_format" id="id_convert_format" class="form-control">
+                <option value="">Skip this step</option>
+                <option value="mp4">MP4</option>
+                <option value="avi">AVI</option>
+            </select>
+            <input type="number" name="order_convert_360_video" min="1" class="form-control mt-2" placeholder="Order">
+        </div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input task-toggle" data-target="rename_settings" type="checkbox" id="rename_cb" name="include_rename">
+            <label class="form-check-label" for="rename_cb">Rename files</label>
+        </div>
+        <div id="rename_settings" class="ml-4 mt-2" style="display:none;">
+            <label for="id_rename_pattern">Rename Pattern</label>
+            <input type="text" name="rename_pattern" id="id_rename_pattern" class="form-control" placeholder="Leave unchanged" title="Enable smart renaming using file path and timestamp">
+            <input type="number" name="order_rename" min="1" class="form-control mt-2" placeholder="Order">
+        </div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input task-toggle" data-target="remove_audio_settings" type="checkbox" id="audio_cb" name="include_remove_audio">
+            <label class="form-check-label" for="audio_cb">Remove audio from 360 videos</label>
+        </div>
+        <div id="remove_audio_settings" class="ml-4 mt-2" style="display:none;">
+            <input type="number" name="order_remove_audio" min="1" class="form-control" placeholder="Order">
+        </div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input task-toggle" data-target="trim_settings" type="checkbox" id="trim_cb" name="include_trim">
+            <label class="form-check-label" for="trim_cb">Crop video start/end times</label>
+        </div>
+        <div id="trim_settings" class="ml-4 mt-2" style="display:none;">
+            <label for="id_start_seconds">Seconds from Start</label>
+            <input type="number" name="start_seconds" id="id_start_seconds" class="form-control" value="0" title="Select how many seconds to trim from start/end">
+            <label class="mt-2" for="id_end_seconds">Seconds from End</label>
+            <input type="number" name="end_seconds" id="id_end_seconds" class="form-control" value="0" title="Select how many seconds to trim from start/end">
+            <input type="number" name="order_trim" min="1" class="form-control mt-2" placeholder="Order">
+        </div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input task-toggle" data-target="organize_settings" type="checkbox" id="organize_cb" name="include_organize_files">
+            <label class="form-check-label" for="organize_cb">Place files in correct folder structure</label>
+        </div>
+        <div id="organize_settings" class="ml-4 mt-2" style="display:none;">
+            <label for="id_target_folder">Target Folder</label>
+            <input type="text" name="target_folder" id="id_target_folder" class="form-control" placeholder="Leave unchanged">
+            <input type="number" name="order_organize_files" min="1" class="form-control mt-2" placeholder="Order">
         </div>
     </div>
-    {% endfor %}
+
     <button type="submit" class="btn btn-primary mt-3">Save Workflow</button>
 </form>
+
+<script>
+    document.querySelectorAll('.task-toggle').forEach(function(cb){
+        cb.addEventListener('change', function(){
+            var target = document.getElementById(this.dataset.target);
+            if(target){
+                target.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+    });
+</script>
 {% endblock %}

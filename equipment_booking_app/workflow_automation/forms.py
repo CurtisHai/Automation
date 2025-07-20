@@ -155,9 +155,35 @@ class StepSettingsForm(forms.Form):
 
         self.step_type = step_type
         if step_type == "trim":
-            self.fields["trim_seconds"] = forms.IntegerField(label="Trim Seconds", required=False, initial=0)
+            self.fields["start_seconds"] = forms.IntegerField(
+                label="Seconds from Start",
+                required=False,
+                initial=0,
+                help_text="Select how many seconds to trim from start/end",
+            )
+            self.fields["end_seconds"] = forms.IntegerField(
+                label="Seconds from End",
+                required=False,
+                initial=0,
+                help_text="Select how many seconds to trim from start/end",
+            )
         elif step_type == "rename":
-            self.fields["rename_pattern"] = forms.CharField(label="Rename Pattern", required=False)
+            self.fields["rename_pattern"] = forms.CharField(
+                label="Rename Pattern",
+                required=False,
+                help_text="Enable smart renaming using file path and timestamp",
+            )
+        elif step_type == "convert_360_video":
+            self.fields["convert_format"] = forms.ChoiceField(
+                label="Convert To",
+                choices=[("", "Leave unchanged"), ("mp4", "MP4"), ("avi", "AVI")],
+                required=False,
+            )
+        elif step_type == "organize_files":
+            self.fields["target_folder"] = forms.CharField(
+                label="Target Folder",
+                required=False,
+            )
 
 
 StepSettingsFormSet = forms.formset_factory(StepSettingsForm, extra=0)

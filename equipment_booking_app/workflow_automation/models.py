@@ -124,17 +124,17 @@ class Workflow(models.Model):
 
 class WorkflowStep(models.Model):
     STEP_CHOICES = [
-        ("rename", "Rename"),
-        ("trim", "Trim"),
+        ("convert_360_video", "Convert Media"),
+        ("rename", "Rename Files"),
         ("remove_audio", "Remove Audio"),
-        ("convert_360_video", "Convert 360 Video"),
-        ("pause_manual", "Pause for Manual Edit"),
-        ("zip_files", "Zip Files"),
+        ("trim", "Crop Video"),
+        ("organize_files", "Place Files in Folders"),
     ]
 
     workflow = models.ForeignKey(Workflow, related_name="steps", on_delete=models.CASCADE)
     step_type = models.CharField(max_length=50, choices=STEP_CHOICES)
     order = models.PositiveIntegerField()
+    config = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["order"]
