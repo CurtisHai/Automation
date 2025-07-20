@@ -1,0 +1,106 @@
+{% extends 'automation/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Edit Booking</h2>
+
+    <!-- Box around the form (Bootstrap card) with a white background and text color adjusted -->
+    <div class="card p-4 w-50 mx-auto mb-5" style="color: #192d38;">
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- User Field (Handled by the form logic) -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_user">User:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.user }}  <!-- Hidden input for regular users, dropdown for superusers -->
+                </div>
+            </div>
+
+            <!-- Equipment Field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_equipment">Equipment:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.equipment }}
+                </div>
+            </div>
+
+            <!-- Start Time Field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_start_time">Start Time:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.start_time }}
+                </div>
+            </div>
+
+            <!-- End Time Field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_end_time">End Time:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.end_time }}
+                </div>
+            </div>
+
+            <!-- Reason Field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_reason">Reason:</label>
+                </div>
+                <div class="col-8">
+                    <textarea name="reason" id="id_reason" class="form-control" placeholder="Please type the reason here...">{{ form.reason.value|default_if_none:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Project Number Field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_project_number">Project Number:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.project_number }}
+                </div>
+            </div>
+
+            <!-- Use Location Field -->
+            <div class="row mb-3">
+                <div class="col-4 text-right">
+                    <label for="id_use_location">Use Location:</label>
+                </div>
+                <div class="col-8">
+                    {{ form.use_location }}
+                </div>
+            </div>
+
+            <!-- Display any form errors -->
+            {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul class="errorlist">
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <p>Please fix the above errors and try again.</p>
+            </div>
+            {% endif %}
+
+            <!-- Save Changes Button -->
+            <button type="submit" class="btn btn-primary btn-block mt-4">Save Changes</button>
+
+            <!-- Deletion notice for non-superusers -->
+            {% if not user.is_superuser %}
+            <p class="mt-3 text-center">To delete a booking, please contact a site admin through the <a href="{% url 'contact' %}">contact page</a>.</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
