@@ -27,7 +27,7 @@
                                 <form method="post" class="mt-2">
                                     {% csrf_token %}
                                     <input type="hidden" name="publish_workflow" value="{{ message.workflow.id }}">
-                                    <button type="submit" class="btn btn-sm btn-success">Publish</button>
+                                    <button type="submit" class="btn btn-sm btn-success">Approve &amp; Publish</button>
                                 </form>
                                 {% else %}
                                     <span class="badge badge-success">Published</span>

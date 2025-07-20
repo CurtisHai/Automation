@@ -9,7 +9,7 @@
     <ul class="list-group">
     {% for workflow in workflows %}
         <li class="list-group-item" style="color:#192d38;">
-            <strong>{{ workflow.name }}</strong>
+            <strong>{{ workflow.name }}</strong> - {{ workflow.description }}
             <ul class="mb-2">
                 {% for step in workflow.steps.all %}
                 <li>{{ step.order }}. {{ step.get_step_type_display }}</li>

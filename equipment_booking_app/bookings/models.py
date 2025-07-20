@@ -69,6 +69,7 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
     workflow = models.ForeignKey('Workflow', null=True, blank=True, on_delete=models.SET_NULL, related_name='messages')
+    is_review_request = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -110,6 +111,7 @@ class UnknownLoginAttempt(models.Model):
 class Workflow(models.Model):
     """A reusable collection of ordered processing steps."""
     name = models.CharField(max_length=200)
+    description = models.TextField(blank=True, default="")
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="workflows")
     created_at = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=False)
