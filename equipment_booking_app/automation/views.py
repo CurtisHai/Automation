@@ -44,9 +44,14 @@ def home(request):
     # Display the most recent notice and handle notice creation for superusers
     notices = Notice.objects.last()
     if request.user.is_superuser:
-        pending = Message.objects.filter(recipient=request.user, workflow__isnull=False, workflow__is_published=False)
+        pending = Message.objects.filter(
+            recipient=request.user,
+            is_review_request=True,
+            workflow__isnull=False,
+            workflow__is_published=False,
+        )
         if pending.exists():
-            messages.info(request, f'You have {pending.count()} workflow submissions pending review.')
+            messages.info(request, f'You have {pending.count()} workflow review requests pending.')
 
     if request.method == 'POST' and request.user.is_superuser:
         message = request.POST.get('message')
@@ -202,9 +207,14 @@ def login_view(request):
             messages.success(request, 'Successfully logged in!')
 
             if user.is_superuser:
-                pending = Message.objects.filter(recipient=user, workflow__isnull=False, workflow__is_published=False)
+                pending = Message.objects.filter(
+                    recipient=user,
+                    is_review_request=True,
+                    workflow__isnull=False,
+                    workflow__is_published=False,
+                )
                 if pending.exists():
-                    messages.info(request, f'You have {pending.count()} workflow submissions pending review.')
+                    messages.info(request, f'You have {pending.count()} workflow review requests pending.')
 
             return redirect('home')
         else:
@@ -311,7 +321,7 @@ def contact(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def inbox(request):
-    messages_qs = Message.objects.select_related('workflow', 'sender').order_by('-created_at')
+    messages_qs = Message.objects.filter(is_review_request=True).select_related('workflow', 'sender').order_by('-created_at')
 
     if request.method == "POST":
         wf_id = request.POST.get('publish_workflow')
