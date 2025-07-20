@@ -1,7 +1,7 @@
 ﻿
-# Equipment Booking App
+# Automation App
 
-This is a Django-based application for booking equipment. It provides functionality for users to view, create, edit, and delete bookings based on their permissions. The app also includes a user messaging system and an admin-managed notice board.
+Originally created for equipment bookings, this Django project now focuses on automating Reality Capture workflows. Equipment reservations remain available as a secondary feature.
 
 ## Features
 

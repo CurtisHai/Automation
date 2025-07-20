@@ -16,7 +16,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bookings',  
+    'automation.apps.AutomationConfig',
 ]
 
 MIDDLEWARE = [
@@ -34,7 +34,7 @@ ROOT_URLCONF = 'equipment_booking_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'bookings/templates'],  
+        'DIRS': [BASE_DIR / 'automation/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,7 +84,7 @@ STATIC_URL = '/static/'
 
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'bookings/static'),
+    os.path.join(BASE_DIR, 'automation/static'),
 ]
 
 # Default primary key field type

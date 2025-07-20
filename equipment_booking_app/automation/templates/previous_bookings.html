@@ -1,0 +1,37 @@
+{% extends 'automation/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Your Previous Bookings</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
+            <thead style="background-color: #BE02F8; color: #ffffff; font-size: 1.25rem; text-align: center;">
+                <!-- Table headers for user, item, start time, and end time -->
+                <tr class="text-center">
+                    <th>User</th>
+                    <th>Item</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through the previous bookings -->
+                {% for booking in previous_bookings %}
+                <tr class="text-center">
+                    <td>{{ booking.user.username }}</td> 
+                    <td>{{ booking.equipment.name }}</td> 
+                    <td>{{ booking.start_time|date:"d M Y H:i" }}</td> 
+                    <td>{{ booking.end_time|date:"d M Y H:i" }}</td> 
+                </tr>
+                <!-- Display message when no previous bookings are available -->
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No previous bookings available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
