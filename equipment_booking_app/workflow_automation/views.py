@@ -584,7 +584,7 @@ def run_workflow(request):
 
     return render(
         request,
-        "run_workflow.html",
+        "workflow_automation/run_workflow.html",
         {
             "form": form,
             "step_forms": StepFormSet,
