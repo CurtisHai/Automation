@@ -41,26 +41,33 @@ from django.contrib.auth import authenticate, login, logout
 
 @login_required
 def home(request):
-    # Display the most recent notice and handle notice creation for superusers
-    notices = Notice.objects.last()
+    """Render the dashboard-style home page."""
+    notice = Notice.objects.last()
+    pending_count = 0
+
     if request.user.is_superuser:
-        pending = Message.objects.filter(
+        pending_qs = Message.objects.filter(
             recipient=request.user,
             is_review_request=True,
             workflow__isnull=False,
             workflow__is_published=False,
         )
-        if pending.exists():
-            messages.info(request, f'You have {pending.count()} workflow review requests pending.')
+        pending_count = pending_qs.count()
+        if pending_count:
+            messages.info(request, f"You have {pending_count} workflow review requests pending.")
 
-    if request.method == 'POST' and request.user.is_superuser:
-        message = request.POST.get('message')
+    if request.method == "POST" and request.user.is_superuser:
+        message = request.POST.get("message")
         if message:
             Notice.objects.create(message=message, created_by=request.user)
-            messages.success(request, 'Notice created successfully!')
-            return redirect('home')
+            messages.success(request, "Notice created successfully!")
+            return redirect("home")
 
-    return render(request, 'automation/home.html', {'notices': notices})
+    context = {
+        "notice": notice,
+        "pending_count": pending_count,
+    }
+    return render(request, "automation/home.html", context)
 
 
 def signup(request):

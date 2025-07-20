@@ -2,84 +2,79 @@
 {% load static %}
 
 {% block content %}
-<!-- Main Title -->
-<h1 class="text-center mt-4" style="color: #BEDAE5;">AtkinsRéalis Booking App</h1>
+<h1 class="text-center mt-4" style="color: #BEDAE5;">Automation Dashboard</h1>
 
-<!-- Home Page -->
-<section class="d-flex justify-content-center align-items-center flex-column text-center mt-3" style="padding-bottom: 80px;"> <!-- Added padding-bottom -->
-   
+<section class="mt-4">
     {% if user.is_authenticated %}
-        <h2>Welcome, {{ user.username }}!</h2>
+        <h4 class="text-center mb-4">Welcome, {{ user.username }}!</h4>
 
-        <!-- Button-style for Logout, View Bookings, and View Account -->
-        <div class="mb-4">
-            <!-- Replace Logout with Create Booking -->
-            <form action="{% url 'create_booking' %}" method="get" class="d-inline-block">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Create Booking</button>
-            </form>
-        
-            <form action="{% url 'my_bookings' %}" method="get" class="d-inline-block ml-2">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">View Bookings</button>
-            </form>
-        
-            <form action="{% url 'accounts' %}" method="get" class="d-inline-block ml-2">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">View Account</button>
-            </form>
-        </div>
-        
-        <!-- Notice Board for Regular Users -->
-        {% if notices %}
-        <div class="card w-75 mb-2 mx-auto"> <!-- Changed from w-50 to w-75 and centered -->
-            <div class="card-body" style="color: #192d38;">
-                <h2 class="card-title">Notice Board</h2>
-                <p>{{ notices.message }}</p>
-
-                <!-- Button to remove the notice for superusers -->
+        <div class="container">
+            <!-- Priority automation actions -->
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'create_workflow' %}" class="btn btn-primary btn-lg w-100">Create Workflow</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'run_workflow' %}" class="btn btn-primary btn-lg w-100">Run Workflow</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'my_workflows' %}" class="btn btn-primary btn-lg w-100">My Workflows</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'shared_workflows' %}" class="btn btn-primary btn-lg w-100">Shared Workflows</a>
+                </div>
                 {% if user.is_superuser %}
-                    <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirmRemoveNotice();">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'inbox' %}" class="btn btn-primary btn-lg w-100">Review Requests{% if pending_count %} ({{ pending_count }}){% endif %}</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Secondary actions -->
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'create_booking' %}" class="btn btn-secondary btn-lg w-100">Book Equipment</a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a href="{% url 'contact' %}" class="btn btn-secondary btn-lg w-100">Contact / Help</a>
+                </div>
+            </div>
+        </div>
+
+        {% if notice %}
+        <div class="card w-75 mb-3 mx-auto" style="color:#192d38;">
+            <div class="card-body">
+                <h5 class="card-title">Notice Board</h5>
+                <p class="card-text">{{ notice.message }}</p>
+                {% if user.is_superuser %}
+                    <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger mt-3">Remove Notice</button>
+                        <button type="submit" class="btn btn-danger">Remove Notice</button>
                     </form>
                 {% endif %}
             </div>
         </div>
         {% endif %}
 
-        <!-- Form for Superusers to Create Notices -->
         {% if user.is_superuser %}
-        <div class="card w-75 mx-auto"> <!-- Also widened and centered -->
-            <div class="card-body" style="color: #192d38;">
-                <h2 class="card-title">Create a Notice</h2>
+        <div class="card w-75 mx-auto" style="color:#192d38;">
+            <div class="card-body">
+                <h5 class="card-title">Create a Notice</h5>
                 <form method="post">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="message">Notice Message:</label>
                         <textarea name="message" id="message" rows="4" class="form-control" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">Create Notice</button>
+                    <button type="submit" class="btn btn-primary mt-2">Create Notice</button>
                 </form>
             </div>
         </div>
         {% endif %}
-        
     {% else %}
-        <p>Welcome to the AtkinsRéalis Equipment Booking App!</p>
-        <p>Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to manage bookings and view your account.</p>
+        <p class="text-center">Welcome to the AtkinsRéalis Equipment Booking App!</p>
+        <p class="text-center">Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.</p>
     {% endif %}
 </section>
-
-<!-- JavaScript for logout and remove notice confirmation -->
-<script>
-    function confirmLogout() {
-        return confirm("Are you sure you want to log out?");
-    }
-
-    function confirmRemoveNotice() {
-        return confirm("Are you sure you want to delete the notice?");
-    }
-</script>
 
 {% endblock %}
