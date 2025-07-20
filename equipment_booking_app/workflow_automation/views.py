@@ -386,7 +386,15 @@ def workflow_dashboard(request):
 
 @login_required
 def create_workflow(request):
-    if request.method == 'POST':
+    step_codes = [
+        "convert_360_video",
+        "rename",
+        "remove_audio",
+        "trim",
+        "organize_files",
+    ]
+
+    if request.method == "POST":
         wf_form = WorkflowForm(request.POST)
         if wf_form.is_valid():
             workflow = wf_form.save(commit=False)
@@ -397,26 +405,37 @@ def create_workflow(request):
                 workflow.published_at = timezone.now()
             workflow.save()
 
-            for idx, step in enumerate(WorkflowStep.STEP_CHOICES, start=1):
-                if request.POST.get(f'include_step_{idx}'):
-                    order = request.POST.get(f'order_{idx}')
-                    if order:
-                        WorkflowStep.objects.create(
-                            workflow=workflow,
-                            step_type=step[0],
-                            order=int(order),
-                        )
+            for code in step_codes:
+                if request.POST.get(f"include_{code}"):
+                    order = request.POST.get(f"order_{code}") or 0
+                    config = {}
+                    if code == "trim":
+                        config["start_seconds"] = request.POST.get("start_seconds") or 0
+                        config["end_seconds"] = request.POST.get("end_seconds") or 0
+                    elif code == "rename":
+                        config["rename_pattern"] = request.POST.get("rename_pattern", "")
+                    elif code == "convert_360_video":
+                        config["convert_format"] = request.POST.get("convert_format", "")
+                    elif code == "organize_files":
+                        config["target_folder"] = request.POST.get("target_folder", "")
 
-            messages.success(request, 'Workflow created successfully.')
-            return redirect('workflow_dashboard')
+                    WorkflowStep.objects.create(
+                        workflow=workflow,
+                        step_type=code,
+                        order=int(order),
+                        config=config,
+                    )
+
+            messages.success(request, "Workflow created successfully.")
+            return redirect("my_workflows")
     else:
         wf_form = WorkflowForm()
 
     context = {
-        'form': wf_form,
-        'step_choices': WorkflowStep.STEP_CHOICES,
+        "form": wf_form,
+        "step_choices": WorkflowStep.STEP_CHOICES,
     }
-    return render(request, 'workflow_automation/create_workflow.html', context)
+    return render(request, "workflow_automation/create_workflow.html", context)
 
 
 @login_required

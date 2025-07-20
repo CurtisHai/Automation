@@ -58,15 +58,19 @@ class WorkflowRunner:
         return "Simulating Rename...done"
 
     def simulate_trim(self, config):
-        seconds = config.get("trim_seconds")
-        if seconds:
-            return f"Simulating Trim ({seconds}s)...done"
+        start = config.get("start_seconds")
+        end = config.get("end_seconds")
+        if start or end:
+            return f"Simulating Trim ({start}s start, {end}s end)...done"
         return "Simulating Trim...done"
 
     def simulate_remove_audio(self, config):
         return "Simulating Remove Audio...done"
 
     def simulate_convert_360_video(self, config):
+        fmt = config.get("convert_format")
+        if fmt:
+            return f"Simulating Convert to {fmt}...done"
         return "Simulating Convert 360 Video...done"
 
     def simulate_pause_manual(self, config):
@@ -74,3 +78,6 @@ class WorkflowRunner:
 
     def simulate_zip_files(self, config):
         return "Simulating Zip Files...done"
+
+    def simulate_organize_files(self, config):
+        return "Simulating Place Files...done"
