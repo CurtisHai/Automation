@@ -1,0 +1,24 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card p-4 w-100" style="color: #192d38;">
+        <h1 class="text-center mb-4">Sign Up</h1>
+        
+        <!-- Signup form with CSRF token for security -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}  <!-- Render the form fields using Django's form rendering -->
+            </div>
+            >
+            <button type="submit" class="btn btn-primary btn-block mt-3">Sign Up</button>
+        </form>
+
+        <!-- Link to login page for users who already have an account -->
+        <div class="text-center mt-3">
+            <p>Already have an account? <a href="{% url 'login' %}" style="color: #192d38;">Login</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
