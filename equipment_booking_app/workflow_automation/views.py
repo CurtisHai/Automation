@@ -6,6 +6,8 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
 from django import forms
 from datetime import timedelta
+from django.db.models import Q
+import os
 
 from .models import (
     Booking,
@@ -488,6 +490,20 @@ def use_shared_workflow(request, workflow_id):
     return redirect('my_workflows')
 
 
+def suggest_workflow_for_folder(path, user):
+    """Return a workflow whose name or tags match the folder path."""
+    segments = [s for s in os.path.normpath(path).split(os.sep) if s][-3:]
+    query_base = Workflow.objects.filter(created_by=user)
+    for seg in reversed(segments):
+        q = Q(name__icontains=seg)
+        if hasattr(Workflow, "tags"):
+            q = q | Q(tags__name__icontains=seg)
+        match = query_base.filter(q).first()
+        if match:
+            return match
+    return None
+
+
 @login_required
 def run_workflow(request):
     """Collect folder paths for a workflow run and display confirmation."""
@@ -497,21 +513,51 @@ def run_workflow(request):
 
     confirm = False
     input_folder = output_folder = ""
+    suggested_workflow = None
 
     if request.method == "POST":
-        form = RunWorkflowForm(request.POST, user=request.user)
-        if form.is_valid():
-            workflow = form.cleaned_data["workflow"]
-            input_folder = form.cleaned_data["input_path"]
-            output_folder = form.cleaned_data["output_path"]
-
-            request.session["input_folder"] = input_folder
-            request.session["output_folder"] = output_folder
+        if "accept_suggested" in request.POST:
+            wf_id = request.session.get("suggested_wf_id")
+            if wf_id:
+                workflow = get_object_or_404(Workflow, id=wf_id, created_by=request.user)
+                request.session["selected_workflow_id"] = wf_id
+            input_folder = request.session.get("input_folder", "")
+            output_folder = request.session.get("output_folder", "")
             confirm = True
-        StepFormSet = StepSettingsFormSet(request.POST)
+            form = RunWorkflowForm(
+                initial={"workflow": workflow, "input_path": input_folder, "output_path": output_folder},
+                user=request.user,
+            )
+            StepFormSet = StepSettingsFormSet()
+        elif "reject_suggested" in request.POST:
+            request.session.pop("suggested_wf_id", None)
+            input_folder = request.session.get("input_folder", "")
+            output_folder = request.session.get("output_folder", "")
+            confirm = True
+            form = RunWorkflowForm(user=request.user)
+            StepFormSet = StepSettingsFormSet()
+        else:
+            form = RunWorkflowForm(request.POST, user=request.user)
+            if form.is_valid():
+                workflow = form.cleaned_data["workflow"]
+                input_folder = form.cleaned_data["input_path"]
+                output_folder = form.cleaned_data["output_path"]
+
+                request.session["input_folder"] = input_folder
+                request.session["output_folder"] = output_folder
+                confirm = True
+                suggested_workflow = suggest_workflow_for_folder(output_folder, request.user)
+                if suggested_workflow:
+                    request.session["suggested_wf_id"] = suggested_workflow.id
+            StepFormSet = StepSettingsFormSet(request.POST)
     else:
         form = RunWorkflowForm(user=request.user)
         StepFormSet = StepSettingsFormSet()
+        if request.session.get("suggested_wf_id"):
+            try:
+                suggested_workflow = Workflow.objects.get(id=request.session["suggested_wf_id"], created_by=request.user)
+            except Workflow.DoesNotExist:
+                suggested_workflow = None
 
     step_pairs = list(zip(workflow.steps.all(), StepFormSet)) if workflow else []
 
@@ -526,6 +572,7 @@ def run_workflow(request):
             "confirm": confirm,
             "input_folder": input_folder,
             "output_folder": output_folder,
+            "suggested_workflow": suggested_workflow,
         },
     )
 
