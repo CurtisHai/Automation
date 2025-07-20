@@ -490,9 +490,9 @@ def use_shared_workflow(request, workflow_id):
     return redirect('my_workflows')
 
 
-def suggest_workflow_for_folder(path, user):
-    """Return a workflow whose name or tags match the folder path."""
-    segments = [s for s in os.path.normpath(path).split(os.sep) if s][-3:]
+def match_workflow_from_path(path, user, depth=3):
+    """Return a workflow whose name or tags match segments of the path."""
+    segments = [s for s in os.path.normpath(path).split(os.sep) if s][-depth:]
     query_base = Workflow.objects.filter(created_by=user)
     for seg in reversed(segments):
         q = Q(name__icontains=seg)
@@ -546,7 +546,7 @@ def run_workflow(request):
                 request.session["input_folder"] = input_folder
                 request.session["output_folder"] = output_folder
                 confirm = True
-                suggested_workflow = suggest_workflow_for_folder(output_folder, request.user)
+                suggested_workflow = match_workflow_from_path(output_folder, request.user)
                 if suggested_workflow:
                     request.session["suggested_wf_id"] = suggested_workflow.id
             StepFormSet = StepSettingsFormSet(request.POST)
