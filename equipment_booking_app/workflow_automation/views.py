@@ -490,51 +490,43 @@ def use_shared_workflow(request, workflow_id):
 
 @login_required
 def run_workflow(request):
+    """Collect folder paths for a workflow run and display confirmation."""
+
     user_wfs = Workflow.objects.filter(created_by=request.user)
     workflow = user_wfs.first() if user_wfs else None
 
+    confirm = False
+    input_folder = output_folder = ""
+
     if request.method == "POST":
         form = RunWorkflowForm(request.POST, user=request.user)
-        workflow = None
         if form.is_valid():
             workflow = form.cleaned_data["workflow"]
-            StepFormSet = StepSettingsFormSet(
-                request.POST,
-                initial=[{"step_type": s.step_type} for s in workflow.steps.all()],
-            )
-            if StepFormSet.is_valid():
-                run_obj = WorkflowRun.objects.create(
-                    workflow=workflow,
-                    user=request.user,
-                    input_path=form.cleaned_data["input_path"],
-                    output_path=form.cleaned_data["output_path"],
-                    project_code=form.cleaned_data.get("project_code", ""),
-                    initials=form.cleaned_data.get("initials", ""),
-                )
+            input_folder = form.cleaned_data["input_path"]
+            output_folder = form.cleaned_data["output_path"]
 
-                request.session[f"run_{run_obj.id}_configs"] = StepFormSet.cleaned_data
-                request.session[f"run_{run_obj.id}_mode"] = form.cleaned_data["run_mode"]
-                request.session[f"run_{run_obj.id}_index"] = 0
-                request.session.modified = True
-
-                return redirect("workflow_progress", run_id=run_obj.id)
-        else:
-            StepFormSet = StepSettingsFormSet(request.POST)
+            request.session["input_folder"] = input_folder
+            request.session["output_folder"] = output_folder
+            confirm = True
+        StepFormSet = StepSettingsFormSet(request.POST)
     else:
         form = RunWorkflowForm(user=request.user)
-        if workflow:
-            StepFormSet = StepSettingsFormSet(
-                initial=[{"step_type": s.step_type} for s in workflow.steps.all()]
-            )
-        else:
-            StepFormSet = StepSettingsFormSet()
+        StepFormSet = StepSettingsFormSet()
 
     step_pairs = list(zip(workflow.steps.all(), StepFormSet)) if workflow else []
 
     return render(
         request,
         "workflow_automation/run_workflow.html",
-        {"form": form, "step_forms": StepFormSet, "workflow": workflow, "step_pairs": step_pairs},
+        {
+            "form": form,
+            "step_forms": StepFormSet,
+            "workflow": workflow,
+            "step_pairs": step_pairs,
+            "confirm": confirm,
+            "input_folder": input_folder,
+            "output_folder": output_folder,
+        },
     )
 
 

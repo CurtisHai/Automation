@@ -127,8 +127,12 @@ class RunWorkflowForm(forms.Form):
 
     workflow = forms.ModelChoiceField(queryset=Workflow.objects.none())
     input_path = forms.CharField(label="Input Folder", max_length=255)
-    use_input_path = forms.BooleanField(
-        label="Save to input folder", required=False, initial=True
+    use_input_path = forms.TypedChoiceField(
+        label="Is your output the same as your input folder?",
+        choices=((True, "Yes"), (False, "No")),
+        coerce=lambda x: x == "True",
+        widget=forms.RadioSelect,
+        initial=True,
     )
     output_path = forms.CharField(label="Output Folder", max_length=255, required=False)
     project_code = forms.CharField(label="Project Code", max_length=100, required=False)

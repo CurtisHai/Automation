@@ -3,22 +3,50 @@
 {% block content %}
 <h2 class="text-center mb-4">Run Workflow</h2>
 <div class="card p-4 w-75 mx-auto mb-4" style="color:#192d38;">
-    <form method="post">
+    {% if confirm %}
+        <div class="alert alert-success">
+            <strong>Input Folder:</strong> {{ input_folder }}<br>
+            <strong>Output Folder:</strong> {{ output_folder }}
+        </div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_workflow">Workflow</label>
             {{ form.workflow }}
         </div>
         <div class="form-group">
-            <label for="id_input_path">Input Folder</label>
+            {{ form.use_input_path.label_tag }}<br>
+            {{ form.use_input_path }}
+        </div>
+
+        <!-- Hidden fields to store folder paths -->
+        <div style="display:none;">
             {{ form.input_path }}
-        </div>
-        <div class="form-group">
-            {{ form.use_input_path }} <label for="id_use_input_path">Save to this folder</label>
-        </div>
-        <div class="form-group">
-            <label for="id_output_path">Output Folder</label>
             {{ form.output_path }}
+        </div>
+
+        <!-- Folder pickers -->
+        <div id="single-folder" class="form-group">
+            <label>Select Folder</label><br>
+            <input type="file" id="input_folder_picker" webkitdirectory directory multiple name="" style="display:none;">
+            <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
+            <span id="input_folder_label" class="ml-2"></span>
+        </div>
+
+        <div id="two-folders" style="display:none;">
+            <div class="form-group">
+                <label>Select Input Folder</label><br>
+                <input type="file" id="input_folder_picker2" webkitdirectory directory multiple name="" style="display:none;">
+                <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
+                <span id="input_folder_label2" class="ml-2"></span>
+            </div>
+            <div class="form-group">
+                <label>Select Output Folder</label><br>
+                <input type="file" id="output_folder_picker" webkitdirectory directory multiple name="" style="display:none;">
+                <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
+                <span id="output_folder_label" class="ml-2"></span>
+            </div>
         </div>
         <div class="form-group">
             <label for="id_project_code">Project Code</label>
@@ -45,4 +73,62 @@
         <button type="submit" class="btn btn-primary mt-3">Run Workflow</button>
     </form>
 </div>
+<script>
+function updatePickers() {
+    const same = document.querySelector('input[name="use_input_path"]:checked').value;
+    const single = document.getElementById('single-folder');
+    const two = document.getElementById('two-folders');
+    if (same === 'True') {
+        single.style.display = 'block';
+        two.style.display = 'none';
+    } else {
+        single.style.display = 'none';
+        two.style.display = 'block';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    updatePickers();
+    document.querySelectorAll('input[name="use_input_path"]').forEach(function(el){
+        el.addEventListener('change', updatePickers);
+    });
+
+    const inputPicker = document.getElementById('input_folder_picker');
+    document.getElementById('input_folder_btn').addEventListener('click', function(){
+        inputPicker.click();
+    });
+    inputPicker.addEventListener('change', function(){
+        if (this.files.length) {
+            const path = this.files[0].webkitRelativePath.split('/')[0];
+            document.getElementById('id_input_path').value = path;
+            document.getElementById('id_output_path').value = path;
+            document.getElementById('input_folder_label').textContent = path;
+        }
+    });
+
+    const inputPicker2 = document.getElementById('input_folder_picker2');
+    document.getElementById('input_folder_btn2').addEventListener('click', function(){
+        inputPicker2.click();
+    });
+    inputPicker2.addEventListener('change', function(){
+        if (this.files.length) {
+            const path = this.files[0].webkitRelativePath.split('/')[0];
+            document.getElementById('id_input_path').value = path;
+            document.getElementById('input_folder_label2').textContent = path;
+        }
+    });
+
+    const outputPicker = document.getElementById('output_folder_picker');
+    document.getElementById('output_folder_btn').addEventListener('click', function(){
+        outputPicker.click();
+    });
+    outputPicker.addEventListener('change', function(){
+        if (this.files.length) {
+            const path = this.files[0].webkitRelativePath.split('/')[0];
+            document.getElementById('id_output_path').value = path;
+            document.getElementById('output_folder_label').textContent = path;
+        }
+    });
+});
+</script>
 {% endblock %}
