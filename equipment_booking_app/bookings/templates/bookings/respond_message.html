@@ -1,0 +1,18 @@
+{% extends 'bookings/base.html' %}
+
+{% block content %}
+<h2>Respond to Message</h2>
+
+<p>Subject: {{ message.subject }}</p>
+<p>Confirmation Number: {{ message.confirmation_number }}</p>
+<p>Message: {{ message.content }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <p><label for="response">Response:</label> {{ form.response }}</p>
+    <p><label for="read">Mark as responded (read):</label> {{ form.read }}</p>
+    <button type="submit">Send Response</button>
+</form>
+
+<a href="{% url 'inbox' %}">Back to Inbox</a>
+{% endblock %}
