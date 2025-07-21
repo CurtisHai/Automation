@@ -541,8 +541,76 @@ def run_workflow(request):
     proposed_name = request.session.get("proposed_name")
     manual_override = False
 
+    # Hold final logs if we end up running the workflow
+    run = None
+    final_logs = []
+
     if request.method == "POST":
-        if "accept_filename" in request.POST:
+        # Final run is triggered when the hidden step fields are included in the
+        # POST body (form-0-step_type etc.) which only happens after the user
+        # confirms the folder selection.  In that case we validate all forms and
+        # execute the workflow steps immediately.
+        is_run_request = "form-0-step_type" in request.POST
+
+        if is_run_request:
+            form = RunWorkflowForm(request.POST, user=request.user)
+            if form.is_valid():
+                workflow = form.cleaned_data["workflow"]
+                input_folder = form.cleaned_data["input_path"]
+                output_folder = form.cleaned_data["output_path"]
+
+                # Build per-step config forms
+                step_forms = []
+                for idx, step in enumerate(workflow.steps.all()):
+                    step_form = StepSettingsForm(
+                        request.POST,
+                        prefix=f"form-{idx}",
+                        step_type=step.step_type,
+                    )
+                    if step_form.is_valid():
+                        step_forms.append(step_form)
+                    else:
+                        break
+
+                if len(step_forms) == workflow.steps.count():
+                    # Create DB record for the run
+                    run = WorkflowRun.objects.create(
+                        workflow=workflow,
+                        user=request.user,
+                        input_path=input_folder,
+                        output_path=output_folder,
+                        project_code=form.cleaned_data.get("project_code", ""),
+                        initials=form.cleaned_data.get("initials", ""),
+                    )
+
+                    runner = WorkflowRunner(
+                        workflow,
+                        input_folder,
+                        output_folder,
+                        project_code=run.project_code,
+                        initials=run.initials,
+                        step_configs=[sf.cleaned_data for sf in step_forms],
+                    )
+
+                    # Execute steps sequentially and persist logs after each
+                    for _ in workflow.steps.all():
+                        runner.run_next()
+                        run.log = "\n".join(runner.logs)
+                        run.save()
+
+                    run.completed_at = timezone.now()
+                    run.save()
+                    final_logs = runner.logs
+                    return render(
+                        request,
+                        "workflow_automation/workflow_progress.html",
+                        {"run": run, "logs": final_logs, "done": True, "run_mode": "run_all"},
+                    )
+
+            # If validation fails fall through to redisplay the form
+            StepFormSet = StepSettingsFormSet()
+
+        elif "accept_filename" in request.POST:
             input_folder = request.session.get("input_folder", "")
             output_folder = request.session.get("output_folder", "")
             confirm = True
@@ -615,7 +683,7 @@ def run_workflow(request):
                 proposed_name = file_utils.generate_next_filename(output_folder, ext)
                 if proposed_name:
                     request.session["proposed_name"] = proposed_name
-            StepFormSet = StepSettingsFormSet(request.POST)
+            StepFormSet = StepSettingsFormSet()
     else:
         form = RunWorkflowForm(user=request.user)
         StepFormSet = StepSettingsFormSet()
