@@ -199,6 +199,17 @@ class StepSettingsForm(forms.Form):
                 label="Target Folder",
                 required=False,
             )
+        elif step_type == "setup_structure":
+            self.fields["raw_data_folder"] = forms.CharField(
+                label="Raw Data Folder",
+                required=True,
+                widget=forms.HiddenInput(),
+            )
+            self.fields["full_structure"] = forms.BooleanField(
+                label="Generate Full Structure",
+                required=False,
+                initial=False,
+            )
 
 
 StepSettingsFormSet = forms.formset_factory(StepSettingsForm, extra=0)

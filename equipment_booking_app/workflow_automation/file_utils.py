@@ -192,3 +192,37 @@ def generate_next_filename(folder_path: str, extension: str = "") -> str | None:
         candidate = f"{prefix}-{next_idx:04d}{extension}"
 
     return candidate
+
+
+def copy_template_structure(template_root: str, dest_root: str, *,
+                            subfolders: list[str] | None = None,
+                            initials: str = "") -> str:
+    """Copy a folder hierarchy from ``template_root`` into ``dest_root``.
+
+    Directory names containing ``YYMMDD`` are replaced with today's date in
+    ``DDMMYY`` format. ``CH`` tokens are replaced with ``initials``. Only the
+    specified ``subfolders`` are copied when provided.
+    """
+    date_token = datetime.now().strftime("%d%m%y")
+
+    if subfolders is None:
+        subfolders = [d for d in os.listdir(template_root)
+                      if os.path.isdir(os.path.join(template_root, d))]
+
+    for sub in subfolders:
+        src_base = os.path.join(template_root, sub)
+        if not os.path.isdir(src_base):
+            continue
+
+        for dirpath, dirnames, filenames in os.walk(src_base):
+            rel = os.path.relpath(dirpath, src_base)
+            replaced = rel.replace("YYMMDD", date_token).replace("CH", initials)
+            target_dir = os.path.join(dest_root, sub, replaced)
+            os.makedirs(target_dir, exist_ok=True)
+
+            for fname in filenames:
+                dest_name = fname.replace("YYMMDD", date_token).replace("CH", initials)
+                shutil.copy2(os.path.join(dirpath, fname),
+                             os.path.join(target_dir, dest_name))
+
+    return dest_root

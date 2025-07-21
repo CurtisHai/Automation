@@ -395,6 +395,7 @@ def workflow_dashboard(request):
 @login_required
 def create_workflow(request):
     step_codes = [
+        "setup_structure",
         "convert_360_video",
         "rename",
         "remove_audio",

@@ -124,6 +124,7 @@ class Workflow(models.Model):
 
 class WorkflowStep(models.Model):
     STEP_CHOICES = [
+        ("setup_structure", "Setup Folder Structure"),
         ("convert_360_video", "Convert Media"),
         ("rename", "Rename Files"),
         ("remove_audio", "Remove Audio"),
