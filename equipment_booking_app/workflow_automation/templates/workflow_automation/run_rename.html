@@ -1,0 +1,20 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<h2 class="text-center mb-4">Run Rename Tool</h2>
+<div class="card p-4 w-75 mx-auto mb-4" style="color:#192d38;">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Run Rename</button>
+    </form>
+    {% if files %}
+    <h4 class="mt-4">Renamed Files</h4>
+    <ul>
+        {% for f in files %}
+        <li>{{ f }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

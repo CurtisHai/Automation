@@ -4,6 +4,9 @@
 <h2 class="text-center mb-4">Automation Workflows</h2>
 <a href="{% url 'create_workflow' %}" class="btn btn-primary mb-3">Create New Workflow</a>
 <a href="{% url 'run_workflow' %}" class="btn btn-secondary mb-3">Run Workflow</a>
+<a href="{% url 'run_rename' %}" class="btn btn-secondary mb-3">Run Rename Tool</a>
+<a href="{% url 'run_convert' %}" class="btn btn-secondary mb-3">Run Convert Tool</a>
+<a href="{% url 'run_zip' %}" class="btn btn-secondary mb-3">Run Zip Tool</a>
 
 {% if workflows %}
     <ul class="list-group">
