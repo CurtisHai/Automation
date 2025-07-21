@@ -5,7 +5,37 @@
 <div class="card p-4 w-75 mx-auto mb-4" style="color:#192d38;">
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div style="display:none;">
+            {{ form.raw_data_folder }}
+            {{ form.output_folder }}
+        </div>
+
+        <div class="form-group">
+            <label>Select RAW Data Folder</label><br>
+            <input type="file" id="raw_folder_picker" webkitdirectory directory multiple style="display:none;">
+            <button type="button" class="btn btn-secondary" id="raw_folder_btn">Browse</button>
+            <span id="raw_folder_label" class="ml-2">{{ raw_folder }}</span>
+        </div>
+
+        <div class="form-group">
+            <label>Select Output Folder</label><br>
+            <input type="file" id="output_folder_picker" webkitdirectory directory multiple style="display:none;">
+            <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
+            <span id="output_folder_label" class="ml-2"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_user_initials">Your Initials</label>
+            {{ form.user_initials }}
+        </div>
+        <div class="form-group">
+            <label for="id_full_name">Full Name</label>
+            {{ form.full_name }}
+        </div>
+        <div class="form-group">
+            <label for="id_rename_pattern">Rename Pattern</label>
+            {{ form.rename_pattern }}
+        </div>
         <button type="submit" class="btn btn-primary">Run Rename</button>
     </form>
     {% if files %}
@@ -18,3 +48,30 @@
     {% endif %}
 </div>
 {% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const rawPicker = document.getElementById('raw_folder_picker');
+    document.getElementById('raw_folder_btn').addEventListener('click', function(){
+        rawPicker.click();
+    });
+    rawPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const path = this.files[0].webkitRelativePath.split('/')[0];
+            document.getElementById('id_raw_data_folder').value = path;
+            document.getElementById('raw_folder_label').textContent = path;
+        }
+    });
+
+    const outputPicker = document.getElementById('output_folder_picker');
+    document.getElementById('output_folder_btn').addEventListener('click', function(){
+        outputPicker.click();
+    });
+    outputPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const path = this.files[0].webkitRelativePath.split('/')[0];
+            document.getElementById('id_output_folder').value = path;
+            document.getElementById('output_folder_label').textContent = path;
+        }
+    });
+});
+</script>
