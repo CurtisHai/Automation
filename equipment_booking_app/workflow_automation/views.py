@@ -425,6 +425,8 @@ def create_workflow(request):
                         config["rename_pattern"] = request.POST.get("rename_pattern", "")
                     elif code == "convert_360_video":
                         config["convert_format"] = request.POST.get("convert_format", "")
+                    elif code == "setup_structure":
+                        config["full_structure"] = bool(request.POST.get("setup_full_structure"))
                     elif code == "organize_files":
                         config["target_folder"] = request.POST.get("target_folder", "")
 
