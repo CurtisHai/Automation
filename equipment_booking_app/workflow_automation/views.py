@@ -36,6 +36,7 @@ from .forms import (
 
 from .workflow_runner import WorkflowRunner
 from utils import rename, converter, zipper
+from . import file_utils
 
 # Number of allowed failed attempts before locking an account
 LOCKOUT_THRESHOLD = 5
@@ -536,9 +537,37 @@ def run_workflow(request):
     confirm = False
     input_folder = output_folder = ""
     suggested_workflow = None
+    proposed_name = request.session.get("proposed_name")
+    manual_override = False
 
     if request.method == "POST":
-        if "accept_suggested" in request.POST:
+        if "accept_filename" in request.POST:
+            input_folder = request.session.get("input_folder", "")
+            output_folder = request.session.get("output_folder", "")
+            confirm = True
+            form = RunWorkflowForm(
+                initial={"workflow": workflow, "input_path": input_folder, "output_path": output_folder},
+                user=request.user,
+            )
+            StepFormSet = StepSettingsFormSet()
+            request.session["final_name"] = request.session.get("proposed_name")
+        elif "reject_filename" in request.POST:
+            input_folder = request.session.get("input_folder", "")
+            output_folder = request.session.get("output_folder", "")
+            confirm = True
+            manual_override = True
+            form = RunWorkflowForm(user=request.user)
+            StepFormSet = StepSettingsFormSet()
+        elif "override_filename" in request.POST:
+            manual_name = request.POST.get("manual_name")
+            if manual_name:
+                request.session["final_name"] = manual_name
+            input_folder = request.session.get("input_folder", "")
+            output_folder = request.session.get("output_folder", "")
+            confirm = True
+            form = RunWorkflowForm(user=request.user)
+            StepFormSet = StepSettingsFormSet()
+        elif "accept_suggested" in request.POST:
             wf_id = request.session.get("suggested_wf_id")
             if wf_id:
                 workflow = get_object_or_404(Workflow, id=wf_id, created_by=request.user)
@@ -574,6 +603,17 @@ def run_workflow(request):
                     request.session["suggested_wf_id"] = suggested_workflow.id
                 else:
                     messages.info(request, "No workflow matched — please choose an option.")
+
+                files = []
+                if os.path.isdir(input_folder):
+                    files = [
+                        f for f in os.listdir(input_folder)
+                        if os.path.isfile(os.path.join(input_folder, f))
+                    ]
+                ext = os.path.splitext(files[0])[1] if files else ""
+                proposed_name = file_utils.generate_next_filename(output_folder, ext)
+                if proposed_name:
+                    request.session["proposed_name"] = proposed_name
             StepFormSet = StepSettingsFormSet(request.POST)
     else:
         form = RunWorkflowForm(user=request.user)
@@ -583,6 +623,8 @@ def run_workflow(request):
                 suggested_workflow = Workflow.objects.get(id=request.session["suggested_wf_id"], created_by=request.user)
             except Workflow.DoesNotExist:
                 suggested_workflow = None
+        if request.session.get("proposed_name"):
+            proposed_name = request.session["proposed_name"]
 
     step_pairs = list(zip(workflow.steps.all(), StepFormSet)) if workflow else []
 
@@ -598,6 +640,8 @@ def run_workflow(request):
             "input_folder": input_folder,
             "output_folder": output_folder,
             "suggested_workflow": suggested_workflow,
+            "proposed_name": proposed_name,
+            "manual_override": manual_override,
         },
     )
 
