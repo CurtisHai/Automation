@@ -206,7 +206,10 @@ StepSettingsFormSet = forms.formset_factory(StepSettingsForm, extra=0)
 
 
 class RenameToolForm(forms.Form):
-    input_path = forms.CharField(label="Input Folder", max_length=255)
+    raw_data_folder = forms.CharField(label="RAW Data Folder", max_length=255)
+    output_folder = forms.CharField(label="Output Folder", max_length=255)
+    user_initials = forms.CharField(label="Your Initials", max_length=10)
+    full_name = forms.CharField(label="Full Name", max_length=100)
     rename_pattern = forms.CharField(label="Rename Pattern", required=False)
 
 
