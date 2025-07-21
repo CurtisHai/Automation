@@ -15,6 +15,14 @@
     <h4>Tasks</h4>
     <div class="mb-3">
         <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="setup_settings" type="checkbox" id="setup_cb" name="include_setup_structure">
+            <label class="form-check-label" for="setup_cb">Setup folder structure</label>
+        </div>
+        <div id="setup_settings" class="ml-4 mt-2" style="display:none;">
+            <input type="number" name="order_setup_structure" min="1" class="form-control" placeholder="Order">
+        </div>
+
+        <div class="form-check">
             <input class="form-check-input task-toggle" data-target="convert_settings" type="checkbox" id="convert_cb" name="include_convert_360_video">
             <label class="form-check-label" for="convert_cb">Convert media</label>
         </div>

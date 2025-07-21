@@ -1,6 +1,8 @@
 """Utility to execute a saved workflow step by step."""
 
 import os
+import shutil
+from datetime import datetime
 from . import file_utils
 
 
@@ -63,6 +65,45 @@ class WorkflowRunner:
 
     def run_default(self, config):
         return "Step completed"
+
+    def run_setup_structure(self, config):
+        raw_folder = config.get("raw_data_folder")
+        full = config.get("full_structure", False)
+
+        template_base = (
+            "P:/Energy/RealityCapture/Sellafield/Sellafield/00-00-00 Template/Project Files"
+        )
+        project_root = os.path.join(self.output_path, self.project_code, "Project Files")
+        os.makedirs(project_root, exist_ok=True)
+
+        video_steps = {"convert_360_video", "remove_audio", "trim"}
+        if full:
+            subfolders = None
+        elif any(s.step_type in video_steps for s in self.workflow.steps.all()):
+            subfolders = ["3V - 360 Videos"]
+        else:
+            subfolders = ["3P - 360 Photos"]
+
+        file_utils.copy_template_structure(
+            template_base,
+            project_root,
+            subfolders=subfolders,
+            initials=self.initials or "",
+        )
+
+        date_token = datetime.now().strftime("%d%m%y")
+        raw_dest = project_root
+        if subfolders:
+            raw_dest = os.path.join(project_root, subfolders[0])
+        raw_dest = os.path.join(raw_dest, f"{date_token}{self.initials}", "RAW Data")
+        os.makedirs(raw_dest, exist_ok=True)
+        if raw_folder and os.path.isdir(raw_folder):
+            for fname in os.listdir(raw_folder):
+                src = os.path.join(raw_folder, fname)
+                if os.path.isfile(src):
+                    shutil.move(src, os.path.join(raw_dest, fname))
+
+        return f"Structure created at {raw_dest}"
 
     def run_rename(self, config):
         pattern = config.get("rename_pattern", "")

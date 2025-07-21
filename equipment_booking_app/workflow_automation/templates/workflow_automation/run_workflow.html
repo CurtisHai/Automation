@@ -105,7 +105,20 @@
             {% for step, step_form in step_pairs %}
                 <div class="border rounded p-2 mb-2">
                     <strong>{{ step.get_step_type_display }}</strong>
-                    {{ step_form.as_p }}
+                    {% if step.step_type == 'setup_structure' %}
+                        <div class="form-group">
+                            <label>Select RAW Data Folder</label><br>
+                            <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory directory multiple style="display:none;">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
+                            <span id="raw_label_{{ forloop.counter }}" class="ml-2"></span>
+                            {{ step_form.raw_data_folder }}
+                        </div>
+                        <div class="form-check mt-2">
+                            {{ step_form.full_structure }} {{ step_form.full_structure.label_tag }}
+                        </div>
+                    {% else %}
+                        {{ step_form.as_p }}
+                    {% endif %}
                 </div>
             {% endfor %}
         {% endif %}
@@ -167,6 +180,17 @@ document.addEventListener('DOMContentLoaded', function(){
             document.getElementById('id_output_path').value = path;
             document.getElementById('output_folder_label').textContent = path;
         }
+    });
+
+    document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
+        picker.addEventListener('change', function(){
+            if (this.files.length) {
+                const path = this.files[0].webkitRelativePath.split('/')[0];
+                const counter = this.id.split('_')[2];
+                document.getElementById('id_form-' + (counter - 1) + '-raw_data_folder').value = path;
+                document.getElementById('raw_label_' + counter).textContent = path;
+            }
+        });
     });
 });
 </script>
