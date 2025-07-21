@@ -4,6 +4,8 @@ from django.contrib.messages import get_messages
 from django.urls import reverse
 from .models import Workflow
 from . import file_utils, views
+from .log_writer import write_workflow_log
+from types import SimpleNamespace
 import os
 import tempfile
 
@@ -77,5 +79,23 @@ class GenerateNextFilenameTests(TestCase):
 
             name = file_utils.generate_next_filename(os.path.join(tmp, "sub"), ".mp4")
             self.assertEqual(name, "SL-SL-SR-011-A-3V-0002.mp4")
+
+
+class LogWriterTests(TestCase):
+    def test_write_workflow_log(self):
+        user = User.objects.create(username="loguser", first_name="Curtis", last_name="Hailes")
+        with tempfile.TemporaryDirectory() as tmp:
+            run = SimpleNamespace(output_path=tmp, project_code="", user=user)
+            logs = [
+                "Renamed sample.360 -> sample.mp4",
+                f"Structure created at {os.path.join(tmp, 'Project Files', '3V')}",
+                "Converted sample.360 to mp4",
+            ]
+            path = write_workflow_log(run, logs)
+            self.assertTrue(os.path.exists(path))
+            with open(path) as fh:
+                content = fh.read()
+            self.assertIn("Workflow Execution Log", content)
+            self.assertIn("Renamed:  sample.mp4", content)
 
 

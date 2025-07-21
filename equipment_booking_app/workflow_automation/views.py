@@ -37,6 +37,7 @@ from .forms import (
 from .workflow_runner import WorkflowRunner
 from utils import rename, converter, zipper
 from . import file_utils
+from .log_writer import write_workflow_log
 
 # Number of allowed failed attempts before locking an account
 LOCKOUT_THRESHOLD = 5
@@ -602,6 +603,7 @@ def run_workflow(request):
 
                     run.completed_at = timezone.now()
                     run.save()
+                    write_workflow_log(run, runner.logs)
                     final_logs = runner.logs
                     return render(
                         request,
@@ -756,6 +758,8 @@ def workflow_progress(request, run_id):
 
         run.log = "\n".join(runner.logs)
         run.save()
+        if run.completed_at is not None:
+            write_workflow_log(run, runner.logs)
 
     done = run.completed_at is not None
 
