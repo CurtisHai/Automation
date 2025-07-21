@@ -14,3 +14,5 @@ media files. Recent improvements include:
   `standard_photos/`, `360_videos/`, or `standard_videos/`.
 - **Conversion markers** for 360 photo formats such as `.insp` so that other
   tools can process them later.
+- **GoPro conversion** runs GPU-accelerated scripts with a fallback to CPU when
+  handling `.360` files.

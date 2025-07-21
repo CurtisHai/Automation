@@ -19,9 +19,10 @@ class ConvertFile(Task):
             elif source_extension in gopro_types:
                 job = gopro_convert(job)
                 job[self.name]["message"] = "GoPro format converted."
+            elif source_extension == ".mp4":
+                job[self.name]["message"] = "File already in mp4 format."
             else:
                 job[self.name]["message"] = "File does not require conversion."
-                return return_failed(self.name, job)
 
             return ValidateResources, job
 
@@ -46,8 +47,14 @@ def gopro_convert(job):
         "ffmpeg-gopro",
         "video_scripts",
     )
-    script = os.path.join(scripts_dir, "gopro_convert.sh")
-    subprocess.run(["bash", script, media_file], check=True)
+    gpu_script = os.path.join(scripts_dir, "convert_gopro_gpu.sh")
+    nogpu_script = os.path.join(scripts_dir, "convert_gopro_nogpu.sh")
+
+    try:
+        subprocess.run(["bash", gpu_script, media_file], check=True)
+    except subprocess.CalledProcessError:
+        subprocess.run(["bash", nogpu_script, media_file], check=True)
+
     base, _ = os.path.splitext(media_file)
     job_copy["media_file"] = base + ".mp4"
     return job_copy
