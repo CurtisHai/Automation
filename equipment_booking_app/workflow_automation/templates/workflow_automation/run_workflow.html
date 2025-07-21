@@ -27,6 +27,26 @@
                 </div>
             </div>
         {% endif %}
+        {% if proposed_name %}
+            <div class="alert alert-info mt-2">
+                Proposed file name: {{ proposed_name }}. Accept?
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" name="accept_filename" value="1" class="btn btn-sm btn-success ml-2">Yes</button>
+                    <button type="submit" name="reject_filename" value="1" class="btn btn-sm btn-danger ml-1">No</button>
+                </form>
+            </div>
+        {% endif %}
+        {% if manual_override %}
+            <div class="alert alert-warning mt-2">
+                Enter preferred base file name:
+                <form method="post" class="form-inline mt-1">
+                    {% csrf_token %}
+                    <input type="text" name="manual_name" class="form-control mr-2">
+                    <button type="submit" name="override_filename" value="1" class="btn btn-primary">Set</button>
+                </form>
+            </div>
+        {% endif %}
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}

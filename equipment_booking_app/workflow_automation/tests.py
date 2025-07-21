@@ -67,3 +67,15 @@ class RunWorkflowNoMatchTests(TestCase):
         self.assertTrue(any("No workflow matched" in str(m) for m in messages))
 
 
+class GenerateNextFilenameTests(TestCase):
+    def test_generate_next_filename(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, "sub"), exist_ok=True)
+            existing = os.path.join(tmp, "sub", "SL-SL-SR-011-A-3V-0001.mp4")
+            with open(existing, "wb") as fh:
+                fh.write(b"\x00")
+
+            name = file_utils.generate_next_filename(os.path.join(tmp, "sub"), ".mp4")
+            self.assertEqual(name, "SL-SL-SR-011-A-3V-0002.mp4")
+
+
