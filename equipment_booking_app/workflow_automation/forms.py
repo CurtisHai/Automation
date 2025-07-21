@@ -203,3 +203,18 @@ class StepSettingsForm(forms.Form):
 
 StepSettingsFormSet = forms.formset_factory(StepSettingsForm, extra=0)
 
+
+
+class RenameToolForm(forms.Form):
+    input_path = forms.CharField(label="Input Folder", max_length=255)
+    rename_pattern = forms.CharField(label="Rename Pattern", required=False)
+
+
+class ConvertToolForm(forms.Form):
+    input_path = forms.CharField(label="Input Folder", max_length=255)
+    format = forms.ChoiceField(label="Format", choices=[("mp4", "MP4"), ("avi", "AVI")])
+
+
+class ZipToolForm(forms.Form):
+    input_path = forms.CharField(label="Input Folder", max_length=255)
+    output_zip = forms.CharField(label="Output Zip", max_length=255)

@@ -1,0 +1,16 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<h2 class="text-center mb-4">Run Zip Tool</h2>
+<div class="card p-4 w-75 mx-auto mb-4" style="color:#192d38;">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Run Zip</button>
+    </form>
+    {% if zip_path %}
+    <h4 class="mt-4">Created Zip</h4>
+    <p>{{ zip_path }}</p>
+    {% endif %}
+</div>
+{% endblock %}

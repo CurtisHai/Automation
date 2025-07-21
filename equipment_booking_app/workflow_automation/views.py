@@ -29,9 +29,13 @@ from .forms import (
     WorkflowStepFormSet,
     RunWorkflowForm,
     StepSettingsFormSet,
+    RenameToolForm,
+    ConvertToolForm,
+    ZipToolForm,
 )
 
 from .workflow_runner import WorkflowRunner
+from utils import rename, converter, zipper
 
 # Number of allowed failed attempts before locking an account
 LOCKOUT_THRESHOLD = 5
@@ -645,3 +649,40 @@ def workflow_progress(request, run_id):
         "workflow_automation/workflow_progress.html",
         {"run": run, "logs": runner.logs, "done": done, "run_mode": run_mode},
     )
+
+
+@login_required
+def run_rename_view(request):
+    form = RenameToolForm(request.POST or None)
+    files = []
+    if request.method == "POST" and form.is_valid():
+        input_path = form.cleaned_data["input_path"]
+        pattern = form.cleaned_data.get("rename_pattern", "")
+        files = rename.rename_directory(input_path, pattern)
+        messages.success(request, "Rename completed")
+    return render(request, "workflow_automation/run_rename.html", {"form": form, "files": files})
+
+
+@login_required
+def run_convert_view(request):
+    form = ConvertToolForm(request.POST or None)
+    files = []
+    if request.method == "POST" and form.is_valid():
+        input_path = form.cleaned_data["input_path"]
+        fmt = form.cleaned_data["format"]
+        files = converter.convert_directory(input_path, fmt)
+        messages.success(request, "Conversion completed")
+    return render(request, "workflow_automation/run_convert.html", {"form": form, "files": files})
+
+
+@login_required
+def run_zip_view(request):
+    form = ZipToolForm(request.POST or None)
+    zip_path = None
+    if request.method == "POST" and form.is_valid():
+        input_path = form.cleaned_data["input_path"]
+        output_zip = form.cleaned_data["output_zip"]
+        zip_path = zipper.zip_directory(input_path, output_zip)
+        messages.success(request, "Zip created")
+    return render(request, "workflow_automation/run_zip.html", {"form": form, "zip_path": zip_path})
+
