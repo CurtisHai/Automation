@@ -31,19 +31,22 @@ class ConvertFile(Task):
 
 
 def insta360_convert(job):
-    job_copy = copy.deepcopy(job)
-    media_file = job_copy["media_file"]
-    script = os.path.join(os.path.dirname(__file__), "insta360_convert.sh")
-    subprocess.run(["bash", script, media_file], check=True)
-    base, _ = os.path.splitext(media_file)
-    job_copy["media_file"] = base + ".mp4"
-    return job_copy
+    """Placeholder until Insta360 SDK-based conversion is available."""
+    return job
 
 
 def gopro_convert(job):
     job_copy = copy.deepcopy(job)
     media_file = job_copy["media_file"]
-    script = os.path.join(os.path.dirname(__file__), "gopro_convert.sh")
+    scripts_dir = os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "submodules",
+        "ffmpeg-gopro",
+        "video_scripts",
+    )
+    script = os.path.join(scripts_dir, "gopro_convert.sh")
     subprocess.run(["bash", script, media_file], check=True)
     base, _ = os.path.splitext(media_file)
     job_copy["media_file"] = base + ".mp4"
