@@ -140,6 +140,9 @@ class WorkflowStep(models.Model):
     step_type = models.CharField(max_length=50, choices=STEP_CHOICES)
     order = models.PositiveIntegerField()
     config = models.JSONField(default=dict, blank=True)
+    crop_start_seconds = models.FloatField(default=0)
+    crop_end_seconds = models.FloatField(default=0)
+    remove_audio = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["order"]

@@ -197,6 +197,28 @@ class StepSettingsForm(forms.Form):
                 choices=[("", "Leave unchanged"), ("mp4", "MP4"), ("avi", "AVI")],
                 required=False,
             )
+            self.fields["crop_start_enabled"] = forms.BooleanField(
+                label="Crop Start of Video",
+                required=False,
+            )
+            self.fields["crop_start_seconds"] = forms.FloatField(
+                label="Seconds",
+                required=False,
+                initial=0,
+            )
+            self.fields["crop_end_enabled"] = forms.BooleanField(
+                label="Crop End of Video",
+                required=False,
+            )
+            self.fields["crop_end_seconds"] = forms.FloatField(
+                label="Seconds",
+                required=False,
+                initial=0,
+            )
+            self.fields["remove_audio"] = forms.BooleanField(
+                label="Remove Audio from Video",
+                required=False,
+            )
         elif step_type == "organize_files":
             self.fields["target_folder"] = forms.CharField(
                 label="Target Folder",
