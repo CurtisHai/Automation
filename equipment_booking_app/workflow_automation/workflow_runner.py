@@ -18,6 +18,7 @@ class WorkflowRunner:
         initials=None,
         step_configs=None,
         run_mode="run_all",
+        qa_video_review=False,
     ):
         self.workflow = workflow
         self.input_path = input_path
@@ -26,6 +27,7 @@ class WorkflowRunner:
         self.initials = initials
         self.step_configs = step_configs or []
         self.run_mode = run_mode
+        self.qa_video_review = qa_video_review
         self.logs = []
         self.current_step = 0
 
