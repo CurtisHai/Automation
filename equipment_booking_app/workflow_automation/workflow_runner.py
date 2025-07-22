@@ -4,6 +4,10 @@ import os
 import shutil
 from datetime import datetime
 from . import file_utils
+from automation_core.utils.video_converter import (
+    insta360_convert,
+    gopro_convert,
+)
 
 
 class WorkflowRunner:
@@ -37,6 +41,8 @@ class WorkflowRunner:
         self.review_image = ""
         self.review_file = ""
         self.conversion_index = 0
+        self.conversion_done = False
+        self.rename_actions = []
         self.last_crop_start = 0.0
         self.last_crop_end = 0.0
         self.last_remove_audio = False
@@ -191,89 +197,58 @@ class WorkflowRunner:
         return "Audio removed"
 
     def run_convert_360_video(self, config):
-        fmt = config.get("convert_format")
-        if not fmt:
-            return "Conversion skipped"
+        fmt = config.get("convert_format") or "mp4"
 
-        crop_start = 0
-        if config.get("crop_start_enabled"):
-            crop_start = float(config.get("crop_start_seconds") or 0)
-        crop_end = 0
-        if config.get("crop_end_enabled"):
-            crop_end = float(config.get("crop_end_seconds") or 0)
-        remove_audio = config.get("remove_audio", False)
-
-        self.last_crop_start = crop_start
-        self.last_crop_end = crop_end
-        self.last_remove_audio = remove_audio
-
-        def _convert_file(path):
-            base = os.path.splitext(path)[0]
-            out = f"{base}.{fmt}"
-            file_utils.convert_video(
-                path,
-                out,
-                fmt,
-                crop_start=crop_start,
-                crop_end=crop_end,
-                remove_audio=remove_audio,
-            )
-            self.logs.append(f"Converted {os.path.basename(path)} to {fmt}")
-            if out != path:
-                os.remove(path)
-            return out
-
-        if not self.qa_video_review:
+        if not self.conversion_done:
             new_files = []
             for f in self.files:
-                out = _convert_file(f)
-                mapping = self.video_order_map.get(os.path.basename(f))
-                if mapping and mapping.get("zone"):
-                    renamed = file_utils.rename_with_zone(
-                        out, os.path.dirname(out), mapping["zone"]
-                    )
-                    if renamed != out:
-                        self.logs.append(
-                            f"Renamed {os.path.basename(out)} -> {os.path.basename(renamed)}"
-                        )
-                    out = renamed
-                new_files.append(out)
+                ext = os.path.splitext(f)[1].lower()
+                job = {"media_file": f}
+                try:
+                    if ext in [".insv", ".insp", ".lrv"]:
+                        job = insta360_convert(job)
+                    elif ext == ".360":
+                        job = gopro_convert(job)
+                except Exception as e:
+                    self.logs.append(f"Error converting {os.path.basename(f)}: {e}")
+                new_files.append(job["media_file"])
             self.files = new_files
+            self.conversion_done = True
+            if not self.qa_video_review:
+                renamed = []
+                for f in self.files:
+                    mapping = self.video_order_map.get(os.path.basename(f))
+                    if mapping and mapping.get("zone"):
+                        new = file_utils.rename_with_zone(f, os.path.dirname(f), mapping["zone"])
+                        if new != f:
+                            self.logs.append(
+                                f"Renamed {os.path.basename(f)} -> {os.path.basename(new)}"
+                            )
+                        f = new
+                    renamed.append(f)
+                self.files = renamed
+                return "Conversion completed"
+
+        if not self.qa_video_review:
             return "Conversion completed"
 
         if self.conversion_index >= len(self.files):
             return "Conversion completed"
 
         f = self.files[self.conversion_index]
-        out = _convert_file(f)
-        self.files[self.conversion_index] = out
-        base = os.path.splitext(out)[0]
-
-        mapping = self.video_order_map.get(os.path.basename(f))
-        if mapping and mapping.get("zone"):
-            renamed = file_utils.rename_with_zone(
-                out, os.path.dirname(out), mapping["zone"]
-            )
-            if renamed != out:
-                self.logs.append(
-                    f"Renamed {os.path.basename(out)} -> {os.path.basename(renamed)}"
-                )
-            self.files[self.conversion_index] = renamed
-            self.conversion_index += 1
-            return "Conversion completed"
-
+        base = os.path.splitext(f)[0]
         preview_dir = os.path.join(self.output_path, "previews")
         os.makedirs(preview_dir, exist_ok=True)
         preview_name = os.path.basename(base) + "_preview.jpg"
         preview_path = os.path.join(preview_dir, preview_name)
-        file_utils.generate_video_preview(out, preview_path)
+        file_utils.generate_video_preview(f, preview_path)
 
         self.review_pending = True
         self.review_image = preview_path
-        self.review_file = out
+        self.review_file = f
         self.conversion_index += 1
         self.defer_current_step = True
-        return f"Review {os.path.basename(out)}"
+        return f"Review {os.path.basename(f)}"
 
     def run_pause_manual(self, config):
         return "Manual pause"
