@@ -13,6 +13,7 @@ class ConvertFile(Task):
         insta360_types = [".insv", ".insp", ".lrv"]
         gopro_types = [".360"]
         source_extension = os.path.splitext(job["media_file"])[1].lower()
+        job.setdefault("original_media", job["media_file"])
 
         try:
             if source_extension in insta360_types:
@@ -26,8 +27,11 @@ class ConvertFile(Task):
             else:
                 job[self.name]["message"] = "File does not require conversion."
 
-            if any(
-                key in job for key in ["crop_start", "crop_end", "remove_audio"]
+            if (
+                source_extension not in gopro_types
+                and any(
+                    key in job for key in ["crop_start", "crop_end", "remove_audio"]
+                )
             ):
                 apply_options(job)
 
@@ -99,6 +103,7 @@ def apply_options(job):
         crop_start=start,
         crop_end=end,
         remove_audio=remove_audio,
+        original_media=job.get("original_media", src),
     )
     os.replace(tmp, src)
     return job

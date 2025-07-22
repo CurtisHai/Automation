@@ -25,6 +25,7 @@ def convert_directory(
             crop_start=crop_start,
             crop_end=crop_end,
             remove_audio=remove_audio,
+            original_media=src,
         )
         if dst != src:
             try:

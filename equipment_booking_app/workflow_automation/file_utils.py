@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime
 
 
+
 def ffmpeg_exists():
     return shutil.which("ffmpeg") is not None
 
@@ -26,6 +27,29 @@ def extract_timestamp(filename: str) -> str:
     return mtime.strftime("%Y%m%d")
 
 
+def get_video_duration(path: str) -> float:
+    """Return the duration of a video in seconds using ffprobe."""
+    if not ffmpeg_exists():
+        return 0.0
+    try:
+        output = subprocess.check_output(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                path,
+            ],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+        return float(output)
+    except (subprocess.CalledProcessError, ValueError, FileNotFoundError):
+        return 0.0
+
+
 def convert_video(
     src: str,
     dst: str,
@@ -34,6 +58,7 @@ def convert_video(
     crop_start: float = 0,
     crop_end: float = 0,
     remove_audio: bool = False,
+    original_media: str | None = None,
 ) -> str:
     """Convert a video using ffmpeg if available, else copy and rename.
 
@@ -41,12 +66,14 @@ def convert_video(
     """
     if ffmpeg_exists():
         cmd = ["ffmpeg", "-y", "-i", src]
-        if crop_start:
+        if crop_start > 0:
             cmd.extend(["-ss", str(crop_start)])
-        if crop_end:
-            cmd.extend(["-to", f"-{crop_end}"])
+        if crop_end > 0:
+            dur = get_video_duration(original_media or src)
+            trim = max(dur - (crop_start + crop_end), 0)
+            cmd.extend(["-t", str(trim)])
         if remove_audio:
-            cmd.extend(["-an"])
+            cmd.append("-an")
         cmd.append(dst)
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
