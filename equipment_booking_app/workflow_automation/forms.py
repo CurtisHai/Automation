@@ -242,3 +242,17 @@ class VideoReviewForm(forms.Form):
     flag_manual_edit = forms.BooleanField(
         label="Flag for Manual Edit", required=False
     )
+
+
+class VideoOrderForm(forms.Form):
+    file_name = forms.CharField(widget=forms.HiddenInput())
+    zone_id = forms.CharField(
+        label="Zone ID",
+        max_length=50,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "e.g. 101-A"}),
+    )
+    order = forms.IntegerField(widget=forms.HiddenInput())
+
+
+VideoOrderFormSet = forms.formset_factory(VideoOrderForm, extra=0)

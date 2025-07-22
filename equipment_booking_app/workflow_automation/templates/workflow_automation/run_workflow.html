@@ -121,6 +121,21 @@
                 </div>
             {% endfor %}
         {% endif %}
+
+        {% if video_forms %}
+            <h4 class="mt-4">Video Order</h4>
+            <ul id="video-list" class="list-group mb-3">
+            {% for form in video_forms %}
+                <li class="list-group-item d-flex align-items-center" draggable="true">
+                    <span class="mr-2">&#x2630;</span>
+                    <span class="mr-3">{{ form.file_name.value }}</span>
+                    {{ form.file_name }}
+                    {{ form.order }}
+                    {{ form.zone_id }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
         <button type="submit" class="btn btn-primary mt-3">Run Workflow</button>
     </form>
 </div>
@@ -191,6 +206,31 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     });
+
+    const videoList = document.getElementById('video-list');
+    if (videoList) {
+        const updateOrder = () => {
+            videoList.querySelectorAll('li').forEach((li, idx) => {
+                li.querySelector('input[name$="-order"]').value = idx + 1;
+            });
+        };
+        let dragItem = null;
+        videoList.addEventListener('dragstart', e => {
+            dragItem = e.target.closest('li');
+        });
+        videoList.addEventListener('dragover', e => {
+            e.preventDefault();
+        });
+        videoList.addEventListener('drop', e => {
+            e.preventDefault();
+            const target = e.target.closest('li');
+            if (dragItem && target && dragItem !== target) {
+                videoList.insertBefore(dragItem, target);
+                updateOrder();
+            }
+        });
+        updateOrder();
+    }
 });
 </script>
 {% endblock %}
