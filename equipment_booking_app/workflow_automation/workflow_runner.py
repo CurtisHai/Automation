@@ -192,10 +192,25 @@ class WorkflowRunner:
         if not fmt:
             return "Conversion skipped"
 
+        crop_start = 0
+        if config.get("crop_start_enabled"):
+            crop_start = float(config.get("crop_start_seconds") or 0)
+        crop_end = 0
+        if config.get("crop_end_enabled"):
+            crop_end = float(config.get("crop_end_seconds") or 0)
+        remove_audio = config.get("remove_audio", False)
+
         def _convert_file(path):
             base = os.path.splitext(path)[0]
             out = f"{base}.{fmt}"
-            file_utils.convert_video(path, out, fmt)
+            file_utils.convert_video(
+                path,
+                out,
+                fmt,
+                crop_start=crop_start,
+                crop_end=crop_end,
+                remove_audio=remove_audio,
+            )
             self.logs.append(f"Converted {os.path.basename(path)} to {fmt}")
             if out != path:
                 os.remove(path)

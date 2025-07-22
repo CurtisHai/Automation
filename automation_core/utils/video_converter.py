@@ -4,6 +4,7 @@ import subprocess
 from django.conf import settings
 from ..template import Task, return_failed
 from .validate_resources import ValidateResources
+from workflow_automation import file_utils
 
 
 class ConvertFile(Task):
@@ -24,6 +25,11 @@ class ConvertFile(Task):
                 job[self.name]["message"] = "File already in mp4 format."
             else:
                 job[self.name]["message"] = "File does not require conversion."
+
+            if any(
+                key in job for key in ["crop_start", "crop_end", "remove_audio"]
+            ):
+                apply_options(job)
 
             return ValidateResources, job
 
@@ -76,3 +82,23 @@ def gopro_convert(job):
     base, _ = os.path.splitext(media_file)
     job_copy["media_file"] = base + ".mp4"
     return job_copy
+
+
+def apply_options(job):
+    start = float(job.get("crop_start", 0) or 0)
+    end = float(job.get("crop_end", 0) or 0)
+    remove_audio = bool(job.get("remove_audio", False))
+    if not (start or end or remove_audio):
+        return job
+    src = job["media_file"]
+    tmp = src + ".tmp.mp4"
+    file_utils.convert_video(
+        src,
+        tmp,
+        "mp4",
+        crop_start=start,
+        crop_end=end,
+        remove_audio=remove_audio,
+    )
+    os.replace(tmp, src)
+    return job

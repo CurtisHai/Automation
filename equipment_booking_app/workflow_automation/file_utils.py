@@ -26,16 +26,28 @@ def extract_timestamp(filename: str) -> str:
     return mtime.strftime("%Y%m%d")
 
 
-def convert_video(src: str, dst: str, fmt: str) -> str:
-    """Convert a video using ffmpeg if available, else copy and rename."""
+def convert_video(
+    src: str,
+    dst: str,
+    fmt: str,
+    *,
+    crop_start: float = 0,
+    crop_end: float = 0,
+    remove_audio: bool = False,
+) -> str:
+    """Convert a video using ffmpeg if available, else copy and rename.
+
+    Additional options allow trimming from the start/end and removing audio.
+    """
     if ffmpeg_exists():
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-i",
-            src,
-            dst,
-        ]
+        cmd = ["ffmpeg", "-y", "-i", src]
+        if crop_start:
+            cmd.extend(["-ss", str(crop_start)])
+        if crop_end:
+            cmd.extend(["-to", f"-{crop_end}"])
+        if remove_audio:
+            cmd.extend(["-an"])
+        cmd.append(dst)
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
         shutil.copy2(src, dst)
