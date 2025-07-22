@@ -81,6 +81,22 @@ class GenerateNextFilenameTests(TestCase):
             self.assertEqual(name, "SL-SL-SR-011-A-3V-0002.mp4")
 
 
+class RenameWithZoneTests(TestCase):
+    def test_rename_with_zone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            existing = os.path.join(tmp, "SL-SL-SR-101-A-3V-0001.mp4")
+            with open(existing, "wb") as fh:
+                fh.write(b"\x00")
+
+            sample = os.path.join(tmp, "sample.mp4")
+            with open(sample, "wb") as fh:
+                fh.write(b"\x00")
+
+            new_path = file_utils.rename_with_zone(sample, tmp, "101-A")
+            self.assertTrue(os.path.exists(new_path))
+            self.assertEqual(os.path.basename(new_path), "SL-SL-SR-101-A-3V-0002.mp4")
+
+
 class LogWriterTests(TestCase):
     def test_write_workflow_log(self):
         user = User.objects.create(username="loguser", first_name="Curtis", last_name="Hailes")
