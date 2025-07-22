@@ -577,6 +577,7 @@ def run_workflow(request):
 
                 if len(step_forms) == workflow.steps.count():
                     # Create DB record for the run
+                    pause = form.cleaned_data.get("pause_between_steps", False)
                     run = WorkflowRun.objects.create(
                         workflow=workflow,
                         user=request.user,
@@ -584,7 +585,16 @@ def run_workflow(request):
                         output_path=output_folder,
                         project_code=form.cleaned_data.get("project_code", ""),
                         initials=form.cleaned_data.get("initials", ""),
+                        pause_between_steps=pause,
                     )
+
+                    configs = [sf.cleaned_data for sf in step_forms]
+
+                    if pause:
+                        request.session[f"run_{run.id}_configs"] = configs
+                        request.session[f"run_{run.id}_index"] = 0
+                        request.session.modified = True
+                        return redirect("workflow_progress", run_id=run.id)
 
                     runner = WorkflowRunner(
                         workflow,
@@ -592,7 +602,7 @@ def run_workflow(request):
                         output_folder,
                         project_code=run.project_code,
                         initials=run.initials,
-                        step_configs=[sf.cleaned_data for sf in step_forms],
+                        step_configs=configs,
                     )
 
                     # Execute steps sequentially and persist logs after each
@@ -725,8 +735,8 @@ def workflow_progress(request, run_id):
 
     run = get_object_or_404(WorkflowRun, id=run_id, user=request.user)
     configs = request.session.get(f"run_{run_id}_configs", [])
-    run_mode = request.session.get(f"run_{run_id}_mode", "run_all")
     step_index = request.session.get(f"run_{run_id}_index", 0)
+    run_mode = "pause" if run.pause_between_steps else "run_all"
 
     runner = WorkflowRunner(
         run.workflow,
@@ -763,11 +773,18 @@ def workflow_progress(request, run_id):
 
     done = run.completed_at is not None
 
-    return render(
-        request,
-        "workflow_automation/workflow_progress.html",
-        {"run": run, "logs": runner.logs, "done": done, "run_mode": run_mode},
-    )
+    if run_mode == "pause" and not done:
+        step_name = ""
+        if step_index > 0 and step_index <= run.workflow.steps.count():
+            step_obj = run.workflow.steps.all()[step_index - 1]
+            step_name = step_obj.get_step_type_display()
+        step_logs = runner.logs[-2:]
+        context = {"run": run, "step_name": step_name, "step_logs": step_logs}
+        template = "workflow_automation/pause_confirmation.html"
+    else:
+        context = {"run": run, "logs": runner.logs, "done": done, "run_mode": run_mode}
+        template = "workflow_automation/workflow_progress.html"
+    return render(request, template, context)
 
 
 @login_required

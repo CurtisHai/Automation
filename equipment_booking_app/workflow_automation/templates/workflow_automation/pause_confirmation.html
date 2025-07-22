@@ -1,0 +1,16 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<h2 class="text-center mb-4">Step completed: {{ step_name }}</h2>
+<div class="w-75 mx-auto" style="color:#192d38;">
+    <ul class="list-group mb-3">
+    {% for line in step_logs %}
+        <li class="list-group-item">{{ line }}</li>
+    {% endfor %}
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Run Next Step</button>
+    </form>
+</div>
+{% endblock %}

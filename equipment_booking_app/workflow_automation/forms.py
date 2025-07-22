@@ -120,11 +120,6 @@ WorkflowStepFormSet = forms.modelformset_factory(
 class RunWorkflowForm(forms.Form):
     """Collect top level inputs for running a workflow."""
 
-    RUN_MODES = [
-        ("run_all", "Run All"),
-        ("pause", "Pause Between Steps"),
-    ]
-
     workflow = forms.ModelChoiceField(queryset=Workflow.objects.none())
     input_path = forms.CharField(label="Input Folder", max_length=255)
     use_input_path = forms.TypedChoiceField(
@@ -137,7 +132,11 @@ class RunWorkflowForm(forms.Form):
     output_path = forms.CharField(label="Output Folder", max_length=255, required=False)
     project_code = forms.CharField(label="Project Code", max_length=100, required=False)
     initials = forms.CharField(label="Initials", max_length=20, required=False)
-    run_mode = forms.ChoiceField(label="Run Mode", choices=RUN_MODES)
+    pause_between_steps = forms.BooleanField(
+        label="Pause after each step for manual QA before continuing",
+        required=False,
+        initial=False,
+    )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
