@@ -6,6 +6,7 @@ from .models import Workflow
 from . import file_utils, views
 from .log_writer import write_workflow_log
 from types import SimpleNamespace
+from unittest.mock import patch
 import os
 import tempfile
 
@@ -113,5 +114,30 @@ class LogWriterTests(TestCase):
                 content = fh.read()
             self.assertIn("Workflow Execution Log", content)
             self.assertIn("Renamed:  sample.mp4", content)
+
+
+class ConvertVideoValidationTests(TestCase):
+    def test_crop_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = os.path.join(tmp, "in.mp4")
+            dst = os.path.join(tmp, "out.mp4")
+            with open(src, "wb") as fh:
+                fh.write(b"\x00")
+
+            with patch(
+                "workflow_automation.file_utils.get_video_duration",
+                return_value=5.0,
+            ), patch(
+                "workflow_automation.file_utils.ffmpeg_exists",
+                return_value=False,
+            ):
+                with self.assertRaises(ValueError):
+                    file_utils.convert_video(src, dst, "mp4", crop_start=-1)
+                with self.assertRaises(ValueError):
+                    file_utils.convert_video(src, dst, "mp4", crop_end=-1)
+                with self.assertRaises(ValueError):
+                    file_utils.convert_video(src, dst, "mp4", crop_start=3, crop_end=3)
+                file_utils.convert_video(src, dst, "mp4", crop_start=1, crop_end=1)
+                self.assertTrue(os.path.exists(dst))
 
 

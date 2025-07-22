@@ -37,6 +37,9 @@ class WorkflowRunner:
         self.review_image = ""
         self.review_file = ""
         self.conversion_index = 0
+        self.last_crop_start = 0.0
+        self.last_crop_end = 0.0
+        self.last_remove_audio = False
         self._last_step_index = None
 
         self.site_code = file_utils.parse_site_code(self.input_path)
@@ -199,6 +202,10 @@ class WorkflowRunner:
         if config.get("crop_end_enabled"):
             crop_end = float(config.get("crop_end_seconds") or 0)
         remove_audio = config.get("remove_audio", False)
+
+        self.last_crop_start = crop_start
+        self.last_crop_end = crop_end
+        self.last_remove_audio = remove_audio
 
         def _convert_file(path):
             base = os.path.splitext(path)[0]

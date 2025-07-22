@@ -859,7 +859,14 @@ def workflow_progress(request, run_id):
             return render(
                 request,
                 "workflow_automation/video_review.html",
-                {"run": run, "form": form, "preview_url": runner.review_image},
+                {
+                    "run": run,
+                    "form": form,
+                    "preview_url": runner.review_image,
+                    "crop_start": runner.last_crop_start,
+                    "crop_end": runner.last_crop_end,
+                    "audio_removed": runner.last_remove_audio,
+                },
             )
 
     if run.completed_at is None:
