@@ -3,12 +3,15 @@ from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.urls import reverse
 from .models import Workflow
+from .workflow_runner import WorkflowRunner
 from . import file_utils, views
 from .log_writer import write_workflow_log
 from types import SimpleNamespace
 from unittest.mock import patch
 import os
+import shutil
 import tempfile
+from datetime import datetime
 
 
 class FileUtilsTests(TestCase):
@@ -139,5 +142,60 @@ class ConvertVideoValidationTests(TestCase):
                     file_utils.convert_video(src, dst, "mp4", crop_start=3, crop_end=3)
                 file_utils.convert_video(src, dst, "mp4", crop_start=1, crop_end=1)
                 self.assertTrue(os.path.exists(dst))
+
+
+class FinalizeVideoTests(TestCase):
+    def test_finalize_after_conversion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            inp = os.path.join(tmp, "in")
+            out = os.path.join(tmp, "out")
+            os.makedirs(inp)
+            os.makedirs(out)
+            src = os.path.join(inp, "sample.mp4")
+            with open(src, "wb") as fh:
+                fh.write(b"\x00")
+
+            user = User.objects.create(username="fin")
+            wf = Workflow.objects.create(name="WF", created_by=user)
+            step = wf.steps.create(
+                step_type="convert_360_video",
+                order=1,
+                config={"crop_start_seconds": 1.0, "remove_audio": True},
+                crop_start_seconds=1.0,
+                remove_audio=True,
+            )
+
+            runner = WorkflowRunner(
+                wf,
+                inp,
+                out,
+                project_code="PC",
+                initials="CH",
+                step_configs=[step.config],
+                qa_video_review=False,
+            )
+            runner.files = [src]
+            with patch("workflow_automation.file_utils.convert_video") as cv:
+                def fake_convert(src, dst, fmt, **kwargs):
+                    if os.path.abspath(src) != os.path.abspath(dst):
+                        shutil.copy2(src, dst)
+                    else:
+                        open(dst, "ab").close()
+                    return dst
+
+                cv.side_effect = fake_convert
+                runner.run_next()
+
+            dest = os.path.join(
+                out,
+                "PC",
+                "Project Files",
+                "3V - 360 Videos",
+                datetime.now().strftime("%d%m%y") + "CH",
+                "RAW Data",
+                "sample.mp4",
+            )
+            self.assertTrue(os.path.exists(dest))
+            self.assertTrue(os.path.exists(dest + ".convert"))
 
 
