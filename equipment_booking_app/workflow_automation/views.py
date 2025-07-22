@@ -766,7 +766,19 @@ def workflow_progress(request, run_id):
         if request.method == "POST" and form.is_valid():
             zone = form.cleaned_data["zone_id"]
             flag = form.cleaned_data["flag_manual_edit"]
-            msg = f"Reviewed {os.path.basename(runner.review_file)} - Zone {zone}"
+            old_name = os.path.basename(runner.review_file)
+            new_path = file_utils.rename_with_zone(
+                runner.review_file, os.path.dirname(runner.review_file), zone
+            )
+            new_name = os.path.basename(new_path)
+            if new_name != old_name:
+                runner.logs.append(f"Renamed {old_name} -> {new_name}")
+            idx = runner.conversion_index - 1
+            if 0 <= idx < len(runner.files):
+                runner.files[idx] = new_path
+            runner.review_file = new_path
+
+            msg = f"Reviewed {new_name} - Zone {zone}"
             if flag:
                 msg += " (flagged for manual edit)"
             runner.logs.append(msg)

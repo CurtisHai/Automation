@@ -165,6 +165,52 @@ def organize_files(files, output_root, site_code="", target_folder=""):
     return paths
 
 
+def rename_with_zone(path: str, folder: str, zone_id: str) -> str:
+    """Rename ``path`` using ``zone_id`` and sequential zone numbering.
+
+    ``folder`` should be the destination directory containing any previously
+    named files. The zone prefix is derived from existing names in ``folder``
+    via :func:`generate_next_filename` and combined with ``zone_id``. The final
+    numeric suffix is automatically incremented based on existing files.
+    """
+
+    ext = os.path.splitext(path)[1]
+
+    candidate = generate_next_filename(folder, ext)
+    prefix = ""
+    if candidate:
+        zone_part = candidate.rsplit("-3V", 1)[0]
+        parts = zone_part.split("-")
+        if len(parts) > 2:
+            prefix = "-".join(parts[:-2])
+        else:
+            prefix = zone_part
+    if not prefix:
+        site_code = parse_site_code(folder)
+        parts = site_code.split("-")
+        if len(parts) > 2:
+            prefix = "-".join(parts[:-2])
+        else:
+            prefix = site_code
+
+    zone_prefix = f"{prefix}-{zone_id}"
+    pattern = re.compile(
+        rf"^{re.escape(zone_prefix)}-3V-(\d{{4}}){re.escape(ext)}$", re.IGNORECASE
+    )
+    max_idx = 0
+    for fname in os.listdir(folder):
+        m = pattern.match(fname)
+        if m:
+            idx = int(m.group(1))
+            if idx > max_idx:
+                max_idx = idx
+    new_idx = max_idx + 1
+    new_name = f"{zone_prefix}-3V-{new_idx:04d}{ext}"
+    new_path = os.path.join(folder, new_name)
+    os.rename(path, new_path)
+    return new_path
+
+
 def generate_next_filename(folder_path: str, extension: str = "") -> str | None:
     """Return the next sequential file name using existing zone patterns.
 
