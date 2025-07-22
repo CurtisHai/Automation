@@ -62,7 +62,7 @@ class RunWorkflowNoMatchTests(TestCase):
             "output_path": "/tmp/foo",
             "project_code": "",
             "initials": "",
-            "run_mode": "run_all",
+            "pause_between_steps": False,
         }
         response = self.client.post(reverse("run_workflow"), data)
         messages = list(get_messages(response.wsgi_request))

@@ -154,6 +154,7 @@ class WorkflowRun(models.Model):
     output_path = models.CharField(max_length=255, default="", blank=True)
     project_code = models.CharField(max_length=100, blank=True)
     initials = models.CharField(max_length=20, blank=True)
+    pause_between_steps = models.BooleanField(default=False)
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     log = models.TextField(blank=True)
