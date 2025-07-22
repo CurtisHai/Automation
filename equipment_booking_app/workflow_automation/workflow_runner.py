@@ -30,6 +30,12 @@ class WorkflowRunner:
         self.qa_video_review = qa_video_review
         self.logs = []
         self.current_step = 0
+        self.defer_current_step = False
+        self.review_pending = False
+        self.review_image = ""
+        self.review_file = ""
+        self.conversion_index = 0
+        self._last_step_index = None
 
         self.site_code = file_utils.parse_site_code(self.input_path)
         self.files = [
@@ -41,6 +47,8 @@ class WorkflowRunner:
     def run_all(self):
         while self.current_step < self.workflow.steps.count():
             self.run_next()
+            if self.defer_current_step or self.review_pending:
+                break
 
     def run_next(self):
         if self.current_step >= self.workflow.steps.count():
@@ -52,10 +60,19 @@ class WorkflowRunner:
             config = self.step_configs[self.current_step]
 
         method = getattr(self, f"run_{step.step_type}", self.run_default)
-        self.logs.append(f"Running step {step.order}: {step.get_step_type_display()}...")
+
+        if self._last_step_index != self.current_step:
+            self.logs.append(
+                f"Running step {step.order}: {step.get_step_type_display()}..."
+            )
+            self._last_step_index = self.current_step
+
+        self.defer_current_step = False
         result = method(config)
         self.logs.append(result)
-        self.current_step += 1
+        if not self.defer_current_step and not self.review_pending:
+            self.current_step += 1
+            self._last_step_index = None
         return True
 
     def run(self):
@@ -168,17 +185,44 @@ class WorkflowRunner:
         fmt = config.get("convert_format")
         if not fmt:
             return "Conversion skipped"
-        new_files = []
-        for f in self.files:
-            base = os.path.splitext(f)[0]
-            out = f"{base}.{fmt}"
-            file_utils.convert_video(f, out, fmt)
-            self.logs.append(f"Converted {os.path.basename(f)} to {fmt}")
-            if out != f:
-                os.remove(f)
-            new_files.append(out)
-        self.files = new_files
-        return "Conversion completed"
+
+        if not self.qa_video_review:
+            new_files = []
+            for f in self.files:
+                base = os.path.splitext(f)[0]
+                out = f"{base}.{fmt}"
+                file_utils.convert_video(f, out, fmt)
+                self.logs.append(f"Converted {os.path.basename(f)} to {fmt}")
+                if out != f:
+                    os.remove(f)
+                new_files.append(out)
+            self.files = new_files
+            return "Conversion completed"
+
+        if self.conversion_index >= len(self.files):
+            return "Conversion completed"
+
+        f = self.files[self.conversion_index]
+        base = os.path.splitext(f)[0]
+        out = f"{base}.{fmt}"
+        file_utils.convert_video(f, out, fmt)
+        self.logs.append(f"Converted {os.path.basename(f)} to {fmt}")
+        if out != f:
+            os.remove(f)
+        self.files[self.conversion_index] = out
+
+        preview_dir = os.path.join(self.output_path, "previews")
+        os.makedirs(preview_dir, exist_ok=True)
+        preview_name = os.path.basename(base) + "_preview.jpg"
+        preview_path = os.path.join(preview_dir, preview_name)
+        file_utils.generate_video_preview(out, preview_path)
+
+        self.review_pending = True
+        self.review_image = preview_path
+        self.review_file = out
+        self.conversion_index += 1
+        self.defer_current_step = True
+        return f"Review {os.path.basename(out)}"
 
     def run_pause_manual(self, config):
         return "Manual pause"

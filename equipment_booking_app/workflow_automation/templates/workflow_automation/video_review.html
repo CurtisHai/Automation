@@ -1,0 +1,18 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<h2 class="text-center mb-4">Video QA Review</h2>
+<div class="w-75 mx-auto" style="color:#192d38;">
+    <img src="{{ preview_url }}" class="img-fluid mb-3" alt="Video preview">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.zone_id.label_tag }} {{ form.zone_id }}
+        </div>
+        <div class="form-check mb-3">
+            {{ form.flag_manual_edit }} {{ form.flag_manual_edit.label_tag }}
+        </div>
+        <button type="submit" class="btn btn-primary">Confirm and Continue</button>
+    </form>
+</div>
+{% endblock %}

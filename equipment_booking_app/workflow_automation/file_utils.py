@@ -79,6 +79,24 @@ def trim_video(src: str, dst: str, start: int, end: int) -> str:
     return dst
 
 
+def generate_video_preview(src: str, dst: str) -> str:
+    """Create a single preview frame from ``src`` using ffmpeg."""
+    if ffmpeg_exists():
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            src,
+            "-ss",
+            "00:00:02",
+            "-frames:v",
+            "1",
+            dst,
+        ]
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return dst
+
+
 PHOTO_EXTS = {".jpg", ".jpeg", ".png", ".dng", ".insp"}
 VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".insv"}
 PHOTO_360_EXTS = {".insp"}

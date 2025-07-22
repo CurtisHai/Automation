@@ -32,6 +32,7 @@ from .forms import (
     RenameToolForm,
     ConvertToolForm,
     ZipToolForm,
+    VideoReviewForm,
 )
 
 from .workflow_runner import WorkflowRunner
@@ -590,7 +591,7 @@ def run_workflow(request):
 
                     configs = [sf.cleaned_data for sf in step_forms]
 
-                    if pause:
+                    if pause or workflow.qa_video_review:
                         request.session[f"run_{run.id}_configs"] = configs
                         request.session[f"run_{run.id}_index"] = 0
                         request.session.modified = True
@@ -739,6 +740,8 @@ def workflow_progress(request, run_id):
     step_index = request.session.get(f"run_{run_id}_index", 0)
     run_mode = "pause" if run.pause_between_steps else "run_all"
 
+    review_state = request.session.get(f"run_{run_id}_review")
+
     runner = WorkflowRunner(
         run.workflow,
         run.input_path,
@@ -752,11 +755,40 @@ def workflow_progress(request, run_id):
     runner.current_step = step_index
     runner.logs = run.log.splitlines() if run.log else []
 
+    if review_state:
+        runner.conversion_index = review_state.get("index", 0)
+        runner.review_pending = True
+        runner.review_image = review_state.get("image", "")
+        runner.review_file = review_state.get("file", "")
+
+    if runner.review_pending:
+        form = VideoReviewForm(request.POST or None)
+        if request.method == "POST" and form.is_valid():
+            zone = form.cleaned_data["zone_id"]
+            flag = form.cleaned_data["flag_manual_edit"]
+            msg = f"Reviewed {os.path.basename(runner.review_file)} - Zone {zone}"
+            if flag:
+                msg += " (flagged for manual edit)"
+            runner.logs.append(msg)
+            runner.review_pending = False
+            request.session.pop(f"run_{run_id}_review", None)
+            run.log = "\n".join(runner.logs)
+            run.save()
+            if run.completed_at is None:
+                if run_mode == "run_all":
+                    runner.run_all()
+                else:
+                    runner.run_next()
+        else:
+            return render(
+                request,
+                "workflow_automation/video_review.html",
+                {"run": run, "form": form, "preview_url": runner.review_image},
+            )
+
     if run.completed_at is None:
         if run_mode == "run_all":
             runner.run_all()
-            run.completed_at = timezone.now()
-            request.session.pop(f"run_{run_id}_index", None)
         else:
             if request.method == "POST" or step_index == 0:
                 runner.run_next()
@@ -767,6 +799,16 @@ def workflow_progress(request, run_id):
                 else:
                     request.session[f"run_{run_id}_index"] = step_index
                 request.session.modified = True
+
+        if runner.review_pending:
+            request.session[f"run_{run_id}_review"] = {
+                "index": runner.conversion_index,
+                "image": runner.review_image,
+                "file": runner.review_file,
+            }
+            request.session.modified = True
+        else:
+            request.session.pop(f"run_{run_id}_review", None)
 
         run.log = "\n".join(runner.logs)
         run.save()

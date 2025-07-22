@@ -235,3 +235,10 @@ class ConvertToolForm(forms.Form):
 class ZipToolForm(forms.Form):
     input_path = forms.CharField(label="Input Folder", max_length=255)
     output_zip = forms.CharField(label="Output Zip", max_length=255)
+
+
+class VideoReviewForm(forms.Form):
+    zone_id = forms.CharField(label="Zone ID", max_length=50)
+    flag_manual_edit = forms.BooleanField(
+        label="Flag for Manual Edit", required=False
+    )
