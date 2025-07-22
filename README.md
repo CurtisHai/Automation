@@ -16,3 +16,5 @@ media files. Recent improvements include:
   tools can process them later.
 - **GoPro conversion** runs GPU-accelerated scripts with a fallback to CPU when
   handling `.360` files.
+- **Batch conversion first** then optional QA review with one-second previews
+  allows accepting zone-based names or flagging files for manual edits.

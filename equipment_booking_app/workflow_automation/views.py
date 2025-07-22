@@ -804,6 +804,7 @@ def workflow_progress(request, run_id):
 
     review_state = request.session.get(f"run_{run_id}_review")
     video_map = request.session.get(f"run_{run_id}_video_map")
+    rename_state = request.session.get(f"run_{run_id}_renames", [])
 
     runner = WorkflowRunner(
         run.workflow,
@@ -818,6 +819,7 @@ def workflow_progress(request, run_id):
     )
     runner.current_step = step_index
     runner.logs = run.log.splitlines() if run.log else []
+    runner.rename_actions = rename_state
 
     if review_state:
         runner.conversion_index = review_state.get("index", 0)
@@ -826,7 +828,12 @@ def workflow_progress(request, run_id):
         runner.review_file = review_state.get("file", "")
 
     if runner.review_pending:
-        form = VideoReviewForm(request.POST or None)
+        default_zone = ""
+        if video_map:
+            mapping = video_map.get(os.path.basename(runner.review_file))
+            if mapping:
+                default_zone = mapping.get("zone", "")
+        form = VideoReviewForm(request.POST or None, initial={"zone_id": default_zone})
         if request.method == "POST" and form.is_valid():
             zone = form.cleaned_data["zone_id"]
             flag = form.cleaned_data["flag_manual_edit"]
@@ -842,12 +849,19 @@ def workflow_progress(request, run_id):
                 runner.files[idx] = new_path
             runner.review_file = new_path
 
+            runner.rename_actions.append({
+                "file": old_name,
+                "new_name": new_name,
+                "flagged": bool(flag),
+            })
+
             msg = f"Reviewed {new_name} - Zone {zone}"
             if flag:
                 msg += " (flagged for manual edit)"
             runner.logs.append(msg)
             runner.review_pending = False
             request.session.pop(f"run_{run_id}_review", None)
+            request.session[f"run_{run_id}_renames"] = runner.rename_actions
             run.log = "\n".join(runner.logs)
             run.save()
             if run.completed_at is None:
@@ -892,12 +906,14 @@ def workflow_progress(request, run_id):
             request.session.modified = True
         else:
             request.session.pop(f"run_{run_id}_review", None)
+        request.session[f"run_{run_id}_renames"] = runner.rename_actions
 
         run.log = "\n".join(runner.logs)
         run.save()
         if run.completed_at is not None:
             write_workflow_log(run, runner.logs)
             request.session.pop(f"run_{run_id}_video_map", None)
+            request.session.pop(f"run_{run_id}_renames", None)
 
     done = run.completed_at is not None
 
