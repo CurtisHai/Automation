@@ -1,6 +1,7 @@
 import os
 import copy
 import subprocess
+from django.conf import settings
 from ..template import Task, return_failed
 from .validate_resources import ValidateResources
 
@@ -32,8 +33,25 @@ class ConvertFile(Task):
 
 
 def insta360_convert(job):
-    """Placeholder until Insta360 SDK-based conversion is available."""
-    return job
+    job_copy = copy.deepcopy(job)
+    job_copy["original_media"] = copy.deepcopy(job_copy["media_file"])
+
+    extension = os.path.splitext(job_copy["media_file"])[1].lower()
+
+    if extension == ".insp":
+        output_file = job_copy["media_file"].replace(".insp", ".jpg")
+    else:
+        output_file = (
+            job_copy["media_file"].replace(".insv", ".mp4").replace(".lrv", ".mp4")
+        )
+
+    sdk_path = os.path.join(settings.BASE_DIR, "MediaSDKTest.exe")
+
+    command = [sdk_path, "-inputs", job_copy["original_media"], "-output", output_file]
+    subprocess.call(command)
+
+    job_copy["media_file"] = output_file
+    return job_copy
 
 
 def gopro_convert(job):
