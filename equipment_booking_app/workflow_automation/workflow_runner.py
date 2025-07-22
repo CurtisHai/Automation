@@ -43,6 +43,7 @@ class WorkflowRunner:
         self.conversion_index = 0
         self.conversion_done = False
         self.rename_actions = []
+        self.finalize_index = 0
         self.last_crop_start = 0.0
         self.last_crop_end = 0.0
         self.last_remove_audio = False
@@ -196,8 +197,44 @@ class WorkflowRunner:
         self.files = new_files
         return "Audio removed"
 
+    def _finalize_video(self, path, start, end, remove_audio):
+        """Apply crop/audio options and move ``path`` into the RAW Data folder."""
+        if start or end or remove_audio:
+            file_utils.convert_video(
+                path,
+                path,
+                "mp4",
+                crop_start=start,
+                crop_end=end,
+                remove_audio=remove_audio,
+                original_media=path,
+            )
+
+        date_token = datetime.now().strftime("%d%m%y")
+        dest_dir = os.path.join(
+            self.output_path,
+            self.project_code,
+            "Project Files",
+            "3V - 360 Videos",
+            f"{date_token}{self.initials}",
+            "RAW Data",
+        )
+        os.makedirs(dest_dir, exist_ok=True)
+        dst = os.path.join(dest_dir, os.path.basename(path))
+        if os.path.abspath(path) != os.path.abspath(dst):
+            shutil.move(path, dst)
+        open(dst + ".convert", "w").close()
+        return dst
+
     def run_convert_360_video(self, config):
         fmt = config.get("convert_format") or "mp4"
+        start = float(config.get("crop_start_seconds", 0) or 0)
+        end = float(config.get("crop_end_seconds", 0) or 0)
+        remove_aud = bool(config.get("remove_audio", False))
+
+        self.last_crop_start = start
+        self.last_crop_end = end
+        self.last_remove_audio = remove_aud
 
         if not self.conversion_done:
             new_files = []
@@ -215,7 +252,7 @@ class WorkflowRunner:
             self.files = new_files
             self.conversion_done = True
             if not self.qa_video_review:
-                renamed = []
+                finalized = []
                 for f in self.files:
                     mapping = self.video_order_map.get(os.path.basename(f))
                     if mapping and mapping.get("zone"):
@@ -225,14 +262,29 @@ class WorkflowRunner:
                                 f"Renamed {os.path.basename(f)} -> {os.path.basename(new)}"
                             )
                         f = new
-                    renamed.append(f)
-                self.files = renamed
+                    f = self._finalize_video(f, start, end, remove_aud)
+                    finalized.append(f)
+                self.files = finalized
                 return "Conversion completed"
 
         if not self.qa_video_review:
             return "Conversion completed"
 
+        while self.finalize_index < self.conversion_index - int(self.review_pending):
+            idx = self.finalize_index
+            self.files[idx] = self._finalize_video(
+                self.files[idx], start, end, remove_aud
+            )
+            self.finalize_index += 1
+
         if self.conversion_index >= len(self.files):
+            if not self.review_pending:
+                while self.finalize_index < len(self.files):
+                    idx = self.finalize_index
+                    self.files[idx] = self._finalize_video(
+                        self.files[idx], start, end, remove_aud
+                    )
+                    self.finalize_index += 1
             return "Conversion completed"
 
         f = self.files[self.conversion_index]
