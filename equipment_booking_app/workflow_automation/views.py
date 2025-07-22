@@ -33,6 +33,7 @@ from .forms import (
     ConvertToolForm,
     ZipToolForm,
     VideoReviewForm,
+    VideoOrderFormSet,
 )
 
 from .workflow_runner import WorkflowRunner
@@ -548,6 +549,8 @@ def run_workflow(request):
     # Hold final logs if we end up running the workflow
     run = None
     final_logs = []
+    video_formset = None
+    video_files = []
 
     if request.method == "POST":
         # Final run is triggered when the hidden step fields are included in the
@@ -558,7 +561,8 @@ def run_workflow(request):
 
         if is_run_request:
             form = RunWorkflowForm(request.POST, user=request.user)
-            if form.is_valid():
+            video_formset = VideoOrderFormSet(request.POST, prefix="video")
+            if form.is_valid() and video_formset.is_valid():
                 workflow = form.cleaned_data["workflow"]
                 input_folder = form.cleaned_data["input_path"]
                 output_folder = form.cleaned_data["output_path"]
@@ -577,6 +581,14 @@ def run_workflow(request):
                         break
 
                 if len(step_forms) == workflow.steps.count():
+                    video_map = {}
+                    for vf in video_formset:
+                        if vf.cleaned_data.get("file_name"):
+                            video_map[vf.cleaned_data["file_name"]] = {
+                                "zone": vf.cleaned_data.get("zone_id", ""),
+                                "order": int(vf.cleaned_data.get("order", 0)),
+                            }
+
                     # Create DB record for the run
                     pause = form.cleaned_data.get("pause_between_steps", False)
                     run = WorkflowRun.objects.create(
@@ -594,6 +606,8 @@ def run_workflow(request):
                     if pause or workflow.qa_video_review:
                         request.session[f"run_{run.id}_configs"] = configs
                         request.session[f"run_{run.id}_index"] = 0
+                        if video_map:
+                            request.session[f"run_{run.id}_video_map"] = video_map
                         request.session.modified = True
                         return redirect("workflow_progress", run_id=run.id)
 
@@ -605,6 +619,7 @@ def run_workflow(request):
                         initials=run.initials,
                         step_configs=configs,
                         qa_video_review=workflow.qa_video_review,
+                        video_order_map=video_map,
                     )
 
                     # Execute steps sequentially and persist logs after each
@@ -711,6 +726,19 @@ def run_workflow(request):
         if request.session.get("proposed_name"):
             proposed_name = request.session["proposed_name"]
 
+    if not video_formset and input_folder and os.path.isdir(input_folder):
+        video_files = [
+            f
+            for f in os.listdir(input_folder)
+            if os.path.isfile(os.path.join(input_folder, f))
+            and file_utils.classify_media(os.path.join(input_folder, f))["is_video"]
+        ]
+        if len(video_files) > 1:
+            initial = [
+                {"file_name": f, "order": idx + 1}
+                for idx, f in enumerate(sorted(video_files))
+            ]
+            video_formset = VideoOrderFormSet(prefix="video", initial=initial)
     step_pairs = list(zip(workflow.steps.all(), StepFormSet)) if workflow else []
 
     return render(
@@ -721,6 +749,7 @@ def run_workflow(request):
             "step_forms": StepFormSet,
             "workflow": workflow,
             "step_pairs": step_pairs,
+            "video_forms": video_formset,
             "confirm": confirm,
             "input_folder": input_folder,
             "output_folder": output_folder,
@@ -741,6 +770,7 @@ def workflow_progress(request, run_id):
     run_mode = "pause" if run.pause_between_steps else "run_all"
 
     review_state = request.session.get(f"run_{run_id}_review")
+    video_map = request.session.get(f"run_{run_id}_video_map")
 
     runner = WorkflowRunner(
         run.workflow,
@@ -751,6 +781,7 @@ def workflow_progress(request, run_id):
         step_configs=configs,
         run_mode=run_mode,
         qa_video_review=run.workflow.qa_video_review,
+        video_order_map=video_map,
     )
     runner.current_step = step_index
     runner.logs = run.log.splitlines() if run.log else []
@@ -826,6 +857,7 @@ def workflow_progress(request, run_id):
         run.save()
         if run.completed_at is not None:
             write_workflow_log(run, runner.logs)
+            request.session.pop(f"run_{run_id}_video_map", None)
 
     done = run.completed_at is not None
 

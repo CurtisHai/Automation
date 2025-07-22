@@ -19,6 +19,7 @@ class WorkflowRunner:
         step_configs=None,
         run_mode="run_all",
         qa_video_review=False,
+        video_order_map=None,
     ):
         self.workflow = workflow
         self.input_path = input_path
@@ -28,6 +29,7 @@ class WorkflowRunner:
         self.step_configs = step_configs or []
         self.run_mode = run_mode
         self.qa_video_review = qa_video_review
+        self.video_order_map = video_order_map or {}
         self.logs = []
         self.current_step = 0
         self.defer_current_step = False
@@ -43,6 +45,10 @@ class WorkflowRunner:
             for f in os.listdir(self.input_path)
             if os.path.isfile(os.path.join(self.input_path, f))
         ]
+        if self.video_order_map:
+            self.files.sort(
+                key=lambda p: self.video_order_map.get(os.path.basename(p), {}).get("order", 0)
+            )
 
     def run_all(self):
         while self.current_step < self.workflow.steps.count():
@@ -186,15 +192,29 @@ class WorkflowRunner:
         if not fmt:
             return "Conversion skipped"
 
+        def _convert_file(path):
+            base = os.path.splitext(path)[0]
+            out = f"{base}.{fmt}"
+            file_utils.convert_video(path, out, fmt)
+            self.logs.append(f"Converted {os.path.basename(path)} to {fmt}")
+            if out != path:
+                os.remove(path)
+            return out
+
         if not self.qa_video_review:
             new_files = []
             for f in self.files:
-                base = os.path.splitext(f)[0]
-                out = f"{base}.{fmt}"
-                file_utils.convert_video(f, out, fmt)
-                self.logs.append(f"Converted {os.path.basename(f)} to {fmt}")
-                if out != f:
-                    os.remove(f)
+                out = _convert_file(f)
+                mapping = self.video_order_map.get(os.path.basename(f))
+                if mapping and mapping.get("zone"):
+                    renamed = file_utils.rename_with_zone(
+                        out, os.path.dirname(out), mapping["zone"]
+                    )
+                    if renamed != out:
+                        self.logs.append(
+                            f"Renamed {os.path.basename(out)} -> {os.path.basename(renamed)}"
+                        )
+                    out = renamed
                 new_files.append(out)
             self.files = new_files
             return "Conversion completed"
@@ -203,13 +223,22 @@ class WorkflowRunner:
             return "Conversion completed"
 
         f = self.files[self.conversion_index]
-        base = os.path.splitext(f)[0]
-        out = f"{base}.{fmt}"
-        file_utils.convert_video(f, out, fmt)
-        self.logs.append(f"Converted {os.path.basename(f)} to {fmt}")
-        if out != f:
-            os.remove(f)
+        out = _convert_file(f)
         self.files[self.conversion_index] = out
+        base = os.path.splitext(out)[0]
+
+        mapping = self.video_order_map.get(os.path.basename(f))
+        if mapping and mapping.get("zone"):
+            renamed = file_utils.rename_with_zone(
+                out, os.path.dirname(out), mapping["zone"]
+            )
+            if renamed != out:
+                self.logs.append(
+                    f"Renamed {os.path.basename(out)} -> {os.path.basename(renamed)}"
+                )
+            self.files[self.conversion_index] = renamed
+            self.conversion_index += 1
+            return "Conversion completed"
 
         preview_dir = os.path.join(self.output_path, "previews")
         os.makedirs(preview_dir, exist_ok=True)
