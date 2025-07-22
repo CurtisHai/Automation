@@ -603,6 +603,7 @@ def run_workflow(request):
                         project_code=run.project_code,
                         initials=run.initials,
                         step_configs=configs,
+                        qa_video_review=workflow.qa_video_review,
                     )
 
                     # Execute steps sequentially and persist logs after each
@@ -746,6 +747,7 @@ def workflow_progress(request, run_id):
         initials=run.initials,
         step_configs=configs,
         run_mode=run_mode,
+        qa_video_review=run.workflow.qa_video_review,
     )
     runner.current_step = step_index
     runner.logs = run.log.splitlines() if run.log else []

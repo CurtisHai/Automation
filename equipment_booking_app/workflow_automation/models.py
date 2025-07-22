@@ -112,6 +112,10 @@ class Workflow(models.Model):
     """A reusable collection of ordered processing steps."""
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, default="")
+    qa_video_review = models.BooleanField(
+        default=False,
+        help_text="Require manual QA review for each video",
+    )
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="workflows")
     created_at = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=False)

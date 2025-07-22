@@ -98,9 +98,13 @@ class NoticeForm(forms.ModelForm):
 
 
 class WorkflowForm(forms.ModelForm):
+    qa_video_review = forms.BooleanField(
+        label="Enable Manual QA Review for Each Video",
+        required=False,
+    )
     class Meta:
         model = Workflow
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'qa_video_review']
 
 
 class WorkflowStepForm(forms.ModelForm):
