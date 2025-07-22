@@ -236,6 +236,30 @@ class StepSettingsForm(forms.Form):
                 initial=False,
             )
 
+    def clean(self):
+        cleaned = super().clean()
+        if self.step_type == "convert_360_video":
+            if cleaned.get("crop_start_enabled"):
+                start = cleaned.get("crop_start_seconds") or 0
+                if start < 0:
+                    self.add_error("crop_start_seconds", "Must be positive")
+            else:
+                cleaned["crop_start_seconds"] = 0
+            if cleaned.get("crop_end_enabled"):
+                end = cleaned.get("crop_end_seconds") or 0
+                if end < 0:
+                    self.add_error("crop_end_seconds", "Must be positive")
+            else:
+                cleaned["crop_end_seconds"] = 0
+        elif self.step_type == "trim":
+            start = cleaned.get("start_seconds") or 0
+            end = cleaned.get("end_seconds") or 0
+            if start < 0:
+                self.add_error("start_seconds", "Must be positive")
+            if end < 0:
+                self.add_error("end_seconds", "Must be positive")
+        return cleaned
+
 
 StepSettingsFormSet = forms.formset_factory(StepSettingsForm, extra=0)
 

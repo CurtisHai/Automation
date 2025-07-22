@@ -64,13 +64,18 @@ def convert_video(
 
     Additional options allow trimming from the start/end and removing audio.
     """
+    if crop_start < 0 or crop_end < 0:
+        raise ValueError("Crop values must be positive")
+    duration = get_video_duration(original_media or src)
+    if duration > 0 and (crop_start + crop_end) > duration:
+        raise ValueError("Crop values exceed video length")
+
     if ffmpeg_exists():
         cmd = ["ffmpeg", "-y", "-i", src]
         if crop_start > 0:
             cmd.extend(["-ss", str(crop_start)])
         if crop_end > 0:
-            dur = get_video_duration(original_media or src)
-            trim = max(dur - (crop_start + crop_end), 0)
+            trim = max(duration - (crop_start + crop_end), 0)
             cmd.extend(["-t", str(trim)])
         if remove_audio:
             cmd.append("-an")

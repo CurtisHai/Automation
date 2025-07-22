@@ -4,6 +4,10 @@
 <h2 class="text-center mb-4">Video QA Review</h2>
 <div class="w-75 mx-auto" style="color:#192d38;">
     <img src="{{ preview_url }}" class="img-fluid mb-3" alt="Video preview">
+    <p class="mb-2"><strong>Edit</strong><br>
+        Cropping: {{ crop_start }}s start, {{ crop_end }}s end<br>
+        Audio: {% if audio_removed %}Removed{% else %}Kept{% endif %}
+    </p>
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
