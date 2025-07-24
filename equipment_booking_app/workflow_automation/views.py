@@ -34,6 +34,7 @@ from .forms import (
     ZipToolForm,
     VideoReviewForm,
     VideoOrderFormSet,
+    StepSettingsForm,
 )
 
 from .workflow_runner import WorkflowRunner
@@ -536,6 +537,16 @@ def match_workflow_from_path(path, user, depth=3):
     return None
 
 
+def build_step_formset(workflow):
+    """Return a list of StepSettingsForm instances for the workflow."""
+    if not workflow:
+        return []
+    return [
+        StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
+        for idx, s in enumerate(workflow.steps.all())
+    ]
+
+
 @login_required
 def run_workflow(request, workflow_id=None):
     """Collect folder paths for a workflow run and display confirmation.
@@ -655,10 +666,7 @@ def run_workflow(request, workflow_id=None):
                     )
 
             # If validation fails fall through to redisplay the form
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
 
         elif "accept_filename" in request.POST:
             input_folder = request.session.get("input_folder", "")
@@ -669,10 +677,7 @@ def run_workflow(request, workflow_id=None):
                 user=request.user,
                 workflow_queryset=user_wfs,
             )
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
             request.session["final_name"] = request.session.get("proposed_name")
         elif "reject_filename" in request.POST:
             input_folder = request.session.get("input_folder", "")
@@ -680,10 +685,7 @@ def run_workflow(request, workflow_id=None):
             confirm = True
             manual_override = True
             form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
         elif "override_filename" in request.POST:
             manual_name = request.POST.get("manual_name")
             if manual_name:
@@ -692,10 +694,7 @@ def run_workflow(request, workflow_id=None):
             output_folder = request.session.get("output_folder", "")
             confirm = True
             form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
         elif "accept_suggested" in request.POST:
             wf_id = request.session.get("suggested_wf_id")
             if wf_id:
@@ -709,20 +708,14 @@ def run_workflow(request, workflow_id=None):
                 user=request.user,
                 workflow_queryset=user_wfs,
             )
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
         elif "reject_suggested" in request.POST:
             request.session.pop("suggested_wf_id", None)
             input_folder = request.session.get("input_folder", "")
             output_folder = request.session.get("output_folder", "")
             confirm = True
             form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
             messages.info(request, "No workflow matched — please choose an option.")
         else:
             form = RunWorkflowForm(
@@ -758,16 +751,10 @@ def run_workflow(request, workflow_id=None):
                 )
                 if proposed_name:
                     request.session["proposed_name"] = proposed_name
-            StepFormSet = [
-                StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-                for idx, s in enumerate(workflow.steps.all())
-            ]
+            StepFormSet = build_step_formset(workflow)
     else:
         form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
-        StepFormSet = [
-            StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
-            for idx, s in enumerate(workflow.steps.all())
-        ]
+        StepFormSet = build_step_formset(workflow)
         if request.session.get("suggested_wf_id"):
             try:
                 suggested_workflow = Workflow.objects.get(id=request.session["suggested_wf_id"], created_by=request.user)
