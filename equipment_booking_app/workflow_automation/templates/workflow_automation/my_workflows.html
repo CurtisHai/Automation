@@ -12,11 +12,12 @@
 <tr class="text-center">
 <td>{{ wf.name }}</td>
 <td>{% if wf.is_published %}Yes{% else %}No{% endif %}</td>
-<td>
-{% if not wf.is_published %}
-<a href="{% url 'request_review' wf.id %}" class="btn btn-sm btn-primary">Request Review</a>
-{% endif %}
-</td>
+    <td>
+    {% if not wf.is_published %}
+    <a href="{% url 'request_review' wf.id %}" class="btn btn-sm btn-primary">Request Review</a>
+    {% endif %}
+    <a href="{% url 'run_workflow_specific' wf.id %}" class="btn btn-sm btn-success ml-1">Run Workflow</a>
+    </td>
 </tr>
 {% empty %}
 <tr><td colspan="3" class="text-center">No workflows found.</td></tr>
