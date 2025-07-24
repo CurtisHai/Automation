@@ -428,11 +428,6 @@ def create_workflow(request):
                         config["rename_pattern"] = request.POST.get("rename_pattern", "")
                     elif code == "convert_360_video":
                         config["convert_format"] = request.POST.get("convert_format", "")
-                        if request.POST.get("crop_start_enabled"):
-                            config["crop_start_seconds"] = request.POST.get("crop_start_seconds") or 0
-                        if request.POST.get("crop_end_enabled"):
-                            config["crop_end_seconds"] = request.POST.get("crop_end_seconds") or 0
-                        config["remove_audio"] = bool(request.POST.get("remove_audio"))
                     elif code == "setup_structure":
                         config["full_structure"] = bool(request.POST.get("setup_full_structure"))
                     elif code == "organize_files":

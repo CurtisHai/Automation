@@ -201,28 +201,6 @@ class StepSettingsForm(forms.Form):
                 choices=[("", "Leave unchanged"), ("mp4", "MP4"), ("avi", "AVI")],
                 required=False,
             )
-            self.fields["crop_start_enabled"] = forms.BooleanField(
-                label="Crop Start of Video",
-                required=False,
-            )
-            self.fields["crop_start_seconds"] = forms.FloatField(
-                label="Seconds",
-                required=False,
-                initial=0,
-            )
-            self.fields["crop_end_enabled"] = forms.BooleanField(
-                label="Crop End of Video",
-                required=False,
-            )
-            self.fields["crop_end_seconds"] = forms.FloatField(
-                label="Seconds",
-                required=False,
-                initial=0,
-            )
-            self.fields["remove_audio"] = forms.BooleanField(
-                label="Remove Audio from Video",
-                required=False,
-            )
         elif step_type == "organize_files":
             self.fields["target_folder"] = forms.CharField(
                 label="Target Folder",
@@ -242,20 +220,7 @@ class StepSettingsForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        if self.step_type == "convert_360_video":
-            if cleaned.get("crop_start_enabled"):
-                start = cleaned.get("crop_start_seconds") or 0
-                if start < 0:
-                    self.add_error("crop_start_seconds", "Must be positive")
-            else:
-                cleaned["crop_start_seconds"] = 0
-            if cleaned.get("crop_end_enabled"):
-                end = cleaned.get("crop_end_seconds") or 0
-                if end < 0:
-                    self.add_error("crop_end_seconds", "Must be positive")
-            else:
-                cleaned["crop_end_seconds"] = 0
-        elif self.step_type == "trim":
+        if self.step_type == "trim":
             start = cleaned.get("start_seconds") or 0
             end = cleaned.get("end_seconds") or 0
             if start < 0:
