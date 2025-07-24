@@ -1,0 +1,70 @@
+#!/bin/sh
+
+file_name=$1
+output_name=$2
+
+#ffmpeg -i "$input_file" -frames:v 1500 -y  -filter_complex "
+ffmpeg -i "$file_name" -y -filter_complex "
+[0:0]crop=128:1344:x=624:y=0,format=yuvj420p,
+geq=
+lum='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cb='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cr='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+a='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+interpolation=b,crop=64:1344:x=0:y=0,format=yuvj420p,scale=96:1344[crop],
+[0:0]crop=624:1344:x=0:y=0,format=yuvj420p[left], 
+[0:0]crop=624:1344:x=752:y=0,format=yuvj420p[right], 
+[left][crop]hstack[leftAll], 
+[leftAll][right]hstack[leftDone],
+
+[0:0]crop=1344:1344:1376:0[middle],
+
+[0:0]crop=128:1344:x=3344:y=0,format=yuvj420p,
+geq=
+lum='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cb='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cr='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+a='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+interpolation=b,crop=64:1344:x=0:y=0,format=yuvj420p,scale=96:1344[cropRightBottom],
+[0:0]crop=624:1344:x=2720:y=0,format=yuvj420p[leftRightBottom], 
+[0:0]crop=624:1344:x=3472:y=0,format=yuvj420p[rightRightBottom], 
+[leftRightBottom][cropRightBottom]hstack[rightAll], 
+[rightAll][rightRightBottom]hstack[rightBottomDone],
+[leftDone][middle]hstack[leftMiddle],
+[leftMiddle][rightBottomDone]hstack[bottomComplete],
+
+
+
+[0:5]crop=128:1344:x=624:y=0,format=yuvj420p,
+geq=
+lum='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cb='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cr='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+a='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+interpolation=n,crop=64:1344:x=0:y=0,format=yuvj420p,scale=96:1344[leftTopCrop],
+[0:5]crop=624:1344:x=0:y=0,format=yuvj420p[firstLeftTop], 
+[0:5]crop=624:1344:x=752:y=0,format=yuvj420p[firstRightTop], 
+[firstLeftTop][leftTopCrop]hstack[topLeftHalf], 
+[topLeftHalf][firstRightTop]hstack[topLeftDone],
+
+[0:5]crop=1344:1344:1376:0[TopMiddle],
+
+[0:5]crop=128:1344:x=3344:y=0,format=yuvj420p,
+geq=
+lum='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cb='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+cr='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+a='if(between(X, 0, 64), (p((X+64),Y)*(((X+1))/"65"))+(p(X,Y)*(("65"-((X+1)))/"65")), p(X,Y))':
+interpolation=n,crop=64:1344:x=0:y=0,format=yuvj420p,scale=96:1344[TopcropRightBottom],
+[0:5]crop=624:1344:x=2720:y=0,format=yuvj420p[TopleftRightBottom], 
+[0:5]crop=624:1344:x=3472:y=0,format=yuvj420p[ToprightRightBottom], 
+[TopleftRightBottom][TopcropRightBottom]hstack[ToprightAll], 
+[ToprightAll][ToprightRightBottom]hstack[ToprightBottomDone],
+[topLeftDone][TopMiddle]hstack[TopleftMiddle],
+[TopleftMiddle][ToprightBottomDone]hstack[topComplete],
+
+[bottomComplete][topComplete]vstack[complete], [complete]v360=eac:e:interp=cubic,crop=4032:2388:x=0:y=0[v]" -map "[v]" -map "0:a:0"  -c:v h264 -c:a aac -f mp4 "$output_name"
+
+exiftool -api LargeFileSupport=1  -overwrite_original -XMP-GSpherical:Spherical="true" -XMP-GSpherical:Stitched="true" -XMP-GSpherical:StitchingSoftware=dummy -XMP-GSpherical:ProjectionType=equirectangular "$output_name"
+
+echo "Location of File: $output_name"
