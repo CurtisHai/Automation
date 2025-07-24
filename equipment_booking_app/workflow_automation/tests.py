@@ -214,9 +214,7 @@ class FinalizeVideoTests(TestCase):
             step = wf.steps.create(
                 step_type="convert_360_video",
                 order=1,
-                config={"crop_start_seconds": 1.0, "remove_audio": True},
-                crop_start_seconds=1.0,
-                remove_audio=True,
+                config={},
             )
 
             runner = WorkflowRunner(
