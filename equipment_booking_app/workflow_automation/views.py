@@ -537,10 +537,17 @@ def match_workflow_from_path(path, user, depth=3):
 
 
 @login_required
-def run_workflow(request):
-    """Collect folder paths for a workflow run and display confirmation."""
+def run_workflow(request, workflow_id=None):
+    """Collect folder paths for a workflow run and display confirmation.
+
+    ``workflow_id`` optionally limits the selectable workflows to a single
+    workflow when provided. This supports running a workflow directly from the
+    user's workflow list page.
+    """
 
     user_wfs = Workflow.objects.filter(created_by=request.user)
+    if workflow_id:
+        user_wfs = user_wfs.filter(id=workflow_id)
     workflow = user_wfs.first() if user_wfs else None
 
     confirm = False
@@ -563,7 +570,11 @@ def run_workflow(request):
         is_run_request = "form-0-step_type" in request.POST
 
         if is_run_request:
-            form = RunWorkflowForm(request.POST, user=request.user)
+            form = RunWorkflowForm(
+                request.POST,
+                user=request.user,
+                workflow_queryset=user_wfs,
+            )
             video_formset = VideoOrderFormSet(request.POST, prefix="video")
             if form.is_valid() and video_formset.is_valid():
                 workflow = form.cleaned_data["workflow"]
@@ -656,6 +667,7 @@ def run_workflow(request):
             form = RunWorkflowForm(
                 initial={"workflow": workflow, "input_path": input_folder, "output_path": output_folder},
                 user=request.user,
+                workflow_queryset=user_wfs,
             )
             StepFormSet = [
                 StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
@@ -667,7 +679,7 @@ def run_workflow(request):
             output_folder = request.session.get("output_folder", "")
             confirm = True
             manual_override = True
-            form = RunWorkflowForm(user=request.user)
+            form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
             StepFormSet = [
                 StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
                 for idx, s in enumerate(workflow.steps.all())
@@ -679,7 +691,7 @@ def run_workflow(request):
             input_folder = request.session.get("input_folder", "")
             output_folder = request.session.get("output_folder", "")
             confirm = True
-            form = RunWorkflowForm(user=request.user)
+            form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
             StepFormSet = [
                 StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
                 for idx, s in enumerate(workflow.steps.all())
@@ -695,6 +707,7 @@ def run_workflow(request):
             form = RunWorkflowForm(
                 initial={"workflow": workflow, "input_path": input_folder, "output_path": output_folder},
                 user=request.user,
+                workflow_queryset=user_wfs,
             )
             StepFormSet = [
                 StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
@@ -705,14 +718,18 @@ def run_workflow(request):
             input_folder = request.session.get("input_folder", "")
             output_folder = request.session.get("output_folder", "")
             confirm = True
-            form = RunWorkflowForm(user=request.user)
+            form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
             StepFormSet = [
                 StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
                 for idx, s in enumerate(workflow.steps.all())
             ]
             messages.info(request, "No workflow matched — please choose an option.")
         else:
-            form = RunWorkflowForm(request.POST, user=request.user)
+            form = RunWorkflowForm(
+                request.POST,
+                user=request.user,
+                workflow_queryset=user_wfs,
+            )
             if form.is_valid():
                 workflow = form.cleaned_data["workflow"]
                 input_folder = form.cleaned_data["input_path"]
@@ -746,7 +763,7 @@ def run_workflow(request):
                 for idx, s in enumerate(workflow.steps.all())
             ]
     else:
-        form = RunWorkflowForm(user=request.user)
+        form = RunWorkflowForm(user=request.user, workflow_queryset=user_wfs)
         StepFormSet = [
             StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
             for idx, s in enumerate(workflow.steps.all())

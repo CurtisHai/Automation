@@ -148,8 +148,11 @@ class RunWorkflowForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
+        wf_qs = kwargs.pop("workflow_queryset", None)
         super().__init__(*args, **kwargs)
-        if user:
+        if wf_qs is not None:
+            self.fields["workflow"].queryset = wf_qs
+        elif user:
             self.fields["workflow"].queryset = Workflow.objects.filter(created_by=user)
 
     def clean(self):
