@@ -49,6 +49,10 @@ class WorkflowRunner:
         self.last_remove_audio = False
         self._last_step_index = None
 
+        # Track information about each processed video for logging
+        self.video_log = []
+        self._video_map = {}
+
         self.site_code = file_utils.parse_site_code(self.input_path)
         self.files = [
             os.path.join(self.input_path, f)
@@ -59,6 +63,51 @@ class WorkflowRunner:
             self.files.sort(
                 key=lambda p: self.video_order_map.get(os.path.basename(p), {}).get("order", 0)
             )
+
+        for p in self.files:
+            entry = {
+                "original": p,
+                "new_path": p,
+                "rename": "",
+                "crop_start": 0.0,
+                "crop_end": 0.0,
+                "audio_removed": False,
+                "flagged": False,
+                "skip_reason": "",
+            }
+            self.video_log.append(entry)
+            self._video_map[p] = entry
+
+    # Helper methods to track video information
+    def _update_video_path(self, old, new):
+        entry = self._video_map.pop(old, None)
+        if entry:
+            entry["new_path"] = new
+            self._video_map[new] = entry
+
+    def record_rename(self, old, new, manual=False, flagged=False):
+        self._update_video_path(old, new)
+        entry = self._video_map.get(new)
+        if entry is not None:
+            entry["rename"] = "manual" if manual else "auto"
+            if flagged:
+                entry["flagged"] = True
+
+    def record_crop(self, path, start, end):
+        entry = self._video_map.get(path)
+        if entry is not None:
+            entry["crop_start"] = start
+            entry["crop_end"] = end
+
+    def record_audio_removal(self, path):
+        entry = self._video_map.get(path)
+        if entry is not None:
+            entry["audio_removed"] = True
+
+    def record_skip(self, path, reason):
+        entry = self._video_map.get(path)
+        if entry and not entry.get("skip_reason"):
+            entry["skip_reason"] = reason
 
     def run_all(self):
         while self.current_step < self.workflow.steps.count():
@@ -159,12 +208,14 @@ class WorkflowRunner:
                     self.logs.append(
                         f"Renamed {os.path.basename(f)} -> {new_name}"
                     )
+                self.record_rename(f, new_path, manual=False)
             else:
                 new_path = file_utils.smart_rename(f, self.site_code)
                 if new_path != f:
                     self.logs.append(
                         f"Renamed {os.path.basename(f)} -> {os.path.basename(new_path)}"
                     )
+                    self.record_rename(f, new_path, manual=False)
             new_files.append(new_path)
         self.files = new_files
         return "Rename completed"
@@ -181,6 +232,8 @@ class WorkflowRunner:
             file_utils.trim_video(f, out, start, end)
             self.logs.append(f"Trimmed {os.path.basename(f)}")
             os.remove(f)
+            self.record_crop(out, start, end)
+            self._update_video_path(f, out)
             new_files.append(out)
         self.files = new_files
         return "Trim completed"
@@ -193,6 +246,8 @@ class WorkflowRunner:
             file_utils.remove_audio(f, out)
             self.logs.append(f"Removed audio from {os.path.basename(f)}")
             os.remove(f)
+            self.record_audio_removal(out)
+            self._update_video_path(f, out)
             new_files.append(out)
         self.files = new_files
         return "Audio removed"
@@ -223,6 +278,10 @@ class WorkflowRunner:
         dst = os.path.join(dest_dir, os.path.basename(path))
         if os.path.abspath(path) != os.path.abspath(dst):
             shutil.move(path, dst)
+        self._update_video_path(path, dst)
+        self.record_crop(dst, start, end)
+        if remove_audio:
+            self.record_audio_removal(dst)
         open(dst + ".convert", "w").close()
         return dst
 
@@ -246,9 +305,13 @@ class WorkflowRunner:
                         job = insta360_convert(job)
                     elif ext == ".360":
                         job = gopro_convert(job)
+                    else:
+                        self.record_skip(f, "Not a 360 video")
                 except Exception as e:
                     self.logs.append(f"Error converting {os.path.basename(f)}: {e}")
                 new_files.append(job["media_file"])
+                if job["media_file"] != f:
+                    self._update_video_path(f, job["media_file"])
             self.files = new_files
             self.conversion_done = True
             if not self.qa_video_review:
@@ -261,6 +324,7 @@ class WorkflowRunner:
                             self.logs.append(
                                 f"Renamed {os.path.basename(f)} -> {os.path.basename(new)}"
                             )
+                            self.record_rename(f, new, manual=False)
                         f = new
                     f = self._finalize_video(f, start, end, remove_aud)
                     finalized.append(f)

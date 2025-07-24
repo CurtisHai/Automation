@@ -639,7 +639,7 @@ def run_workflow(request):
 
                     run.completed_at = timezone.now()
                     run.save()
-                    write_workflow_log(run, runner.logs)
+                    write_workflow_log(run, runner.logs, runner)
                     final_logs = runner.logs
                     return render(
                         request,
@@ -844,6 +844,7 @@ def workflow_progress(request, run_id):
             new_name = os.path.basename(new_path)
             if new_name != old_name:
                 runner.logs.append(f"Renamed {old_name} -> {new_name}")
+            runner.record_rename(runner.review_file, new_path, manual=True, flagged=flag)
             idx = runner.conversion_index - 1
             if 0 <= idx < len(runner.files):
                 runner.files[idx] = new_path
@@ -911,7 +912,7 @@ def workflow_progress(request, run_id):
         run.log = "\n".join(runner.logs)
         run.save()
         if run.completed_at is not None:
-            write_workflow_log(run, runner.logs)
+            write_workflow_log(run, runner.logs, runner)
             request.session.pop(f"run_{run_id}_video_map", None)
             request.session.pop(f"run_{run_id}_renames", None)
 
