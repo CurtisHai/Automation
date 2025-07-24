@@ -68,7 +68,7 @@
         <!-- Folder pickers -->
         <div id="single-folder" class="form-group">
             <label>Select Folder</label><br>
-            <input type="file" id="input_folder_picker" webkitdirectory directory multiple name="" style="display:none;">
+            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
             <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
             <span id="input_folder_label" class="ml-2"></span>
         </div>
@@ -76,13 +76,13 @@
         <div id="two-folders" style="display:none;">
             <div class="form-group">
                 <label>Select Input Folder</label><br>
-                <input type="file" id="input_folder_picker2" webkitdirectory directory multiple name="" style="display:none;">
+                <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
                 <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
                 <span id="input_folder_label2" class="ml-2"></span>
             </div>
             <div class="form-group">
                 <label>Select Output Folder</label><br>
-                <input type="file" id="output_folder_picker" webkitdirectory directory multiple name="" style="display:none;">
+                <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
                 <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
                 <span id="output_folder_label" class="ml-2"></span>
             </div>
@@ -107,7 +107,7 @@
                     {% if step.step_type == 'setup_structure' %}
                         <div class="form-group">
                             <label>Select RAW Data Folder</label><br>
-                            <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory directory multiple style="display:none;">
+                              <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple style="display:none;">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
                             <span id="raw_label_{{ forloop.counter }}" class="ml-2"></span>
                             {{ step_form.raw_data_folder }}
@@ -165,7 +165,8 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     inputPicker.addEventListener('change', function(){
         if (this.files.length) {
-            const path = this.files[0].webkitRelativePath.split('/')[0];
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
             document.getElementById('id_input_path').value = path;
             document.getElementById('id_output_path').value = path;
             document.getElementById('input_folder_label').textContent = path;
@@ -178,7 +179,8 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     inputPicker2.addEventListener('change', function(){
         if (this.files.length) {
-            const path = this.files[0].webkitRelativePath.split('/')[0];
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
             document.getElementById('id_input_path').value = path;
             document.getElementById('input_folder_label2').textContent = path;
         }
@@ -190,7 +192,8 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     outputPicker.addEventListener('change', function(){
         if (this.files.length) {
-            const path = this.files[0].webkitRelativePath.split('/')[0];
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
             document.getElementById('id_output_path').value = path;
             document.getElementById('output_folder_label').textContent = path;
         }
@@ -199,7 +202,8 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
         picker.addEventListener('change', function(){
             if (this.files.length) {
-                const path = this.files[0].webkitRelativePath.split('/')[0];
+                const file = this.files[0];
+                const path = file.path || file.webkitRelativePath.split('/')[0];
                 const counter = this.id.split('_')[2];
                 document.getElementById('id_form-' + (counter - 1) + '-raw_data_folder').value = path;
                 document.getElementById('raw_label_' + counter).textContent = path;
