@@ -84,6 +84,18 @@ class GenerateNextFilenameTests(TestCase):
             name = file_utils.generate_next_filename(os.path.join(tmp, "sub"), ".mp4")
             self.assertEqual(name, "SL-SL-SR-011-A-3V-0002.mp4")
 
+    def test_generate_next_filename_date(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, "sub"), exist_ok=True)
+            existing = os.path.join(tmp, "sub", "SL-SL-SR-011-A-3V-0001.mp4")
+            with open(existing, "wb") as fh:
+                fh.write(b"\x00")
+            name = file_utils.generate_next_filename(
+                os.path.join(tmp, "sub"), ".mp4", use_date_suffix=True
+            )
+            stamp = datetime.now().strftime("%d%m%y")
+            self.assertEqual(name, f"SL-SL-SR-011-A-3V-{stamp}.mp4") if name else None
+
 
 class RenameWithZoneTests(TestCase):
     def test_rename_with_zone(self):
@@ -99,6 +111,26 @@ class RenameWithZoneTests(TestCase):
             new_path = file_utils.rename_with_zone(sample, tmp, "101-A")
             self.assertTrue(os.path.exists(new_path))
             self.assertEqual(os.path.basename(new_path), "SL-SL-SR-101-A-3V-0002.mp4")
+
+    def test_rename_with_zone_date(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            existing = os.path.join(tmp, "SL-SL-SR-101-A-3V-0001.mp4")
+            with open(existing, "wb") as fh:
+                fh.write(b"\x00")
+
+            sample = os.path.join(tmp, "sample.mp4")
+            with open(sample, "wb") as fh:
+                fh.write(b"\x00")
+
+            new_path = file_utils.rename_with_zone(
+                sample, tmp, "101-A", use_date_suffix=True
+            )
+            stamp = datetime.now().strftime("%d%m%y")
+            self.assertTrue(os.path.exists(new_path))
+            self.assertEqual(
+                os.path.basename(new_path),
+                f"SL-SL-SR-101-A-3V-{stamp}.mp4",
+            )
 
 
 class LogWriterTests(TestCase):
@@ -138,6 +170,7 @@ class LogWriterTests(TestCase):
             self.assertIn("Workflow Execution Log", content)
             self.assertIn("Renamed: sample.mp4", content)
             self.assertIn("Time Started:", content)
+            self.assertIn("Suffix Format", content)
 
 
 class ConvertVideoValidationTests(TestCase):

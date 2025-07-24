@@ -24,6 +24,7 @@ class WorkflowRunner:
         run_mode="run_all",
         qa_video_review=False,
         video_order_map=None,
+        use_date_suffix=False,
     ):
         self.workflow = workflow
         self.input_path = input_path
@@ -34,6 +35,7 @@ class WorkflowRunner:
         self.run_mode = run_mode
         self.qa_video_review = qa_video_review
         self.video_order_map = video_order_map or {}
+        self.use_date_suffix = use_date_suffix
         self.logs = []
         self.current_step = 0
         self.defer_current_step = False
@@ -319,7 +321,12 @@ class WorkflowRunner:
                 for f in self.files:
                     mapping = self.video_order_map.get(os.path.basename(f))
                     if mapping and mapping.get("zone"):
-                        new = file_utils.rename_with_zone(f, os.path.dirname(f), mapping["zone"])
+                        new = file_utils.rename_with_zone(
+                            f,
+                            os.path.dirname(f),
+                            mapping["zone"],
+                            use_date_suffix=self.use_date_suffix,
+                        )
                         if new != f:
                             self.logs.append(
                                 f"Renamed {os.path.basename(f)} -> {os.path.basename(new)}"

@@ -116,6 +116,10 @@ class Workflow(models.Model):
         default=False,
         help_text="Require manual QA review for each video",
     )
+    use_date_suffix = models.BooleanField(
+        default=False,
+        help_text="Use processing date instead of numeric version",
+    )
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="workflows")
     created_at = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=False)
