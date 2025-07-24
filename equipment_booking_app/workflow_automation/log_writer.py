@@ -74,6 +74,12 @@ def write_workflow_log(run, logs, runner=None):
                 fh.write(f"Renamed:  {new}\n")
             if renamed:
                 fh.write("\n")
+        naming_note = (
+            "Date-based naming (DDMMYY)"
+            if getattr(runner, "use_date_suffix", False)
+            else "Auto-naming with version number"
+        )
+        fh.write(f"Suffix Format: {naming_note}\n\n")
 
         fh.write("Folder Structure Created:\n")
         if folders:

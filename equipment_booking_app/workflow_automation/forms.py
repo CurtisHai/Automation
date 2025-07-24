@@ -102,9 +102,13 @@ class WorkflowForm(forms.ModelForm):
         label="Enable Manual QA Review for Each Video",
         required=False,
     )
+    use_date_suffix = forms.BooleanField(
+        label="Use date instead of version number in final filename?",
+        required=False,
+    )
     class Meta:
         model = Workflow
-        fields = ['name', 'description', 'qa_video_review']
+        fields = ['name', 'description', 'qa_video_review', 'use_date_suffix']
 
 
 class WorkflowStepForm(forms.ModelForm):

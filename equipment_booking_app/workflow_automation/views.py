@@ -629,6 +629,7 @@ def run_workflow(request):
                         step_configs=configs,
                         qa_video_review=workflow.qa_video_review,
                         video_order_map=video_map,
+                        use_date_suffix=workflow.use_date_suffix,
                     )
 
                     # Execute steps sequentially and persist logs after each
@@ -738,7 +739,11 @@ def run_workflow(request):
                         if os.path.isfile(os.path.join(input_folder, f))
                     ]
                 ext = os.path.splitext(files[0])[1] if files else ""
-                proposed_name = file_utils.generate_next_filename(output_folder, ext)
+                proposed_name = file_utils.generate_next_filename(
+                    output_folder,
+                    ext,
+                    use_date_suffix=workflow.use_date_suffix,
+                )
                 if proposed_name:
                     request.session["proposed_name"] = proposed_name
             StepFormSet = [
@@ -816,6 +821,7 @@ def workflow_progress(request, run_id):
         run_mode=run_mode,
         qa_video_review=run.workflow.qa_video_review,
         video_order_map=video_map,
+        use_date_suffix=run.workflow.use_date_suffix,
     )
     runner.current_step = step_index
     runner.logs = run.log.splitlines() if run.log else []
@@ -839,7 +845,10 @@ def workflow_progress(request, run_id):
             flag = form.cleaned_data["flag_manual_edit"]
             old_name = os.path.basename(runner.review_file)
             new_path = file_utils.rename_with_zone(
-                runner.review_file, os.path.dirname(runner.review_file), zone
+                runner.review_file,
+                os.path.dirname(runner.review_file),
+                zone,
+                use_date_suffix=runner.use_date_suffix,
             )
             new_name = os.path.basename(new_path)
             if new_name != old_name:

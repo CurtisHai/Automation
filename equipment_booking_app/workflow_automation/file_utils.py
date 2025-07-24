@@ -209,7 +209,7 @@ def organize_files(files, output_root, site_code="", target_folder=""):
     return paths
 
 
-def rename_with_zone(path: str, folder: str, zone_id: str) -> str:
+def rename_with_zone(path: str, folder: str, zone_id: str, *, use_date_suffix: bool = False) -> str:
     """Rename ``path`` using ``zone_id`` and sequential zone numbering.
 
     ``folder`` should be the destination directory containing any previously
@@ -220,7 +220,7 @@ def rename_with_zone(path: str, folder: str, zone_id: str) -> str:
 
     ext = os.path.splitext(path)[1]
 
-    candidate = generate_next_filename(folder, ext)
+    candidate = generate_next_filename(folder, ext, use_date_suffix=use_date_suffix)
     prefix = ""
     if candidate:
         zone_part = candidate.rsplit("-3V", 1)[0]
@@ -238,24 +238,30 @@ def rename_with_zone(path: str, folder: str, zone_id: str) -> str:
             prefix = site_code
 
     zone_prefix = f"{prefix}-{zone_id}"
-    pattern = re.compile(
-        rf"^{re.escape(zone_prefix)}-3V-(\d{{4}}){re.escape(ext)}$", re.IGNORECASE
-    )
-    max_idx = 0
-    for fname in os.listdir(folder):
-        m = pattern.match(fname)
-        if m:
-            idx = int(m.group(1))
-            if idx > max_idx:
-                max_idx = idx
-    new_idx = max_idx + 1
-    new_name = f"{zone_prefix}-3V-{new_idx:04d}{ext}"
+    if use_date_suffix:
+        stamp = datetime.now().strftime("%d%m%y")
+        new_name = f"{zone_prefix}-3V-{stamp}{ext}"
+    else:
+        pattern = re.compile(
+            rf"^{re.escape(zone_prefix)}-3V-(\d{{4}}){re.escape(ext)}$", re.IGNORECASE
+        )
+        max_idx = 0
+        for fname in os.listdir(folder):
+            m = pattern.match(fname)
+            if m:
+                idx = int(m.group(1))
+                if idx > max_idx:
+                    max_idx = idx
+        new_idx = max_idx + 1
+        new_name = f"{zone_prefix}-3V-{new_idx:04d}{ext}"
     new_path = os.path.join(folder, new_name)
     os.rename(path, new_path)
     return new_path
 
 
-def generate_next_filename(folder_path: str, extension: str = "") -> str | None:
+def generate_next_filename(
+    folder_path: str, extension: str = "", *, use_date_suffix: bool = False
+) -> str | None:
     """Return the next sequential file name using existing zone patterns.
 
     The function searches ``folder_path`` along with its parent and grandparent
@@ -292,12 +298,19 @@ def generate_next_filename(folder_path: str, extension: str = "") -> str | None:
         return None
 
     prefix, cur_idx = sorted(prefix_map.items(), key=lambda x: x[1], reverse=True)[0]
-    next_idx = cur_idx + 1
-    candidate = f"{prefix}-{next_idx:04d}{extension}"
-
-    while os.path.exists(os.path.join(folder_path, candidate)):
-        next_idx += 1
+    if use_date_suffix:
+        stamp = datetime.now().strftime("%d%m%y")
+        candidate = f"{prefix}-{stamp}{extension}"
+        count = 1
+        while os.path.exists(os.path.join(folder_path, candidate)):
+            candidate = f"{prefix}-{stamp}-{count}{extension}"
+            count += 1
+    else:
+        next_idx = cur_idx + 1
         candidate = f"{prefix}-{next_idx:04d}{extension}"
+        while os.path.exists(os.path.join(folder_path, candidate)):
+            next_idx += 1
+            candidate = f"{prefix}-{next_idx:04d}{extension}"
 
     return candidate
 
