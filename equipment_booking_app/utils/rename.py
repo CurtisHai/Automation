@@ -27,7 +27,13 @@ def rename_directory(path: str, pattern: str = ""):
     return renamed
 
 
-def run_rename(raw_data_folder: str, output_folder: str, user_initials: str, full_name: str):
+def run_rename(
+    raw_data_folder: str,
+    output_folder: str,
+    user_initials: str,
+    full_name: str,
+    rename_pattern: str = "",
+):
     """Rename media in ``raw_data_folder`` and move to ``output_folder``.
 
     The function validates the input folder contains files, performs a smart
@@ -45,7 +51,7 @@ def run_rename(raw_data_folder: str, output_folder: str, user_initials: str, ful
 
     os.makedirs(output_folder, exist_ok=True)
 
-    renamed = rename_directory(raw_data_folder)
+    renamed = rename_directory(raw_data_folder, rename_pattern)
     results = []
     for name in renamed:
         src = os.path.join(raw_data_folder, name)
