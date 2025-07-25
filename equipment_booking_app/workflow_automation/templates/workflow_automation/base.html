@@ -125,7 +125,7 @@
     <!-- Link to the custom CSS file for additional styles -->
     <link rel="stylesheet" href="{% static 'workflow_automation/css/styles.css' %}">
 </head>
-<body class="d-flex flex-column min-vh-100" style="background-color: #101e29; color: white;">
+<body class="d-flex flex-column min-vh-100 dark-mode">
     {% include 'workflow_automation/partials/sidebar.html' %}
     <div id="main-content" class="flex-grow-1">
 
@@ -139,7 +139,7 @@
     </div>
     {% endif %}
 
-    <main class="container flex-grow-1" style="background-color: #192d38; color: white; border-radius: 6px; padding: 20px;">
+    <main class="container flex-grow-1">
         {% block content %}
         {% endblock %}
     </main>
@@ -149,6 +149,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'workflow_automation/js/theme-toggle.js' %}"></script>
 
     <script>
         function confirmLogout(event) {
