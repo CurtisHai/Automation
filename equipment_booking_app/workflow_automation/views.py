@@ -393,11 +393,31 @@ def security_notice(request):
 @login_required
 def workflow_dashboard(request):
     workflows = Workflow.objects.filter(is_published=True)
-    return render(request, 'workflow_automation/workflow_dashboard.html', {'workflows': workflows})
+
+    recent_runs = []
+    if not workflows.exists():
+        runs = (
+            WorkflowRun.objects.filter(user=request.user)
+            .select_related("workflow")
+            .order_by("-started_at")[:10]
+        )
+        seen = set()
+        for run in runs:
+            if run.workflow_id not in seen:
+                recent_runs.append(run)
+                seen.add(run.workflow_id)
+            if len(recent_runs) >= 3:
+                break
+
+    context = {
+        "workflows": workflows,
+        "recent_runs": recent_runs,
+    }
+    return render(request, "workflow_automation/workflow_dashboard.html", context)
 
 
 @login_required
-def create_workflow(request):
+def create_workflow(request, workflow_id=None):
     step_codes = [
         "setup_structure",
         "convert_360_video",
@@ -407,16 +427,38 @@ def create_workflow(request):
         "organize_files",
     ]
 
-    if request.method == "POST":
-        wf_form = WorkflowForm(request.POST)
+    workflow = None
+    if request.method == "GET" and (workflow_id or request.GET.get("workflow_id")):
+        wf_id = workflow_id or request.GET.get("workflow_id")
+        workflow = get_object_or_404(
+            Workflow,
+            id=wf_id,
+            created_by=request.user,
+            from_shared=False,
+        )
+        wf_form = WorkflowForm(instance=workflow)
+    elif request.method == "POST":
+        wf_id = request.POST.get("workflow_id") or workflow_id
+        instance = None
+        if wf_id:
+            instance = get_object_or_404(
+                Workflow,
+                id=wf_id,
+                created_by=request.user,
+                from_shared=False,
+            )
+            workflow = instance
+        wf_form = WorkflowForm(request.POST, instance=instance)
         if wf_form.is_valid():
             workflow = wf_form.save(commit=False)
             workflow.created_by = request.user
-            if request.user.is_superuser:
+            if request.user.is_superuser and not wf_id:
                 workflow.is_published = True
                 workflow.published_by = request.user
                 workflow.published_at = timezone.now()
             workflow.save()
+            if instance:
+                instance.steps.all().delete()
 
             for code in step_codes:
                 if request.POST.get(f"include_{code}"):
@@ -444,14 +486,18 @@ def create_workflow(request):
                         remove_audio=config.get("remove_audio", False),
                     )
 
-            messages.success(request, "Workflow created successfully.")
+            msg = "Workflow updated successfully." if wf_id else "Workflow created successfully."
+            messages.success(request, msg)
             return redirect("my_workflows")
     else:
         wf_form = WorkflowForm()
 
+    steps_map = {s.step_type: s for s in workflow.steps.all()} if workflow else {}
     context = {
         "form": wf_form,
         "step_choices": WorkflowStep.STEP_CHOICES,
+        "workflow": workflow,
+        "steps_map": steps_map,
     }
     return render(request, "workflow_automation/create_workflow.html", context)
 
@@ -515,6 +561,7 @@ def use_shared_workflow(request, workflow_id):
         name=workflow.name,
         description=workflow.description,
         created_by=request.user,
+        from_shared=True,
     )
     for step in workflow.steps.all():
         WorkflowStep.objects.create(

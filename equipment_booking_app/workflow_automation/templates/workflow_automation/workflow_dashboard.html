@@ -21,6 +21,35 @@
         </li>
     {% endfor %}
     </ul>
+{% elif recent_runs %}
+    <div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff;">
+        <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color:#192d38; text-align:center;">
+            <tr><th>Name</th><th>Last Used</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for run in recent_runs %}
+            <tr class="text-center">
+                <td>
+                    {{ run.workflow.name }}
+                    {% if run.workflow.from_shared %}
+                    <span class="badge bg-secondary">shared</span>
+                    {% else %}
+                    <span class="badge bg-success">mine</span>
+                    {% endif %}
+                </td>
+                <td>{{ run.started_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    {% if not run.workflow.from_shared %}
+                    <a href="{% url 'edit_workflow' run.workflow.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    {% endif %}
+                    <a href="{% url 'run_workflow_specific' run.workflow.id %}" class="btn btn-sm btn-success ml-1">Run</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
 {% else %}
     <p>No workflows defined.</p>
 {% endif %}
