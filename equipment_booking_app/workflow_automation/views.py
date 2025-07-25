@@ -559,6 +559,11 @@ def run_workflow(request, workflow_id=None):
     user's workflow list page.
     """
 
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.initials:
+        messages.error(request, "Please input your initials on the account page to continue.")
+        return redirect("accounts")
+
     user_wfs = Workflow.objects.filter(created_by=request.user)
     if workflow_id:
         user_wfs = user_wfs.filter(id=workflow_id)
@@ -945,7 +950,12 @@ def workflow_progress(request, run_id):
 
 @login_required
 def run_rename_view(request):
-    form = RenameToolForm(request.POST or None)
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.initials:
+        messages.error(request, "Please input your initials on the account page to continue.")
+        return redirect("accounts")
+
+    form = RenameToolForm(request.POST or None, initial={"user_initials": profile.initials})
     files = []
     selected_folder = ""
     if request.method == "POST" and form.is_valid():
@@ -972,6 +982,11 @@ def run_rename_view(request):
 
 @login_required
 def run_convert_view(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.initials:
+        messages.error(request, "Please input your initials on the account page to continue.")
+        return redirect("accounts")
+
     form = ConvertToolForm(request.POST or None)
     files = []
     if request.method == "POST" and form.is_valid():
@@ -984,6 +999,11 @@ def run_convert_view(request):
 
 @login_required
 def run_zip_view(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.initials:
+        messages.error(request, "Please input your initials on the account page to continue.")
+        return redirect("accounts")
+
     form = ZipToolForm(request.POST or None)
     zip_path = None
     if request.method == "POST" and form.is_valid():
