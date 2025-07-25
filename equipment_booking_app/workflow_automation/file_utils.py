@@ -260,7 +260,11 @@ def rename_with_zone(path: str, folder: str, zone_id: str, *, use_date_suffix: b
 
 
 def generate_next_filename(
-    folder_path: str, extension: str = "", *, use_date_suffix: bool = False
+    folder_path: str,
+    extension: str = "",
+    *,
+    building_name: str | None = None,
+    use_date_suffix: bool = False
 ) -> str | None:
     """Return the next sequential file name using existing zone patterns.
 
@@ -268,9 +272,13 @@ def generate_next_filename(
     directories (including all subfolders) for files matching the typical zone
     naming convention ``PREFIX-3V-XXXX.ext``. The highest numeric suffix found
     is incremented and combined with the detected prefix. ``extension`` is
-    appended to the returned name. If no matching files are found, ``None`` is
-    returned.
+    appended to the returned name. When ``building_name`` is provided, only
+    prefixes containing the normalized building token are considered. If no
+    matching files are found, ``None`` is returned.
     """
+
+    def _normalize(text: str) -> str:
+        return re.sub(r"[-\s]+", "-", text.strip().lower())
 
     search_roots = [os.path.abspath(folder_path)]
     parent = os.path.dirname(search_roots[0])
@@ -282,6 +290,7 @@ def generate_next_filename(
 
     pattern = re.compile(r"^([A-Za-z0-9-]+-3V)-(\d{4})", re.IGNORECASE)
     prefix_map = {}
+    building_token = _normalize(building_name) if building_name else None
 
     for root in search_roots:
         if not os.path.isdir(root):
@@ -291,6 +300,8 @@ def generate_next_filename(
                 match = pattern.match(fname)
                 if match:
                     prefix, idx = match.group(1), int(match.group(2))
+                    if building_token and building_token not in _normalize(prefix):
+                        continue
                     if idx > prefix_map.get(prefix, -1):
                         prefix_map[prefix] = idx
 

@@ -750,6 +750,7 @@ def run_workflow(request, workflow_id=None):
                 proposed_name = file_utils.generate_next_filename(
                     output_folder,
                     ext,
+                    building_name=file_utils.parse_site_code(output_folder),
                     use_date_suffix=workflow.use_date_suffix,
                 )
                 if proposed_name:
