@@ -963,13 +963,14 @@ def run_rename_view(request):
         output_folder = form.cleaned_data["output_folder"]
         initials = form.cleaned_data["user_initials"]
         full_name = form.cleaned_data["full_name"]
+        pattern = form.cleaned_data.get("rename_pattern", "")
 
         if not os.path.isdir(raw_folder) or not any(
             os.path.isfile(os.path.join(raw_folder, f)) for f in os.listdir(raw_folder)
         ):
             form.add_error("raw_data_folder", "Selected folder has no valid files")
         else:
-            files = rename.run_rename(raw_folder, output_folder, initials, full_name)
+            files = rename.run_rename(raw_folder, output_folder, initials, full_name, pattern)
             messages.success(request, "Rename completed")
             selected_folder = raw_folder
 

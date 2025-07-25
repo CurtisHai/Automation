@@ -24,17 +24,19 @@
             <span id="output_folder_label" class="ml-2"></span>
         </div>
 
-        <div class="form-group">
-            <label for="id_user_initials">Your Initials</label>
-            {{ form.user_initials }}
-        </div>
-        <div class="form-group">
-            <label for="id_full_name">Full Name</label>
-            {{ form.full_name }}
-        </div>
-        <div class="form-group">
-            <label for="id_rename_pattern">Rename Pattern</label>
-            {{ form.rename_pattern }}
+        <div id="additional-fields" style="display:none;">
+            <div class="form-group">
+                <label for="id_user_initials">Your Initials</label>
+                {{ form.user_initials }}
+            </div>
+            <div class="form-group">
+                <label for="id_full_name">Full Name</label>
+                {{ form.full_name }}
+            </div>
+            <div class="form-group">
+                <label for="id_rename_pattern">Rename Pattern</label>
+                {{ form.rename_pattern }}
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Run Rename</button>
     </form>
@@ -54,6 +56,36 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('raw_folder_btn').addEventListener('click', function(){
         rawPicker.click();
     });
+
+    const outputPicker = document.getElementById('output_folder_picker');
+    document.getElementById('output_folder_btn').addEventListener('click', function(){
+        outputPicker.click();
+    });
+    function checkVisibility(){
+        const raw = document.getElementById('id_raw_data_folder').value;
+        const out = document.getElementById('id_output_folder').value;
+        const fields = document.getElementById('additional-fields');
+        if(raw && out){
+            fields.style.display = 'block';
+        }
+    }
+
+    outputPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
+            document.getElementById('id_output_folder').value = path;
+            document.getElementById('output_folder_label').textContent = path;
+            const base = path.replace(/[\\/]+$/, '').split(/[\\/]/).pop();
+            const suggestion = `${base}-3V-{timestamp}{ext}`;
+            const renameField = document.getElementById('id_rename_pattern');
+            if(renameField && !renameField.value){
+                renameField.value = suggestion;
+            }
+        }
+        checkVisibility();
+    });
+
     rawPicker.addEventListener('change', function(){
         if (this.files.length){
             const file = this.files[0];
@@ -61,19 +93,8 @@ document.addEventListener('DOMContentLoaded', function(){
             document.getElementById('id_raw_data_folder').value = path;
             document.getElementById('raw_folder_label').textContent = path;
         }
+        checkVisibility();
     });
-
-    const outputPicker = document.getElementById('output_folder_picker');
-    document.getElementById('output_folder_btn').addEventListener('click', function(){
-        outputPicker.click();
-    });
-    outputPicker.addEventListener('change', function(){
-        if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_output_folder').value = path;
-            document.getElementById('output_folder_label').textContent = path;
-        }
-    });
+    checkVisibility();
 });
 </script>
