@@ -1072,7 +1072,19 @@ def run_zip_view(request):
 
 def progress_status(request):
     """Return JSON status for the zip progress bar."""
-    return JsonResponse(progress.get())
+    data = progress.get()
+    return JsonResponse({
+        "task": data.get("task"),
+        "completed": len(data.get("completed", [])),
+        "total": data.get("total", 0),
+        "status": data.get("status"),
+        "percent": data.get("percent", 0),
+        "current_file": data.get("current", ""),
+        "input_path": data.get("input_path", ""),
+        "output_path": data.get("output_path", ""),
+        "completed_files": data.get("completed", []),
+        "pending_files": data.get("pending", []),
+    })
 
 
 @require_POST
@@ -1086,9 +1098,18 @@ def progress_control(request):
     elif action == "cancel":
         progress.set_status("cancel")
     elif action == "restart":
+        data = progress.get()
         args = progress.args()
         if all(args):
-            zip_task.start_zip(*args)
+            completed = data.get("completed", [])
+            if completed:
+                last = completed[-1]
+                last_zip = os.path.join(data.get("output_path", ""), os.path.splitext(last)[0] + ".zip")
+                if os.path.exists(last_zip):
+                    os.remove(last_zip)
+                completed = completed[:-1]
+            progress.set_status("cancel")
+            zip_task.start_zip(args[0], args[1], completed=completed)
     else:
         return HttpResponseBadRequest("Invalid action")
     return JsonResponse({"status": "ok"})
