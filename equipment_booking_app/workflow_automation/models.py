@@ -126,6 +126,10 @@ class Workflow(models.Model):
     is_published = models.BooleanField(default=False)
     published_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='published_workflows')
     published_at = models.DateTimeField(null=True, blank=True)
+    from_shared = models.BooleanField(
+        default=False,
+        help_text="Indicates this workflow originated from the shared library",
+    )
 
     def __str__(self):
         return self.name

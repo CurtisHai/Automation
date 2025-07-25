@@ -10,11 +10,14 @@
 <tbody>
 {% for wf in workflows %}
 <tr class="text-center">
-<td>{{ wf.name }}</td>
+<td>{{ wf.name }} {% if wf.from_shared %}<span class="badge bg-secondary">shared</span>{% else %}<span class="badge bg-success">mine</span>{% endif %}</td>
 <td>{% if wf.is_published %}Yes{% else %}No{% endif %}</td>
     <td>
     {% if not wf.is_published %}
     <a href="{% url 'request_review' wf.id %}" class="btn btn-sm btn-primary">Request Review</a>
+    {% endif %}
+    {% if not wf.from_shared %}
+    <a href="{% url 'edit_workflow' wf.id %}" class="btn btn-sm btn-warning ml-1">Edit</a>
     {% endif %}
     <a href="{% url 'run_workflow_specific' wf.id %}" class="btn btn-sm btn-success ml-1">Run Workflow</a>
     </td>
