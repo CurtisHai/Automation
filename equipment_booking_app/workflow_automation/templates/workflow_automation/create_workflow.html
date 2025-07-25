@@ -32,7 +32,7 @@
             <label class="form-check-label" for="setup_cb">Setup folder structure</label>
         </div>
         <div id="setup_settings" class="ml-4 mt-2" style="display:{% if steps_map.setup_structure %}block{% else %}none{% endif %};">
-            <input type="number" name="order_setup_structure" min="1" class="form-control" placeholder="Order" value="{{ steps_map.setup_structure.order if steps_map.setup_structure }}">
+            <input type="number" name="order_setup_structure" min="1" class="form-control" placeholder="Order" value="{{ steps_map.setup_structure.order|default:'' }}">
             <div class="form-check mt-2">
                 <input class="form-check-input" type="checkbox" id="id_setup_full_structure" name="setup_full_structure" {% if steps_map.setup_structure and steps_map.setup_structure.config.full_structure %}checked{% endif %}>
                 <label class="form-check-label" for="id_setup_full_structure">Generate full folder structure?</label>
@@ -50,7 +50,7 @@
                 <option value="mp4" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'mp4' %}selected{% endif %}>MP4</option>
                 <option value="avi" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'avi' %}selected{% endif %}>AVI</option>
             </select>
-            <input type="number" name="order_convert_360_video" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.convert_360_video.order if steps_map.convert_360_video }}">
+            <input type="number" name="order_convert_360_video" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.convert_360_video.order|default:'' }}">
         </div>
 
         <div class="form-check mt-3">
@@ -59,8 +59,8 @@
         </div>
         <div id="rename_settings" class="ml-4 mt-2" style="display:{% if steps_map.rename %}block{% else %}none{% endif %};">
             <label for="id_rename_pattern">Rename Pattern</label>
-            <input type="text" name="rename_pattern" id="id_rename_pattern" class="form-control" placeholder="Leave unchanged" title="Enable smart renaming using file path and timestamp" value="{{ steps_map.rename.config.rename_pattern if steps_map.rename }}">
-            <input type="number" name="order_rename" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.rename.order if steps_map.rename }}">
+            <input type="text" name="rename_pattern" id="id_rename_pattern" class="form-control" placeholder="Leave unchanged" title="Enable smart renaming using file path and timestamp" value="{{ steps_map.rename.config.rename_pattern|default:'' }}">
+            <input type="number" name="order_rename" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.rename.order|default:'' }}">
         </div>
 
         <div class="form-check mt-3">
@@ -68,7 +68,7 @@
             <label class="form-check-label" for="audio_cb">Remove audio from 360 videos</label>
         </div>
         <div id="remove_audio_settings" class="ml-4 mt-2" style="display:{% if steps_map.remove_audio %}block{% else %}none{% endif %};">
-            <input type="number" name="order_remove_audio" min="1" class="form-control" placeholder="Order" value="{{ steps_map.remove_audio.order if steps_map.remove_audio }}">
+            <input type="number" name="order_remove_audio" min="1" class="form-control" placeholder="Order" value="{{ steps_map.remove_audio.order|default:'' }}">
         </div>
 
         <div class="form-check mt-3">
@@ -77,10 +77,10 @@
         </div>
         <div id="trim_settings" class="ml-4 mt-2" style="display:{% if steps_map.trim %}block{% else %}none{% endif %};">
             <label for="id_start_seconds">Seconds from Start</label>
-            <input type="number" name="start_seconds" id="id_start_seconds" class="form-control" value="{{ steps_map.trim.config.start_seconds if steps_map.trim else 0 }}" title="Select how many seconds to trim from start/end">
+            <input type="number" name="start_seconds" id="id_start_seconds" class="form-control" value="{{ steps_map.trim.config.start_seconds|default:0 }}" title="Select how many seconds to trim from start/end">
             <label class="mt-2" for="id_end_seconds">Seconds from End</label>
-            <input type="number" name="end_seconds" id="id_end_seconds" class="form-control" value="{{ steps_map.trim.config.end_seconds if steps_map.trim else 0 }}" title="Select how many seconds to trim from start/end">
-            <input type="number" name="order_trim" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.trim.order if steps_map.trim }}">
+            <input type="number" name="end_seconds" id="id_end_seconds" class="form-control" value="{{ steps_map.trim.config.end_seconds|default:0 }}" title="Select how many seconds to trim from start/end">
+            <input type="number" name="order_trim" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.trim.order|default:'' }}">
         </div>
 
         <div class="form-check mt-3">
@@ -89,8 +89,8 @@
         </div>
         <div id="organize_settings" class="ml-4 mt-2" style="display:{% if steps_map.organize_files %}block{% else %}none{% endif %};">
             <label for="id_target_folder">Target Folder</label>
-            <input type="text" name="target_folder" id="id_target_folder" class="form-control" placeholder="Leave unchanged" value="{{ steps_map.organize_files.config.target_folder if steps_map.organize_files }}">
-            <input type="number" name="order_organize_files" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.organize_files.order if steps_map.organize_files }}">
+            <input type="text" name="target_folder" id="id_target_folder" class="form-control" placeholder="Leave unchanged" value="{{ steps_map.organize_files.config.target_folder|default:'' }}">
+            <input type="number" name="order_organize_files" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.organize_files.order|default:'' }}">
         </div>
     </div>
 
