@@ -38,15 +38,16 @@ class BookingForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
-    email = forms.EmailField(required=False) 
+    email = forms.EmailField(required=False)
 
     class Meta:
         model = Profile
-        fields = ['phone_number', 'work_address', 'work_division', 'job_role', 'email']  
+        fields = ['initials', 'phone_number', 'work_address', 'work_division', 'job_role', 'email']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Apply form-control class for Bootstrap styling
+        self.fields['initials'].widget.attrs.update({'class': 'form-control'})
         self.fields['phone_number'].widget.attrs.update({'class': 'form-control'})
         self.fields['work_address'].widget.attrs.update({'class': 'form-control'})
         self.fields['work_division'].widget.attrs.update({'class': 'form-control'})
@@ -154,6 +155,9 @@ class RunWorkflowForm(forms.Form):
             self.fields["workflow"].queryset = wf_qs
         elif user:
             self.fields["workflow"].queryset = Workflow.objects.filter(created_by=user)
+            profile = Profile.objects.filter(user=user).first()
+            if profile and profile.initials:
+                self.fields["initials"].initial = profile.initials
 
     def clean(self):
         cleaned = super().clean()

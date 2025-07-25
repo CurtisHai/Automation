@@ -52,6 +52,7 @@ class Booking(models.Model):
 # Model for user profile details
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    initials = models.CharField(max_length=10, blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     work_address = models.CharField(max_length=255, blank=True, null=True)
     company = models.CharField(max_length=100, blank=True, null=True)

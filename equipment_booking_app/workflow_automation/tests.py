@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.urls import reverse
-from .models import Workflow
+from .models import Workflow, Profile
 from .workflow_runner import WorkflowRunner
 from . import file_utils, views
 from .log_writer import write_workflow_log
@@ -55,6 +55,7 @@ class WorkflowMatchTests(TestCase):
 class RunWorkflowNoMatchTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="runner", password="pass")
+        Profile.objects.create(user=self.user, initials="RN")
         self.client.force_login(self.user)
         self.wf = Workflow.objects.create(name="MyFlow", created_by=self.user)
 
