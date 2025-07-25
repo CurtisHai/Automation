@@ -139,6 +139,23 @@ body.sidebar-collapsed #main-content {
   background-color: #192d38;
 }
 
+#zip-progress-container {
+  background-color: #192d38;
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  z-index: 1100;
+}
+
+#zip-progress-container .progress {
+  height: 20px;
+  background-color: #6c757d;
+}
+
+#zip-progress-container .progress-bar {
+  background-image: linear-gradient(to right, var(--accent-start), var(--accent-end));
+  color: #192d38;
+}
+
 @media (max-width: 768px) {
   #sidebar {
     width: 100%;

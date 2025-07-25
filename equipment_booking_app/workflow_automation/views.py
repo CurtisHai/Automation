@@ -39,7 +39,10 @@ from .forms import (
 )
 
 from .workflow_runner import WorkflowRunner
-from utils import rename, converter, zipper
+from utils import rename, converter, zipper, progress, zip_task
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
+import threading
 from . import file_utils
 from .log_writer import write_workflow_log
 
@@ -1057,34 +1060,36 @@ def run_zip_view(request):
         return redirect("accounts")
 
     form = ZipToolForm(request.POST or None)
-    zip_paths = []
     if request.method == "POST" and form.is_valid():
         input_path = form.cleaned_data["input_path"]
         output_folder = form.cleaned_data["output_zip"]
         os.makedirs(output_folder, exist_ok=True)
-        for name in os.listdir(input_path):
-            if not name.lower().endswith(".rcp"):
-                continue
-            rcp_path = os.path.join(input_path, name)
-            base = os.path.splitext(name)[0]
-            candidates = [f"{base}_support", f"{base} support"]
-            support_dir = None
-            for cand in candidates:
-                cand_path = os.path.join(input_path, cand)
-                if os.path.isdir(cand_path):
-                    support_dir = cand_path
-                    break
-            if not support_dir:
-                logger.warning("Support folder missing for %s", name)
-                continue
-            zip_file = os.path.join(output_folder, f"{base}.zip")
-            zipper.zip_directory(rcp_path, zip_file, support_folder=support_dir)
-            zip_paths.append(zip_file)
-        if zip_paths:
-            messages.success(request, "Zip completed")
-    return render(
-        request,
-        "workflow_automation/run_zip.html",
-        {"form": form, "zip_path": "\n".join(zip_paths) if zip_paths else None},
-    )
+        zip_task.start_zip(input_path, output_folder)
+        messages.info(request, "Zipping started")
+        return redirect("run_zip")
+    return render(request, "workflow_automation/run_zip.html", {"form": form})
+
+
+def progress_status(request):
+    """Return JSON status for the zip progress bar."""
+    return JsonResponse(progress.get())
+
+
+@require_POST
+def progress_control(request):
+    """Handle pause/resume/cancel/restart actions."""
+    action = request.POST.get("action")
+    if action == "pause":
+        progress.set_status("paused")
+    elif action == "resume":
+        progress.set_status("running")
+    elif action == "cancel":
+        progress.set_status("cancel")
+    elif action == "restart":
+        args = progress.args()
+        if all(args):
+            zip_task.start_zip(*args)
+    else:
+        return HttpResponseBadRequest("Invalid action")
+    return JsonResponse({"status": "ok"})
 

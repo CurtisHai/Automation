@@ -129,6 +129,36 @@
     {% include 'workflow_automation/partials/sidebar.html' %}
     <div id="main-content" class="flex-grow-1">
     <header class="thin-header"></header>
+    <div id="zip-progress-container" class="fixed-top" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <span id="zip-task-name">Zipping RCP Files</span>
+            <div class="progress flex-grow-1 mx-3">
+                <div id="zip-progress-bar" class="progress-bar" role="progressbar" style="width:0%"></div>
+            </div>
+            <span id="zip-progress-percent">0%</span>
+            <button class="btn btn-link text-light p-0 ml-2" data-toggle="collapse" data-target="#zip-progress-detail" aria-expanded="false">Expand</button>
+        </div>
+        <div class="collapse" id="zip-progress-detail">
+            <div>Input: <span id="zip-input-path"></span></div>
+            <div>Output: <span id="zip-output-path"></span></div>
+            <div class="d-flex">
+                <div class="mr-3">
+                    <h6>Completed</h6>
+                    <ul id="zip-files-completed" class="list-unstyled mb-0"></ul>
+                </div>
+                <div>
+                    <h6>Pending</h6>
+                    <ul id="zip-files-pending" class="list-unstyled mb-0"></ul>
+                </div>
+            </div>
+            <div class="mt-2">
+                <button id="pause-btn" class="btn btn-secondary btn-sm">Pause</button>
+                <button id="resume-btn" class="btn btn-secondary btn-sm">Resume</button>
+                <button id="cancel-btn" class="btn btn-secondary btn-sm">Cancel</button>
+                <button id="restart-btn" class="btn btn-secondary btn-sm">Restart</button>
+            </div>
+        </div>
+    </div>
 
     {% if messages %}
     <div class="container mt-3 mb-4">
@@ -156,6 +186,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'workflow_automation/js/theme-toggle.js' %}"></script>
+    <script src="{% static 'workflow_automation/js/progress.js' %}"></script>
 
     <script>
         function confirmLogout(event) {
