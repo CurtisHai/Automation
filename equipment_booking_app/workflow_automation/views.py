@@ -477,8 +477,11 @@ def request_review(request, workflow_id):
             messages.success(request, 'Review request submitted successfully.')
             return redirect('my_workflows')
     else:
-        form = MessageForm(user=request.user, initial={'workflow': workflow})
-        form.fields['workflow'].widget = forms.HiddenInput()
+        form = MessageForm(
+            user=request.user,
+            initial={"workflow": workflow, "subject": "Workflow Review"},
+        )
+        form.fields["workflow"].widget = forms.HiddenInput()
     return render(request, 'workflow_automation/request_review.html', {'form': form, 'workflow': workflow})
 
 
