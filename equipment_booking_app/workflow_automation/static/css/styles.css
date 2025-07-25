@@ -1,7 +1,7 @@
 /* Page layout */
 body {
-    background-color: #BEDAE5;
-    color: #192d38;
+    background-color: #101e29;
+    color: white;
     font-family: 'Bienvenue', sans-serif;
     min-height: 100vh;
     display: flex;
@@ -108,8 +108,10 @@ main {
 }
 
 .card {
-    background-color: #ffffff;
-    color: #192d38;
+    background-color: #192d38;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 /* Sidebar */
 .sidebar {
