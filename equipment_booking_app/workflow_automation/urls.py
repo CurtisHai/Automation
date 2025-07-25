@@ -31,4 +31,6 @@ urlpatterns = [
     path('run-rename/', views.run_rename_view, name='run_rename'),
     path('run-convert/', views.run_convert_view, name='run_convert'),
     path('run-zip/', views.run_zip_view, name='run_zip'),
+    path('progress-status/', views.progress_status, name='progress_status'),
+    path('progress-control/', views.progress_control, name='progress_control'),
 ]
