@@ -1,3 +1,10 @@
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reality_capture_portal.settings")
+import django
+django.setup()
+from django.conf import settings
+settings.ALLOWED_HOSTS.append("testserver")
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
@@ -96,6 +103,25 @@ class GenerateNextFilenameTests(TestCase):
             )
             stamp = datetime.now().strftime("%d%m%y")
             self.assertEqual(name, f"SL-SL-SR-011-A-3V-{stamp}.mp4") if name else None
+
+    def test_generate_next_filename_building_filter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, "sub"), exist_ok=True)
+            names = [
+                "SL-SL-SR-011-A-3V-0001.mp4",
+                "SL-SL-SR-011-A-3V-0002.mp4",
+                "SL-SL-AA-100-A-3V-0005.mp4",
+            ]
+            for n in names:
+                with open(os.path.join(tmp, "sub", n), "wb") as fh:
+                    fh.write(b"\x00")
+
+            name = file_utils.generate_next_filename(
+                os.path.join(tmp, "sub"),
+                ".mp4",
+                building_name="SR",
+            )
+            self.assertEqual(name, "SL-SL-SR-011-A-3V-0003.mp4")
 
 
 class RenameWithZoneTests(TestCase):
