@@ -1,11 +1,4 @@
-:root {
-  --bg-color: #101e29;
-  --text-color: #f1f1f1;
-  --accent-start: #05E560;
-  --accent-end: #B9FF00;
-  --button-text-color: #192d38;
-  --input-bg: #253545;
-  --input-border: #3c4b5a;
+
 }
 
 body {
@@ -86,10 +79,7 @@ select:focus {
   box-shadow: 0 0 0 0.2rem rgba(5, 229, 96, 0.25);
 }
 
-.card {
-  background-color: #1e2b38;
-  color: var(--text-color);
-}
+
 
 .sidebar {
   position: fixed;
