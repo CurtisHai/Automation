@@ -15,10 +15,11 @@ from . import file_utils, views
 from .log_writer import write_workflow_log
 from types import SimpleNamespace
 from unittest.mock import patch
-import os
 import shutil
 import tempfile
 from datetime import datetime
+import zipfile
+from utils import zipper
 
 
 class FileUtilsTests(TestCase):
@@ -276,5 +277,33 @@ class FinalizeVideoTests(TestCase):
             )
             self.assertTrue(os.path.exists(dest))
             self.assertTrue(os.path.exists(dest + ".convert"))
+
+
+class ZipperTests(TestCase):
+    def test_zip_recap_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            input_dir = os.path.join(tmp, "in")
+            output_dir = os.path.join(tmp, "out")
+            os.makedirs(input_dir)
+            os.makedirs(output_dir)
+
+            rcp_path = os.path.join(input_dir, "Building101.rcp")
+            with open(rcp_path, "wb") as fh:
+                fh.write(b"0")
+
+            support_dir = os.path.join(input_dir, "Building101_support")
+            os.makedirs(support_dir)
+            support_file = os.path.join(support_dir, "data.txt")
+            with open(support_file, "wb") as fh:
+                fh.write(b"data")
+
+            zip_path = os.path.join(output_dir, "Building101.zip")
+            zipper.zip_directory(rcp_path, zip_path, support_folder=support_dir)
+
+            self.assertTrue(os.path.exists(zip_path))
+            with zipfile.ZipFile(zip_path) as zf:
+                names = zf.namelist()
+            self.assertIn("Building101.rcp", names)
+            self.assertIn("Building101_support/data.txt", names)
 
 

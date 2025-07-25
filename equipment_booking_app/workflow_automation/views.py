@@ -8,6 +8,7 @@ from django import forms
 from datetime import timedelta
 from django.db.models import Q
 import os
+import logging
 
 from .models import (
     Booking,
@@ -46,6 +47,8 @@ from .log_writer import write_workflow_log
 LOCKOUT_THRESHOLD = 5
 # Duration of the lockout once the threshold is exceeded
 LOCKOUT_DURATION = timedelta(hours=1)
+
+logger = logging.getLogger(__name__)
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
@@ -1054,11 +1057,34 @@ def run_zip_view(request):
         return redirect("accounts")
 
     form = ZipToolForm(request.POST or None)
-    zip_path = None
+    zip_paths = []
     if request.method == "POST" and form.is_valid():
         input_path = form.cleaned_data["input_path"]
-        output_zip = form.cleaned_data["output_zip"]
-        zip_path = zipper.zip_directory(input_path, output_zip)
-        messages.success(request, "Zip created")
-    return render(request, "workflow_automation/run_zip.html", {"form": form, "zip_path": zip_path})
+        output_folder = form.cleaned_data["output_zip"]
+        os.makedirs(output_folder, exist_ok=True)
+        for name in os.listdir(input_path):
+            if not name.lower().endswith(".rcp"):
+                continue
+            rcp_path = os.path.join(input_path, name)
+            base = os.path.splitext(name)[0]
+            candidates = [f"{base}_support", f"{base} support"]
+            support_dir = None
+            for cand in candidates:
+                cand_path = os.path.join(input_path, cand)
+                if os.path.isdir(cand_path):
+                    support_dir = cand_path
+                    break
+            if not support_dir:
+                logger.warning("Support folder missing for %s", name)
+                continue
+            zip_file = os.path.join(output_folder, f"{base}.zip")
+            zipper.zip_directory(rcp_path, zip_file, support_folder=support_dir)
+            zip_paths.append(zip_file)
+        if zip_paths:
+            messages.success(request, "Zip completed")
+    return render(
+        request,
+        "workflow_automation/run_zip.html",
+        {"form": form, "zip_path": "\n".join(zip_paths) if zip_paths else None},
+    )
 
