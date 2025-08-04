@@ -56,6 +56,21 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 
 
+def launcher(request):
+    """Render the root landing page with message board and section links."""
+    notice = Notice.objects.last()
+
+    if request.method == "POST" and request.user.is_superuser:
+        message = request.POST.get("message")
+        if message:
+            Notice.objects.create(message=message, created_by=request.user)
+            messages.success(request, "Notice created successfully!")
+            return redirect("launcher")
+
+    context = {"notice": notice}
+    return render(request, "workflow_automation/launcher.html", context)
+
+
 @login_required
 def home(request):
     """Render the dashboard-style home page."""
@@ -79,6 +94,12 @@ def home(request):
         "pending_count": pending_count,
     }
     return render(request, "workflow_automation/home.html", context)
+
+
+@login_required
+def equipment_dashboard(request):
+    """Placeholder dashboard for equipment booking."""
+    return render(request, "workflow_automation/equipment_dashboard.html")
 
 
 def signup(request):
@@ -376,7 +397,7 @@ def remove_notice(request):
     if request.method == 'POST':
         Notice.objects.all().delete()
         messages.success(request, 'Notice removed successfully.')
-    return redirect('home')
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
 def security_notice(request):
