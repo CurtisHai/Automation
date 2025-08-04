@@ -8,6 +8,8 @@
     
     <!-- Bootstrap CSS CDN for responsive design and styling -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for sidebar icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
     <!-- Custom font definitions for the app -->
     <style>
@@ -55,6 +57,56 @@
 
         body.sidebar-collapsed #main-content {
             margin-left: 60px;
+        }
+
+        /* Sidebar icon and label behaviour */
+        #sidebar nav a,
+        #sidebar .auth-btn,
+        #sidebar #logout-link,
+        #sidebar button:not(#sidebarToggle) {
+            display: flex;
+            align-items: center;
+        }
+
+        #sidebar nav a i,
+        #sidebar .auth-btn i,
+        #sidebar #logout-link i,
+        #sidebar button:not(#sidebarToggle) i {
+            margin-right: 10px;
+        }
+
+        #sidebar nav a .sidebar-label,
+        #sidebar .auth-btn .sidebar-label,
+        #sidebar #logout-link .sidebar-label,
+        #sidebar button:not(#sidebarToggle) .sidebar-label {
+            white-space: nowrap;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+
+        #sidebar.collapsed nav a,
+        #sidebar.collapsed .auth-btn,
+        #sidebar.collapsed #logout-link,
+        #sidebar.collapsed button:not(#sidebarToggle) {
+            justify-content: center;
+        }
+
+        #sidebar.collapsed nav a i,
+        #sidebar.collapsed .auth-btn i,
+        #sidebar.collapsed #logout-link i,
+        #sidebar.collapsed button:not(#sidebarToggle) i {
+            margin-right: 0;
+        }
+
+        #sidebar.collapsed nav a .sidebar-label,
+        #sidebar.collapsed .auth-btn .sidebar-label,
+        #sidebar.collapsed #logout-link .sidebar-label,
+        #sidebar.collapsed button:not(#sidebarToggle) .sidebar-label {
+            opacity: 0;
+            width: 0;
+        }
+
+        #sidebar.collapsed .text-center {
+            display: none;
         }
     
         .logo {
@@ -212,9 +264,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             var toggleBtn = document.getElementById('sidebarToggle');
             var sidebar = document.getElementById('sidebar');
+            var isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+                document.body.classList.add('sidebar-collapsed');
+            }
             toggleBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
             });
         });
     </script>
