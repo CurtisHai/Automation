@@ -1,0 +1,47 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<h2 class="text-center mb-4">Workflows Awaiting Review</h2>
+{% for wf in workflows %}
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">{{ wf.name }}</h5>
+    <p>Created by {{ wf.created_by.username }} on {{ wf.created_at }}</p>
+    <ul>
+    {% for step in wf.steps.all %}
+      <li>
+        {{ step.get_step_type_display }}
+        {% if step.step_type == 'convert_360_video' and step.config.convert_format %}
+            (convert to {{ step.config.convert_format }})
+        {% endif %}
+        {% if step.step_type == 'trim' %}
+            (crop {{ step.config.start_seconds }}-{{ step.config.end_seconds }})
+        {% endif %}
+        {% if step.step_type == 'rename' and step.config.rename_pattern %}
+            (pattern: {{ step.config.rename_pattern }})
+        {% endif %}
+        {% if step.step_type == 'remove_audio' or step.remove_audio %}
+            (remove audio)
+        {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+    <form method="post" class="d-inline">
+      {% csrf_token %}
+      <input type="hidden" name="workflow_id" value="{{ wf.id }}">
+      <input type="hidden" name="action" value="approve">
+      <button type="submit" class="btn btn-success">Approve</button>
+    </form>
+    <form method="post" class="d-inline ms-2">
+      {% csrf_token %}
+      <input type="hidden" name="workflow_id" value="{{ wf.id }}">
+      <input type="hidden" name="action" value="reject">
+      <input type="text" name="comment" placeholder="Comment" class="form-control d-inline" style="width:200px;">
+      <button type="submit" class="btn btn-danger ms-1">Reject</button>
+    </form>
+  </div>
+</div>
+{% empty %}
+<p>No workflows awaiting review.</p>
+{% endfor %}
+{% endblock %}

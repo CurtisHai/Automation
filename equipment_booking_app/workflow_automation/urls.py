@@ -21,6 +21,7 @@ urlpatterns = [
     path('workflows/mine/', views.my_workflows, name='my_workflows'),
     path('workflows/shared/', views.shared_workflow_list_view, name='shared_workflows'),
     path('workflows/<int:workflow_id>/request-review/', views.request_review, name='request_review'),
+    path('workflows/review/', views.review_workflows, name='review_workflows'),
     path('workflows/<int:workflow_id>/use/', views.use_shared_workflow, name='use_shared_workflow'),
     path('workflows/edit/<int:workflow_id>/', views.create_workflow, name='edit_workflow'),
     path('workflows/', views.workflow_dashboard, name='workflow_dashboard'),

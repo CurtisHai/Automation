@@ -307,3 +307,38 @@ class ZipperTests(TestCase):
             self.assertIn("Building101_support/data.txt", names)
 
 
+class WorkflowReviewFlowTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="user", password="pass")
+        self.admin = User.objects.create_user(username="admin", password="pass", is_superuser=True)
+        self.wf = Workflow.objects.create(name="WF1", created_by=self.user)
+
+    def test_request_review_sets_flag(self):
+        self.client.force_login(self.user)
+        self.client.post(reverse("request_review", args=[self.wf.id]))
+        self.wf.refresh_from_db()
+        self.assertTrue(self.wf.awaiting_review)
+        self.assertEqual(self.wf.rejection_comment, "")
+
+    def test_admin_approve_workflow(self):
+        self.wf.awaiting_review = True
+        self.wf.save()
+        self.client.force_login(self.admin)
+        self.client.post(reverse("review_workflows"), {"workflow_id": self.wf.id, "action": "approve"})
+        self.wf.refresh_from_db()
+        self.assertTrue(self.wf.is_published)
+        self.assertFalse(self.wf.awaiting_review)
+
+    def test_admin_reject_workflow(self):
+        self.wf.awaiting_review = True
+        self.wf.save()
+        self.client.force_login(self.admin)
+        self.client.post(
+            reverse("review_workflows"),
+            {"workflow_id": self.wf.id, "action": "reject", "comment": "fix"},
+        )
+        self.wf.refresh_from_db()
+        self.assertFalse(self.wf.is_published)
+        self.assertFalse(self.wf.awaiting_review)
+        self.assertEqual(self.wf.rejection_comment, "fix")
+
