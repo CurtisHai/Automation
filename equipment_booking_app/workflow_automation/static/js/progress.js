@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const outputEl = document.getElementById('zip-output-path');
   const doneList = document.getElementById('zip-files-completed');
   const pendingList = document.getElementById('zip-files-pending');
-
+  
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -49,14 +49,16 @@ document.addEventListener('DOMContentLoaded', function () {
           percent.textContent = data.percent + '%';
           inputEl.textContent = data.input_path || '';
           outputEl.textContent = data.output_path || '';
+
           doneList.innerHTML = '';
-          data.completed.forEach(f => {
+          (data.completed_files || []).forEach(f => {
             const li = document.createElement('li');
             li.textContent = f;
             doneList.appendChild(li);
           });
+
           pendingList.innerHTML = '';
-          data.pending.forEach(f => {
+          (data.pending_files || []).forEach(f => {
             const li = document.createElement('li');
             li.textContent = f;
             pendingList.appendChild(li);
