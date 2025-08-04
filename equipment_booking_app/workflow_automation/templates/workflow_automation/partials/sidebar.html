@@ -26,6 +26,10 @@
                     {% endif %}
                 {% endif %}
             {% endwith %}
+            <a href="{% url 'accounts' %}" class="nav-link">Profile</a>
+            {% if user.is_superuser %}
+                <a href="{% url 'inbox' %}" class="nav-link">Inbox</a>
+            {% endif %}
         {% endif %}
     </nav>
     <div class="mt-auto mb-4">
