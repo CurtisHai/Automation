@@ -342,3 +342,19 @@ class WorkflowReviewFlowTests(TestCase):
         self.assertFalse(self.wf.awaiting_review)
         self.assertEqual(self.wf.rejection_comment, "fix")
 
+
+class SidebarLinksTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="user1", password="pass")
+        self.admin = User.objects.create_user(username="admin1", password="pass", is_superuser=True)
+
+    def test_profile_link_visible(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, reverse("accounts"))
+
+    def test_inbox_link_visible_for_superuser(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, reverse("inbox"))
+
