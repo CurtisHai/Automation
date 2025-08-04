@@ -132,6 +132,14 @@ class Workflow(models.Model):
         default=False,
         help_text="Indicates this workflow originated from the shared library",
     )
+    source_creator = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="imported_workflows",
+        help_text="Original creator if this workflow was imported",
+    )
 
     def __str__(self):
         return self.name
