@@ -358,3 +358,28 @@ class SidebarLinksTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertContains(response, reverse("inbox"))
 
+
+class WorkflowDeleteTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(username="owner", password="pass")
+        self.downloader = User.objects.create_user(username="downloader", password="pass")
+        self.admin = User.objects.create_user(username="admin", password="pass", is_staff=True)
+        self.wf = Workflow.objects.create(name="WF", created_by=self.owner)
+        self.wf.downloaded_by.add(self.downloader)
+
+    def test_owner_can_delete_workflow(self):
+        self.client.force_login(self.owner)
+        self.client.post(reverse("delete_workflow", args=[self.wf.id]))
+        self.assertFalse(Workflow.objects.filter(id=self.wf.id).exists())
+
+    def test_downloader_removes_reference(self):
+        self.client.force_login(self.downloader)
+        self.client.post(reverse("delete_workflow", args=[self.wf.id]))
+        self.assertTrue(Workflow.objects.filter(id=self.wf.id).exists())
+        self.assertFalse(self.wf.downloaded_by.filter(id=self.downloader.id).exists())
+
+    def test_admin_can_delete_any_workflow(self):
+        self.client.force_login(self.admin)
+        self.client.post(reverse("delete_workflow", args=[self.wf.id]))
+        self.assertFalse(Workflow.objects.filter(id=self.wf.id).exists())
+

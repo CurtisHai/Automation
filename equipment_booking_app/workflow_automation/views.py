@@ -561,6 +561,22 @@ def request_review(request, workflow_id):
     return redirect("my_workflows")
 
 
+@login_required
+def delete_workflow_view(request, pk):
+    workflow = get_object_or_404(Workflow, pk=pk)
+    if request.method == "POST":
+        if request.user == workflow.created_by or request.user.is_staff:
+            workflow.delete()
+            messages.success(request, "Workflow deleted.")
+        elif workflow.downloaded_by.filter(id=request.user.id).exists():
+            workflow.downloaded_by.remove(request.user)
+            messages.success(request, "Workflow removed from your downloads.")
+        else:
+            return HttpResponseForbidden("You do not have permission to delete this workflow.")
+        return redirect("my_workflows")
+    return HttpResponseForbidden("Invalid request.")
+
+
 @user_passes_test(lambda u: u.is_superuser)
 @login_required
 def review_workflows(request):
@@ -632,6 +648,7 @@ shared_workflows = shared_workflow_list_view
 @login_required
 def use_shared_workflow(request, workflow_id):
     workflow = get_object_or_404(Workflow, id=workflow_id, is_published=True)
+    workflow.downloaded_by.add(request.user)
     new_wf = Workflow.objects.create(
         name=workflow.name,
         description=workflow.description,

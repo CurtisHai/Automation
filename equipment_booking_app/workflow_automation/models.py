@@ -140,6 +140,12 @@ class Workflow(models.Model):
         related_name="imported_workflows",
         help_text="Original creator if this workflow was imported",
     )
+    downloaded_by = models.ManyToManyField(
+        User,
+        related_name="downloaded_workflows",
+        blank=True,
+        help_text="Users who have downloaded this workflow",
+    )
 
     def __str__(self):
         return self.name
