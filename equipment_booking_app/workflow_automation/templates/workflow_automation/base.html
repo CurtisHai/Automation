@@ -33,6 +33,8 @@
             overflow-x: hidden;
             padding-top: 20px;
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
         }
 
         #sidebar.collapsed {
@@ -118,6 +120,17 @@
         .btn:hover {
             background-image: linear-gradient(to right, #B9FF00, #05E560);
             color: #192d38;
+        }
+
+        /* Sidebar spacing */
+        #sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #sidebar nav a {
+            margin: 0 10px;
         }
     </style>
     

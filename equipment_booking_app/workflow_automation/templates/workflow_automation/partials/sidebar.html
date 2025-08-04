@@ -8,23 +8,24 @@
     </div>
     <nav class="flex-column mt-4">
         {% if user.is_authenticated %}
-            {% if user.is_superuser %}
-                <a href="{% url 'booking_list' %}" class="nav-link">All Bookings</a>
-            {% else %}
-                <a href="{% url 'my_bookings' %}" class="nav-link">My Bookings</a>
-            {% endif %}
-            <a href="{% url 'create_booking' %}" class="nav-link">Create Booking</a>
-            <a href="{% url 'my_workflows' %}" class="nav-link">My Workflows</a>
-            <a href="{% url 'shared_workflows' %}" class="nav-link">Shared Workflows</a>
-            <a href="{% url 'workflow_dashboard' %}" class="nav-link">Automation Workflows</a>
-            <a href="{% url 'accounts' %}" class="nav-link">View Account</a>
-            {% if not user.is_superuser %}
-                <a href="{% url 'contact' %}" class="nav-link">Contact</a>
-            {% endif %}
-            {% if user.is_superuser %}
-                <a href="{% url 'review_workflows' %}" class="nav-link">Review Workflows</a>
-                <a href="http://127.0.0.1:8000/admin-b4a939d29b7cda4b/" class="nav-link">Admin Controls</a>
-            {% endif %}
+            {% with path=request.path %}
+                {% if 'automation' in path or 'workflows' in path or 'run-' in path %}
+                    <a href="{% url 'my_workflows' %}" class="nav-link">My Workflows</a>
+                    <a href="{% url 'create_workflow' %}" class="nav-link">Create Workflow</a>
+                    <a href="{% url 'workflow_dashboard' %}" class="nav-link">Logs</a>
+                    {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'review_workflows' %}" class="nav-link">Review Workflows</a>
+                        <a href="#" class="nav-link">Manage Templates</a>
+                    {% endif %}
+                {% elif 'equipment' in path or 'booking' in path or 'calendar' in path %}
+                    <a href="{% url 'create_booking' %}" class="nav-link">Book Equipment</a>
+                    <a href="{% url 'booking_list' %}" class="nav-link">View Calendar</a>
+                    {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'booking_list' %}" class="nav-link">Admin Bookings</a>
+                        <a href="#" class="nav-link">Manage Inventory</a>
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
         {% endif %}
     </nav>
     <div class="mt-auto mb-4">
@@ -35,5 +36,6 @@
             <a href="{% url 'logout' %}" id="logout-link" class="nav-link" onclick="confirmLogout(event)">Logout</a>
         {% endif %}
         <button id="themeToggle" class="btn btn-sm d-block mt-3">Toggle Theme</button>
+        <div class="text-center mt-3 small">Curtis Hailes, AtkinsRéalis 2025</div>
     </div>
 </div>
