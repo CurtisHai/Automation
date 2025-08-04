@@ -109,6 +109,8 @@ select:focus {
   padding-top: 20px;
   z-index: 1000;
   color: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar.collapsed {
@@ -126,7 +128,13 @@ select:focus {
 
 .sidebar .nav-link {
   display: block;
-  margin: 10px;
+  margin: 0 10px;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 body.sidebar-collapsed #main-content {
