@@ -498,8 +498,32 @@ def create_workflow(request, workflow_id=None):
 
 @login_required
 def my_workflows(request):
-    workflows = Workflow.objects.filter(created_by=request.user)
-    return render(request, 'workflow_automation/my_workflows.html', {'workflows': workflows})
+    def build_items(queryset, imported=False):
+        items = []
+        for wf in queryset:
+            if wf.awaiting_review:
+                status_text = "Status: Awaiting Review"
+                category = "Awaiting Review"
+            elif wf.rejection_comment:
+                comment = wf.rejection_comment if wf.created_by_id == request.user.id else ""
+                status_text = f"Status: Rejected" + (f" - {comment}" if comment else "")
+                category = "Rejected"
+            elif wf.is_published or imported:
+                status_text = "Published: Yes"
+                category = "Published"
+            else:
+                status_text = "Published: No"
+                category = "Unpublished"
+            items.append({"obj": wf, "status_text": status_text, "status_category": category})
+        return items
+
+    my_qs = Workflow.objects.filter(created_by=request.user, from_shared=False)
+    imported_qs = Workflow.objects.filter(created_by=request.user, from_shared=True)
+    context = {
+        'my_workflows': build_items(my_qs),
+        'imported_workflows': build_items(imported_qs, imported=True),
+    }
+    return render(request, 'workflow_automation/my_workflows.html', context)
 
 
 @login_required
@@ -592,6 +616,7 @@ def use_shared_workflow(request, workflow_id):
         description=workflow.description,
         created_by=request.user,
         from_shared=True,
+        source_creator=workflow.created_by,
     )
     for step in workflow.steps.all():
         WorkflowStep.objects.create(

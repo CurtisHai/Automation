@@ -2,37 +2,45 @@
 
 {% block content %}
 <h2 class="text-center mb-4">My Workflows</h2>
-<div class="table-responsive">
-<table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
+<div class="mb-3">
+    <label for="statusFilter" class="form-label">Filter by status:</label>
+    <select id="statusFilter" class="form-select w-auto d-inline-block">
+        <option value="">All</option>
+        <option value="Published">Published</option>
+        <option value="Unpublished">Unpublished</option>
+        <option value="Awaiting Review">Awaiting Review</option>
+        <option value="Rejected">Rejected</option>
+    </select>
+</div>
+<div class="table-responsive mb-5">
+<table id="my-workflows" class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
 <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color:#192d38; text-align:center;">
 <tr><th>Name</th><th>Status</th><th>Actions</th></tr>
 </thead>
 <tbody>
-{% for wf in workflows %}
-<tr class="text-center">
-<td>{{ wf.name }} {% if wf.from_shared %}<span class="badge bg-secondary">shared</span>{% else %}<span class="badge bg-success">mine</span>{% endif %}</td>
-<td>
-    {% if wf.is_published %}
-        ✅ Published
-    {% elif wf.awaiting_review %}
-        ⏳ Awaiting Review
-    {% elif wf.rejection_comment %}
-        ❌ Rejected - {{ wf.rejection_comment }}
-    {% else %}
-        Draft
-    {% endif %}
-</td>
+{% for wf in my_workflows %}
+<tr class="text-center" data-status="{{ wf.status_category }}">
+    <td>{{ wf.obj.name }} <span class="badge bg-success">mine</span></td>
     <td>
-    {% if not wf.is_published and not wf.awaiting_review %}
-    <form method="post" action="{% url 'request_review' wf.id %}" class="d-inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn-primary">Request Review</button>
-    </form>
-    {% endif %}
-    {% if not wf.from_shared %}
-    <a href="{% url 'edit_workflow' wf.id %}" class="btn btn-sm btn-warning ml-1">Edit</a>
-    {% endif %}
-    <a href="{% url 'run_workflow_specific' wf.id %}" class="btn btn-sm btn-success ml-1">Run Workflow</a>
+        {% if wf.status_category == 'Published' %}
+            <span class="badge bg-success">Published: Yes</span>
+        {% elif wf.status_category == 'Awaiting Review' %}
+            <span class="badge bg-info text-dark">Status: Awaiting Review</span>
+        {% elif wf.status_category == 'Rejected' %}
+            <span class="badge bg-danger">{{ wf.status_text }}</span>
+        {% else %}
+            <span class="badge bg-secondary">Published: No</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if wf.status_category == 'Unpublished' or wf.status_category == 'Rejected' %}
+        <form method="post" action="{% url 'request_review' wf.obj.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-primary">Request Review</button>
+        </form>
+        {% endif %}
+        <a href="{% url 'edit_workflow' wf.obj.id %}" class="btn btn-sm btn-warning ml-1">Edit</a>
+        <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success ml-1">Run Workflow</a>
     </td>
 </tr>
 {% empty %}
@@ -41,4 +49,46 @@
 </tbody>
 </table>
 </div>
+
+{% if imported_workflows %}
+<h3 class="text-center mb-4">Imported Workflows</h3>
+<div class="table-responsive">
+<table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
+<thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color:#192d38; text-align:center;">
+<tr><th>Name</th><th>Source</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody>
+{% for wf in imported_workflows %}
+<tr class="text-center">
+    <td>{{ wf.obj.name }} <span class="badge bg-secondary">shared</span></td>
+    <td>{% if wf.obj.source_creator %}{{ wf.obj.source_creator.username }}{% else %}Shared{% endif %}</td>
+    <td>
+        {% if wf.status_category == 'Published' %}
+            <span class="badge bg-success">Published: Yes</span>
+        {% else %}
+            <span class="badge bg-secondary">Published: No</span>
+        {% endif %}
+    </td>
+    <td>
+        <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success">Run Workflow</a>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+<script>
+document.getElementById('statusFilter').addEventListener('change', function() {
+    var filter = this.value;
+    document.querySelectorAll('#my-workflows tbody tr').forEach(function(row) {
+        if (!filter || row.dataset.status === filter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}
