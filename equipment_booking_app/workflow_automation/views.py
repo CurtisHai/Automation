@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
-from django import forms
 from datetime import timedelta
 from django.db.models import Q
 import os
@@ -64,13 +63,7 @@ def home(request):
     pending_count = 0
 
     if request.user.is_superuser:
-        pending_qs = Message.objects.filter(
-            recipient=request.user,
-            is_review_request=True,
-            workflow__isnull=False,
-            workflow__is_published=False,
-        )
-        pending_count = pending_qs.count()
+        pending_count = Workflow.objects.filter(awaiting_review=True).count()
         if pending_count:
             messages.info(request, f"You have {pending_count} workflow review requests pending.")
 
@@ -232,14 +225,9 @@ def login_view(request):
             messages.success(request, 'Successfully logged in!')
 
             if user.is_superuser:
-                pending = Message.objects.filter(
-                    recipient=user,
-                    is_review_request=True,
-                    workflow__isnull=False,
-                    workflow__is_published=False,
-                )
-                if pending.exists():
-                    messages.info(request, f'You have {pending.count()} workflow review requests pending.')
+                pending = Workflow.objects.filter(awaiting_review=True).count()
+                if pending:
+                    messages.info(request, f'You have {pending} workflow review requests pending.')
 
             return redirect('home')
         else:
@@ -517,24 +505,60 @@ def my_workflows(request):
 @login_required
 def request_review(request, workflow_id):
     workflow = get_object_or_404(Workflow, id=workflow_id, created_by=request.user)
-    if request.method == 'POST':
-        form = MessageForm(request.POST, user=request.user)
-        if form.is_valid():
-            msg = form.save(commit=False)
-            msg.sender = request.user
-            msg.recipient = User.objects.filter(is_superuser=True).first()
-            msg.workflow = workflow
-            msg.is_review_request = True
-            msg.save()
-            messages.success(request, 'Review request submitted successfully.')
-            return redirect('my_workflows')
-    else:
-        form = MessageForm(
-            user=request.user,
-            initial={"workflow": workflow, "subject": "Workflow Review"},
-        )
-        form.fields["workflow"].widget = forms.HiddenInput()
-    return render(request, 'workflow_automation/request_review.html', {'form': form, 'workflow': workflow})
+    if request.method == "POST":
+        if not workflow.awaiting_review:
+            workflow.awaiting_review = True
+            workflow.rejection_comment = ""
+            workflow.save()
+            messages.success(request, "Review request submitted successfully.")
+        else:
+            messages.info(request, "Review already requested.")
+    return redirect("my_workflows")
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@login_required
+def review_workflows(request):
+    workflows = Workflow.objects.filter(awaiting_review=True).select_related("created_by")
+    if request.method == "POST":
+        wf_id = request.POST.get("workflow_id")
+        action = request.POST.get("action")
+        workflow = get_object_or_404(Workflow, id=wf_id)
+        if action == "approve":
+            workflow.is_published = True
+            workflow.awaiting_review = False
+            workflow.rejection_comment = ""
+            workflow.published_by = request.user
+            workflow.published_at = timezone.now()
+            workflow.save()
+            Message.objects.create(
+                sender=request.user,
+                recipient=workflow.created_by,
+                workflow=workflow,
+                subject="Workflow Approved",
+                content="Your workflow was approved and published.",
+            )
+            messages.success(request, f'Workflow "{workflow.name}" approved.')
+        elif action == "reject":
+            comment = request.POST.get("comment", "")
+            workflow.is_published = False
+            workflow.awaiting_review = False
+            workflow.rejection_comment = comment
+            workflow.save()
+            Message.objects.create(
+                sender=request.user,
+                recipient=workflow.created_by,
+                workflow=workflow,
+                subject="Workflow Rejected",
+                content=comment,
+            )
+            messages.success(request, f'Workflow "{workflow.name}" rejected.')
+        return redirect("review_workflows")
+    return render(
+        request,
+        "workflow_automation/review_workflows.html",
+        {"workflows": workflows},
+    )
 
 
 @login_required

@@ -22,7 +22,7 @@
                 <a href="{% url 'contact' %}" class="nav-link">Contact</a>
             {% endif %}
             {% if user.is_superuser %}
-                <a href="{% url 'inbox' %}" class="nav-link">Inbox</a>
+                <a href="{% url 'review_workflows' %}" class="nav-link">Review Workflows</a>
                 <a href="http://127.0.0.1:8000/admin-b4a939d29b7cda4b/" class="nav-link">Admin Controls</a>
             {% endif %}
         {% endif %}
