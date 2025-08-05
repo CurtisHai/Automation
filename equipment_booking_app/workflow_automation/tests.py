@@ -318,19 +318,23 @@ class WorkflowReviewFlowTests(TestCase):
         self.client.post(reverse("request_review", args=[self.wf.id]))
         self.wf.refresh_from_db()
         self.assertTrue(self.wf.awaiting_review)
+        self.assertEqual(self.wf.review_status, "pending")
         self.assertEqual(self.wf.rejection_comment, "")
 
     def test_admin_approve_workflow(self):
         self.wf.awaiting_review = True
+        self.wf.review_status = "pending"
         self.wf.save()
         self.client.force_login(self.admin)
         self.client.post(reverse("review_workflows"), {"workflow_id": self.wf.id, "action": "approve"})
         self.wf.refresh_from_db()
         self.assertTrue(self.wf.is_published)
         self.assertFalse(self.wf.awaiting_review)
+        self.assertEqual(self.wf.review_status, "accepted")
 
     def test_admin_reject_workflow(self):
         self.wf.awaiting_review = True
+        self.wf.review_status = "pending"
         self.wf.save()
         self.client.force_login(self.admin)
         self.client.post(
@@ -341,6 +345,7 @@ class WorkflowReviewFlowTests(TestCase):
         self.assertFalse(self.wf.is_published)
         self.assertFalse(self.wf.awaiting_review)
         self.assertEqual(self.wf.rejection_comment, "fix")
+        self.assertEqual(self.wf.review_status, "rejected")
 
 
 class SidebarLinksTests(TestCase):

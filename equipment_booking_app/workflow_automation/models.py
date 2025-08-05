@@ -71,6 +71,7 @@ class Message(models.Model):
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
     workflow = models.ForeignKey('Workflow', null=True, blank=True, on_delete=models.SET_NULL, related_name='messages')
     is_review_request = models.BooleanField(default=False)
+    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -127,6 +128,13 @@ class Workflow(models.Model):
     published_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='published_workflows')
     published_at = models.DateTimeField(null=True, blank=True)
     awaiting_review = models.BooleanField(default=False)
+    REVIEW_STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+    review_status = models.CharField(max_length=20, choices=REVIEW_STATUS_CHOICES, default='draft')
     rejection_comment = models.TextField(blank=True)
     from_shared = models.BooleanField(
         default=False,

@@ -24,6 +24,7 @@ urlpatterns = [
     path('workflows/shared/', views.shared_workflow_list_view, name='shared_workflows'),
     path('workflows/<int:workflow_id>/request-review/', views.request_review, name='request_review'),
     path('workflows/review/', views.review_workflows, name='review_workflows'),
+    path('workflows/detail/<int:workflow_id>/', views.workflow_detail, name='workflow_detail'),
     path('workflows/<int:workflow_id>/use/', views.use_shared_workflow, name='use_shared_workflow'),
     path('workflows/edit/<int:workflow_id>/', views.create_workflow, name='edit_workflow'),
     path('workflows/delete/<int:pk>/', views.delete_workflow_view, name='delete_workflow'),
@@ -37,4 +38,5 @@ urlpatterns = [
     path('run-zip/', views.run_zip_view, name='run_zip'),
     path('progress-status/', views.progress_status, name='progress_status'),
     path('progress-control/', views.progress_control, name='progress_control'),
+    path('messages/<int:message_id>/', views.message_detail, name='message_detail'),
 ]

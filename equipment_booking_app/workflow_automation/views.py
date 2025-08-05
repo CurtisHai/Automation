@@ -355,22 +355,84 @@ def contact(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def inbox(request):
-    messages_qs = Message.objects.filter(is_review_request=True).select_related('workflow', 'sender').order_by('-created_at')
+    pending_workflows = Workflow.objects.filter(awaiting_review=True).select_related('created_by')
+    unread_messages = (
+        Message.objects.filter(recipient=request.user, is_review_request=False, is_read=False)
+        .select_related('sender')
+        .order_by('-created_at')
+    )
+    read_messages = (
+        Message.objects.filter(recipient=request.user, is_review_request=False, is_read=True)
+        .select_related('sender')
+        .order_by('-created_at')
+    )
 
     if request.method == "POST":
-        wf_id = request.POST.get('publish_workflow')
-        if wf_id:
+        if 'accept_workflow' in request.POST:
+            wf_id = request.POST.get('accept_workflow')
             workflow = get_object_or_404(Workflow, id=wf_id)
             workflow.is_published = True
+            workflow.awaiting_review = False
+            workflow.review_status = "accepted"
+            workflow.rejection_comment = ""
             workflow.published_by = request.user
             workflow.published_at = timezone.now()
             workflow.save()
-            messages.success(request, 'Workflow published successfully.')
+            Message.objects.create(
+                sender=request.user,
+                recipient=workflow.created_by,
+                workflow=workflow,
+                subject="Workflow Approved",
+                content="Your workflow was approved and published.",
+            )
+            messages.success(request, 'Workflow approved.')
+            return redirect('inbox')
+        if 'reject_workflow' in request.POST:
+            wf_id = request.POST.get('reject_workflow')
+            comment = request.POST.get('rejection_comment', '')
+            workflow = get_object_or_404(Workflow, id=wf_id)
+            workflow.is_published = False
+            workflow.awaiting_review = False
+            workflow.review_status = "rejected"
+            workflow.rejection_comment = comment
+            workflow.save()
+            Message.objects.create(
+                sender=request.user,
+                recipient=workflow.created_by,
+                workflow=workflow,
+                subject="Workflow Rejected",
+                content=comment,
+            )
+            messages.success(request, 'Workflow rejected.')
+            return redirect('inbox')
+        if 'mark_read' in request.POST:
+            msg_id = request.POST.get('mark_read')
+            msg = get_object_or_404(Message, id=msg_id, recipient=request.user)
+            msg.is_read = True
+            msg.save()
             return redirect('inbox')
 
-    return render(request, 'workflow_automation/inbox.html', {
-        'messages_list': messages_qs,
-    })
+    return render(
+        request,
+        'workflow_automation/inbox.html',
+        {
+            'pending_workflows': pending_workflows,
+            'unread_messages': unread_messages,
+            'read_messages': read_messages,
+        },
+    )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def message_detail(request, message_id):
+    msg = get_object_or_404(Message, id=message_id, recipient=request.user)
+    return render(request, 'workflow_automation/message_detail.html', {'message': msg})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def workflow_detail(request, workflow_id):
+    workflow = get_object_or_404(Workflow, id=workflow_id)
+    return render(request, 'workflow_automation/workflow_detail.html', {'workflow': workflow})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -522,14 +584,14 @@ def my_workflows(request):
     def build_items(queryset, imported=False):
         items = []
         for wf in queryset:
-            if wf.awaiting_review:
+            if wf.review_status == "pending":
                 status_text = "Status: Awaiting Review"
                 category = "Awaiting Review"
-            elif wf.rejection_comment:
+            elif wf.review_status == "rejected":
                 comment = wf.rejection_comment if wf.created_by_id == request.user.id else ""
                 status_text = f"Status: Rejected" + (f" - {comment}" if comment else "")
                 category = "Rejected"
-            elif wf.is_published or imported:
+            elif wf.review_status == "accepted" or wf.is_published or imported:
                 status_text = "Published: Yes"
                 category = "Published"
             else:
@@ -553,6 +615,7 @@ def request_review(request, workflow_id):
     if request.method == "POST":
         if not workflow.awaiting_review:
             workflow.awaiting_review = True
+            workflow.review_status = "pending"
             workflow.rejection_comment = ""
             workflow.save()
             messages.success(request, "Review request submitted successfully.")
@@ -588,6 +651,7 @@ def review_workflows(request):
         if action == "approve":
             workflow.is_published = True
             workflow.awaiting_review = False
+            workflow.review_status = "accepted"
             workflow.rejection_comment = ""
             workflow.published_by = request.user
             workflow.published_at = timezone.now()
@@ -604,6 +668,7 @@ def review_workflows(request):
             comment = request.POST.get("comment", "")
             workflow.is_published = False
             workflow.awaiting_review = False
+            workflow.review_status = "rejected"
             workflow.rejection_comment = comment
             workflow.save()
             Message.objects.create(
