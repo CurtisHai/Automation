@@ -115,7 +115,7 @@ select:focus {
 
 .card {
   background-color: #1e2b38;
-  color: var(--text-color);
+  color: var(--bg-color);
 }
 
 

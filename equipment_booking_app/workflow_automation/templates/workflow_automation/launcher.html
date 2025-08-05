@@ -2,11 +2,15 @@
 {% load static %}
 
 {% block content %}
-<h1 class="text-center mt-4" style="color: #BEDAE5;">Welcome</h1>
+{% if user.is_authenticated %}
+<h1 class="text-center mt-4" style="color: #192d38;">Welcome {{ user.username }}</h1>
+{% else %}
+<h1 class="text-center mt-4" style="color: #192d38;">Welcome</h1>
+{% endif %}
 
 <div class="container mt-4">
     {% if notice %}
-    <div class="card mb-4 mx-auto" style="color:#192d38;">
+    <div class="card mb-4 mx-auto">
         <div class="card-body">
             <h5 class="card-title">Message Board</h5>
             <p class="card-text">{{ notice.message }}</p>
@@ -21,7 +25,7 @@
     {% endif %}
 
     {% if user.is_superuser %}
-    <div class="card mb-4 mx-auto" style="color:#192d38;">
+    <div class="card mb-4 mx-auto">
         <div class="card-body">
             <h5 class="card-title">Create a Notice</h5>
             <form method="post">
@@ -39,7 +43,7 @@
     <div class="row g-4 mt-2">
         <div class="col-12 col-md-6 mb-4">
             <a href="{% url 'home' %}" class="text-decoration-none">
-                <div class="card h-100 text-dark">
+                <div class="card h-100">
                     <div class="card-body d-flex flex-column justify-content-center align-items-center">
                         <h2 class="card-title">Automation Tools</h2>
                     </div>
@@ -48,7 +52,7 @@
         </div>
         <div class="col-12 col-md-6 mb-4">
             <a href="{% url 'equipment_dashboard' %}" class="text-decoration-none">
-                <div class="card h-100 text-dark">
+                <div class="card h-100">
                     <div class="card-body d-flex flex-column justify-content-center align-items-center">
                         <h2 class="card-title">Equipment Booking</h2>
                     </div>
