@@ -269,15 +269,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             var toggleBtn = document.getElementById('sidebarToggle');
             var sidebar = document.getElementById('sidebar');
+            var logo = document.getElementById('sidebarLogo');
+            var openLogo = "{% static 'workflow_automation/images/Open side bar Logo.png' %}";
+            var collapsedLogo = "{% static 'workflow_automation/images/Collapsed side bar Logo.png' %}";
             var isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
             if (isCollapsed) {
                 sidebar.classList.add('collapsed');
                 document.body.classList.add('sidebar-collapsed');
+                if (logo) { logo.src = collapsedLogo; }
+            } else {
+                if (logo) { logo.src = openLogo; }
             }
             toggleBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 document.body.classList.toggle('sidebar-collapsed');
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                var collapsed = sidebar.classList.contains('collapsed');
+                if (logo) { logo.src = collapsed ? collapsedLogo : openLogo; }
+                localStorage.setItem('sidebarCollapsed', collapsed);
             });
         });
     </script>
