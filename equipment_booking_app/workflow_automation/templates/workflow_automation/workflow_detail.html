@@ -1,0 +1,28 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ workflow.name }}</h2>
+    <p>Created by {{ workflow.created_by.get_full_name|default:workflow.created_by.username }} on {{ workflow.created_at }}</p>
+    <ul>
+    {% for step in workflow.steps.all %}
+      <li>
+        {{ step.get_step_type_display }}
+        {% if step.step_type == 'convert_360_video' and step.config.convert_format %}
+            (convert to {{ step.config.convert_format }})
+        {% endif %}
+        {% if step.step_type == 'trim' %}
+            (crop {{ step.config.start_seconds }}-{{ step.config.end_seconds }})
+        {% endif %}
+        {% if step.step_type == 'rename' and step.config.rename_pattern %}
+            (pattern: {{ step.config.rename_pattern }})
+        {% endif %}
+        {% if step.step_type == 'remove_audio' or step.remove_audio %}
+            (remove audio)
+        {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+

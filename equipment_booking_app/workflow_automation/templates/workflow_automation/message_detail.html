@@ -1,0 +1,11 @@
+{% extends 'workflow_automation/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ message.subject }}</h2>
+    <p><strong>From:</strong> {{ message.sender.get_full_name|default:message.sender.username }}</p>
+    <p><strong>Sent:</strong> {{ message.created_at }}</p>
+    <p>{{ message.content|linebreaks }}</p>
+</div>
+{% endblock %}
+
