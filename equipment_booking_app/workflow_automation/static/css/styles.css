@@ -11,7 +11,7 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Bienvenue', sans-serif;
+  font-family: 'Gamechanger', sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -32,9 +32,6 @@ main {
   text-align: center;
 }
 
-h1, h2 {
-  font-family: 'Gamechanger', sans-serif;
-}
 
 .logo {
   max-height: 40px;
