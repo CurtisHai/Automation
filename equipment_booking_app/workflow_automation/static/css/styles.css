@@ -166,6 +166,10 @@ select:focus {
   gap: 10px;
 }
 
+.logout-container {
+  margin-bottom: 2.25rem;
+}
+
 body.sidebar-collapsed #main-content {
   margin-left: 110px;
 }
