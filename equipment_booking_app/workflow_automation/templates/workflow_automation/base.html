@@ -15,11 +15,11 @@
     <style>
         @font-face {
             font-family: 'Gamechanger';
-            src: url('{% static "workflow_automation/fonts/Gamechanger-Medium.ttf" %}') format('truetype');
+            src: url('{% static "fonts/Gamechanger-Medium.ttf" %}') format('truetype');
         }
         @font-face {
             font-family: 'Bienvenue';
-            src: url('{% static "workflow_automation/fonts/Bienvenue-Medium.ttf" %}') format('truetype');
+            src: url('{% static "fonts/Bienvenue-Medium.ttf" %}') format('truetype');
         }
 
         /* Sidebar layout */
@@ -193,7 +193,7 @@
     
 
     <!-- Link to the custom CSS file for additional styles -->
-    <link rel="stylesheet" href="{% static 'workflow_automation/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body class="d-flex flex-column min-vh-100 dark-mode">
     {% include 'workflow_automation/partials/sidebar.html' %}
@@ -255,8 +255,8 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{% static 'workflow_automation/js/theme-toggle.js' %}"></script>
-    <script src="{% static 'workflow_automation/js/progress.js' %}"></script>
+    <script src="{% static 'js/theme-toggle.js' %}"></script>
+    <script src="{% static 'js/progress.js' %}"></script>
 
     <script>
         function confirmLogout(event) {
@@ -270,8 +270,8 @@
             var toggleBtn = document.getElementById('sidebarToggle');
             var sidebar = document.getElementById('sidebar');
             var logo = document.getElementById('sidebarLogo');
-            var openLogo = "{% static 'workflow_automation/images/Open side bar Logo.png' %}";
-            var collapsedLogo = "{% static 'workflow_automation/images/Collapsed side bar Logo.png' %}";
+            var openLogo = "{% static 'images/Open side bar Logo.png' %}";
+            var collapsedLogo = "{% static 'images/Collapsed side bar Logo.png' %}";
             var isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
             if (isCollapsed) {
                 sidebar.classList.add('collapsed');
