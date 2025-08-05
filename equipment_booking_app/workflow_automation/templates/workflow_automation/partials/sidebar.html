@@ -2,67 +2,39 @@
 <div id="sidebar" class="sidebar">
     <div class="d-flex align-items-center">
         <button id="sidebarToggle" class="toggle-btn mr-2">&#9776;</button>
-        <a href="{% url 'home' %}">
+        <a href="{% url 'launcher' %}">
             <img src="{% static 'workflow_automation/images/logo.png' %}" alt="Logo" class="logo">
         </a>
     </div>
     <nav class="flex-column mt-4">
         {% if user.is_authenticated %}
-            {% with path=request.path %}
-                {% if 'automation' in path or 'workflows' in path or 'run-' in path %}
-                    <a href="{% url 'my_workflows' %}" class="nav-link" title="My Workflows" aria-label="My Workflows">
-                        <i class="fas fa-list"></i>
-                        <span class="sidebar-label">My Workflows</span>
-                    </a>
-                    <a href="{% url 'create_workflow' %}" class="nav-link" title="Create Workflow" aria-label="Create Workflow">
-                        <i class="fas fa-plus-circle"></i>
-                        <span class="sidebar-label">Create Workflow</span>
-                    </a>
-                    <a href="{% url 'workflow_dashboard' %}" class="nav-link" title="Logs" aria-label="Logs">
-                        <i class="fas fa-file-alt"></i>
-                        <span class="sidebar-label">Logs</span>
-                    </a>
-                    {% if user.is_staff or user.is_superuser %}
-                        <a href="{% url 'review_workflows' %}" class="nav-link" title="Review Workflows" aria-label="Review Workflows">
-                            <i class="fas fa-check-circle"></i>
-                            <span class="sidebar-label">Review Workflows</span>
-                        </a>
-                        <a href="#" class="nav-link" title="Manage Templates" aria-label="Manage Templates">
-                            <i class="fas fa-cog"></i>
-                            <span class="sidebar-label">Manage Templates</span>
-                        </a>
-                    {% endif %}
-                {% elif 'equipment' in path or 'booking' in path or 'calendar' in path %}
-                    <a href="{% url 'create_booking' %}" class="nav-link" title="Book Equipment" aria-label="Book Equipment">
-                        <i class="fas fa-calendar-plus"></i>
-                        <span class="sidebar-label">Book Equipment</span>
-                    </a>
-                    <a href="{% url 'booking_list' %}" class="nav-link" title="View Calendar" aria-label="View Calendar">
-                        <i class="fas fa-calendar"></i>
-                        <span class="sidebar-label">View Calendar</span>
-                    </a>
-                    {% if user.is_staff or user.is_superuser %}
-                        <a href="{% url 'booking_list' %}" class="nav-link" title="Admin Bookings" aria-label="Admin Bookings">
-                            <i class="fas fa-calendar-check"></i>
-                            <span class="sidebar-label">Admin Bookings</span>
-                        </a>
-                        <a href="#" class="nav-link" title="Manage Inventory" aria-label="Manage Inventory">
-                            <i class="fas fa-boxes"></i>
-                            <span class="sidebar-label">Manage Inventory</span>
-                        </a>
-                    {% endif %}
-                {% endif %}
-            {% endwith %}
+            <a href="{% url 'home' %}" class="nav-link" title="Automation Tools" aria-label="Automation Tools">
+                <i class="fas fa-robot"></i>
+                <span class="sidebar-label">Automation Tools</span>
+            </a>
+            <a href="{% url 'equipment_dashboard' %}" class="nav-link" title="Equipment Booking" aria-label="Equipment Booking">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="sidebar-label">Equipment Booking</span>
+            </a>
+
+            <hr>
+            <a href="{% url 'create_booking' %}" class="nav-link" title="Create Booking" aria-label="Create Booking">
+                <i class="fas fa-calendar-plus"></i>
+                <span class="sidebar-label">Create Booking</span>
+            </a>
+            <a href="{% url 'my_workflows' %}" class="nav-link" title="My Workflows" aria-label="My Workflows">
+                <i class="fas fa-list"></i>
+                <span class="sidebar-label">My Workflows</span>
+            </a>
             <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
                 <i class="fas fa-user-circle"></i>
                 <span class="sidebar-label">Profile</span>
             </a>
-            {% if user.is_superuser %}
-                <a href="{% url 'inbox' %}" class="nav-link" title="Inbox" aria-label="Inbox">
-                    <i class="fas fa-inbox"></i>
-                    <span class="sidebar-label">Inbox</span>
-                </a>
-            {% endif %}
+            <a href="{% url 'inbox' %}" class="nav-link" title="Inbox / Help" aria-label="Inbox / Help">
+                <i class="fas fa-inbox"></i>
+                <span class="sidebar-label">Inbox / Help</span>
+            </a>
+            <hr>
         {% endif %}
     </nav>
     <div class="mt-auto mb-4">
