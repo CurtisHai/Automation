@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'Gamechanger';
+  src: url('../fonts/Gamechanger-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bienvenue';
+  src: url('../fonts/Bienvenue-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-color: #BEDAE5;
   --text-color: #f1f1f1;
@@ -45,6 +61,7 @@ h6 {
 .logo {
   max-height: 40px;
   margin-right: 20px;
+  display: block;
 }
 
 .nav-link,
@@ -129,8 +146,8 @@ select:focus {
   border: none;
   color: white;
   font-size: 1.5rem;
-  margin-left: 10px;
-  margin-bottom: 20px;
+  margin: 0 10px;
+  line-height: 1;
 }
 
 .sidebar .nav-link {
