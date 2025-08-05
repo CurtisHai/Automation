@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AtkinsRéalis Automation App{% endblock %}</title>
-    
+
     <!-- Bootstrap CSS CDN for responsive design and styling -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for sidebar icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'images/Collapsed side bar Logo.png' %}">
 
     <!-- Custom font definitions for the app -->
     <style>
@@ -29,7 +30,7 @@
             left: 0;
             height: 100%;
             background-color: #192d38;
-            width: 250px;
+            width: 320px;
             transition: width 0.3s;
             overflow-x: hidden;
             padding-top: 20px;
@@ -39,7 +40,7 @@
         }
 
         #sidebar.collapsed {
-            width: 60px;
+            width: 110px;
         }
 
         #sidebar .toggle-btn {
@@ -50,12 +51,12 @@
         }
 
         #main-content {
-            margin-left: 250px;
+            margin-left: 320px;
             transition: margin-left 0.3s;
         }
 
         body.sidebar-collapsed #main-content {
-            margin-left: 60px;
+            margin-left: 110px;
         }
 
         /* Sidebar icon and label behaviour */
