@@ -146,6 +146,8 @@ select:focus {
   color: white;
   display: flex;
   flex-direction: column;
+  border-top-right-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
 }
 
 .sidebar.collapsed {
@@ -184,6 +186,7 @@ body.sidebar-collapsed #main-content {
   width: 100%;
   height: 10px;
   background-color: #192d38;
+  border-top-left-radius: 1.25rem;
 }
 
 .table-responsive {
@@ -209,11 +212,25 @@ body.sidebar-collapsed #main-content {
   color: #192d38;
 }
 
+footer {
+  background-color: #192d38;
+  color: #ccc;
+  width: 100%;
+  border-bottom-left-radius: 1.25rem;
+}
+
 @media (max-width: 768px) {
   #sidebar {
     width: 100%;
     height: auto;
     position: relative;
+    border-radius: 0;
+  }
+  .thin-header {
+    border-top-left-radius: 0;
+  }
+  footer {
+    border-bottom-left-radius: 0;
   }
   body.sidebar-collapsed #main-content {
     margin-left: 0;
