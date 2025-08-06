@@ -58,6 +58,7 @@
             display: flex;
             align-items: center;
             font-family: 'Gamechanger', sans-serif;
+            height: 40px;
         }
 
         #sidebar nav a i,
@@ -190,7 +191,6 @@
 <body class="d-flex flex-column min-vh-100 dark-mode">
     {% include 'workflow_automation/partials/sidebar.html' %}
     <div id="main-content" class="flex-grow-1">
-    <header class="thin-header"></header>
     <div id="zip-progress-container" class="fixed-top" style="display:none;">
         <div class="d-flex justify-content-between align-items-center">
             <span id="zip-task-name">Zipping RCP Files</span>

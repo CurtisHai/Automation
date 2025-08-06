@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block content %}
-<h1 class="text-center mt-4" style="color: #192d38;">Automation Dashboard</h1>
+<h1 class="text-center mt-4">Automation Dashboard</h1>
 
 <section class="mt-4">
     {% if user.is_authenticated %}
-        <h4 class="text-center mb-4" style="color:#192d38;">Welcome {{ user.username }}</h4>
+        <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
 
         <div class="container">
             <!-- Priority automation actions -->
