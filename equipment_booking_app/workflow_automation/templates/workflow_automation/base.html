@@ -206,6 +206,8 @@
         {% include 'workflow_automation/partials/sidebar_automation.html' %}
     {% elif '/equipment/' in request.path %}
         {% include 'workflow_automation/partials/sidebar_booking.html' %}
+    {% elif request.path == '/' %}
+        {% include 'workflow_automation/partials/sidebar_launcher.html' %}
     {% endif %}
     <div id="main-content" class="flex-grow-1">
     <div id="zip-progress-container" class="fixed-top" style="display:none;">

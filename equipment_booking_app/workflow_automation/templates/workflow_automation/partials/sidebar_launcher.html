@@ -1,0 +1,66 @@
+{% load static %}
+<div id="sidebar" class="sidebar">
+    <div class="d-flex align-items-center">
+        <button id="sidebarToggle" class="toggle-btn mr-2">&#9776;</button>
+        <a href="{% url 'launcher' %}">
+            <img id="sidebarLogo" src="{% static 'images/Open side bar Logo.png' %}" alt="Logo" class="logo">
+        </a>
+    </div>
+    <nav class="flex-column">
+        <hr>
+        {% if user.is_authenticated %}
+            <span class="text-light px-3">Navigation</span>
+            <a href="{% url 'home' %}" class="nav-link" title="Automation Tools" aria-label="Automation Tools">
+                <i class="fas fa-robot"></i>
+                <span class="sidebar-label">Automation Tools</span>
+            </a>
+            <a href="{% url 'equipment_dashboard' %}" class="nav-link" title="Equipment Booking" aria-label="Equipment Booking">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="sidebar-label">Equipment Booking</span>
+            </a>
+            <hr>
+            <span class="text-light px-3">Quick Links</span>
+            <a href="{% url 'create_booking' %}" class="nav-link" title="Create a Booking" aria-label="Create a Booking">
+                <i class="fas fa-calendar-plus"></i>
+                <span class="sidebar-label">Create a Booking</span>
+            </a>
+            <a href="{% url 'run_workflow' %}" class="nav-link" title="Run a Workflow" aria-label="Run a Workflow">
+                <i class="fas fa-play-circle"></i>
+                <span class="sidebar-label">Run a Workflow</span>
+            </a>
+            <a href="{% url 'create_workflow' %}" class="nav-link" title="Create a Workflow" aria-label="Create a Workflow">
+                <i class="fas fa-plus-circle"></i>
+                <span class="sidebar-label">Create a Workflow</span>
+            </a>
+            <a href="{% url 'shared_workflows' %}" class="nav-link" title="Shared Workflows" aria-label="Shared Workflows">
+                <i class="fas fa-share-alt"></i>
+                <span class="sidebar-label">Shared Workflows</span>
+            </a>
+            <a href="{% url 'contact' %}" class="nav-link" title="Contact" aria-label="Contact">
+                <i class="fas fa-envelope"></i>
+                <span class="sidebar-label">Contact</span>
+            </a>
+            <hr>
+        {% else %}
+            <a href="{% url 'login' %}" class="nav-link" title="Login" aria-label="Login">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="sidebar-label">Login</span>
+            </a>
+            <a href="{% url 'signup' %}" class="nav-link" title="Sign Up" aria-label="Sign Up">
+                <i class="fas fa-user-plus"></i>
+                <span class="sidebar-label">Sign Up</span>
+            </a>
+            <hr>
+        {% endif %}
+    </nav>
+    {% if user.is_authenticated %}
+    <div class="mt-auto logout-container">
+        <hr>
+        <a href="{% url 'logout' %}" id="logout-link" class="nav-link" onclick="confirmLogout(event)" title="Logout" aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="sidebar-label">Logout</span>
+        </a>
+        <hr>
+    </div>
+    {% endif %}
+</div>
