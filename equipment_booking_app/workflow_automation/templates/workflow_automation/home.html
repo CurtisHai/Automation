@@ -42,7 +42,7 @@
         </div>
 
         {% if notice %}
-        <div class="card w-75 mb-3 mx-auto">
+        <div class="card content-box mb-3">
             <div class="card-body">
                 <h5 class="card-title">Notice Board</h5>
                 <p class="card-text">{{ notice.message }}</p>
@@ -57,7 +57,7 @@
         {% endif %}
 
         {% if user.is_superuser %}
-        <div class="card w-75 mx-auto">
+        <div class="card content-box">
             <div class="card-body">
                 <h5 class="card-title">Create a Notice</h5>
                 <form method="post">
