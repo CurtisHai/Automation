@@ -178,20 +178,6 @@ select:focus {
   width: 130px;
 }
 
-.sidebar.collapsed .nav-link,
-.sidebar.collapsed .auth-btn,
-.sidebar.collapsed #logout-link,
-.sidebar.collapsed button:not(#sidebarToggle) {
-  justify-content: flex-start;
-}
-
-.sidebar.collapsed .nav-link i,
-.sidebar.collapsed .auth-btn i,
-.sidebar.collapsed #logout-link i,
-.sidebar.collapsed button:not(#sidebarToggle) i {
-  margin-right: 0;
-}
-
 .sidebar .toggle-btn {
   background: none;
   border: none;
