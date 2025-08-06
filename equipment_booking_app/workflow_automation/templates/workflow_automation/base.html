@@ -202,9 +202,9 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body class="d-flex flex-column min-vh-100 dark-mode">
-    {% if request.path.startswith('/automation/') %}
+    {% if '/automation/' in request.path %}
         {% include 'workflow_automation/partials/sidebar_automation.html' %}
-    {% elif request.path.startswith('/equipment/') %}
+    {% elif '/equipment/' in request.path %}
         {% include 'workflow_automation/partials/sidebar_booking.html' %}
     {% endif %}
     <div id="main-content" class="flex-grow-1">
