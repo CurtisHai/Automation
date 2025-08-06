@@ -133,14 +133,14 @@ h6 {
 
 .launcher-btn:hover,
 .launcher-btn:focus {
-  background-color: #5ecb50;
+  background-color: #05DA5B;
   color: #192d38;
   text-decoration: none;
 }
 
 .launcher-btn:active {
   transform: scale(0.97);
-  background-color: #4da73e;
+  background-color: #05C352;
 }
 
 /* Custom button for account save changes */
@@ -152,7 +152,12 @@ h6 {
 
 .btn-save-changes:hover,
 .btn-save-changes:focus {
-    background-color: #66c45b;
+    background-color: #05DA5B;
+    color: #192d38;
+}
+
+.btn-save-changes:active {
+    background-color: #05C352;
     color: #192d38;
 }
 
@@ -165,7 +170,12 @@ h6 {
 
 .btn-automation:hover,
 .btn-automation:focus {
-    background-color: #66c45b;
+    background-color: #05DA5B;
+    color: #192d38;
+}
+
+.btn-automation:active {
+    background-color: #05C352;
     color: #192d38;
 }
 
