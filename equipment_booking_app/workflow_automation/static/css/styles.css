@@ -75,16 +75,17 @@ h6 {
   display: block;
 }
 
+
 .nav-link,
 .auth-btn,
 .btn {
   padding: 0.5rem 1rem;
-  background-image: linear-gradient(to right, var(--accent-start), var(--accent-end));
-  color: #192d38;
+  background-color: #192d38;
+  color: #fff;
   border: none;
   border-radius: 0.375rem;
   text-decoration: none;
-  transition: background-image 0.2s ease, transform 0.1s;
+  transition: background-color 0.2s ease, transform 0.1s;
   margin-right: 10px;
   display: inline-block;
 }
@@ -92,7 +93,21 @@ h6 {
 .nav-link:hover,
 .auth-btn:hover,
 .btn:hover {
-  background-image: linear-gradient(to right, var(--accent-end), var(--accent-start));
+  background-color: #1f3b49;
+  color: #fff;
+}
+
+.btn-primary {
+  background-color: #192d38;
+  border-color: #192d38;
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #1f3b49;
+  border-color: #1f3b49;
+  color: #fff;
 }
 
 .btn:active,
