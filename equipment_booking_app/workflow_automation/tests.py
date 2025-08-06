@@ -358,10 +358,35 @@ class SidebarLinksTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertContains(response, reverse("accounts"))
 
+    def test_help_link_visible_for_regular_user(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, reverse("contact"))
+        self.assertNotContains(response, reverse("inbox"))
+
     def test_inbox_link_visible_for_superuser(self):
         self.client.force_login(self.admin)
         response = self.client.get(reverse("home"))
         self.assertContains(response, reverse("inbox"))
+        self.assertNotContains(response, reverse("contact"))
+
+
+class ContactPageTests(TestCase):
+    def setUp(self):
+        self.user_no_email = User.objects.create_user(username="noemail", password="pass")
+        self.user_with_email = User.objects.create_user(
+            username="withemail", password="pass", email="user@example.com"
+        )
+
+    def test_requires_email_to_send_message(self):
+        self.client.force_login(self.user_no_email)
+        response = self.client.get(reverse("contact"))
+        self.assertRedirects(response, reverse("accounts"))
+
+    def test_form_displayed_when_email_present(self):
+        self.client.force_login(self.user_with_email)
+        response = self.client.get(reverse("contact"))
+        self.assertContains(response, "Send Message")
 
 
 class WorkflowDeleteTests(TestCase):
