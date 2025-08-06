@@ -31,7 +31,7 @@
         }
 
         #sidebar.collapsed {
-            width: 130px;
+            width: 110px;
         }
 
         #sidebar .toggle-btn {
@@ -47,7 +47,7 @@
         }
 
         body.sidebar-collapsed #main-content {
-            margin-left: 130px;
+            margin-left: 110px;
         }
 
         /* Sidebar icon and label behaviour */
@@ -59,7 +59,6 @@
             align-items: center;
             font-family: 'Gamechanger', sans-serif;
             height: 40px;
-            overflow: hidden;
         }
 
         #sidebar nav a i,
@@ -72,11 +71,9 @@
         #sidebar nav a .sidebar-label,
         #sidebar .auth-btn .sidebar-label,
         #sidebar #logout-link .sidebar-label,
-        #sidebar button:not(#sidebarToggle) .sidebar-label,
-        #sidebar .sidebar-section-title {
+        #sidebar button:not(#sidebarToggle) .sidebar-label {
             white-space: nowrap;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            transform-origin: left;
+            transition: opacity 0.3s ease, width 0.3s ease;
         }
 
         #sidebar.collapsed nav a,
@@ -96,10 +93,9 @@
         #sidebar.collapsed nav a .sidebar-label,
         #sidebar.collapsed .auth-btn .sidebar-label,
         #sidebar.collapsed #logout-link .sidebar-label,
-        #sidebar.collapsed button:not(#sidebarToggle) .sidebar-label,
-        #sidebar.collapsed .sidebar-section-title {
+        #sidebar.collapsed button:not(#sidebarToggle) .sidebar-label {
             opacity: 0;
-            transform: scaleX(0);
+            width: 0;
         }
 
         #sidebar.collapsed .text-center {
