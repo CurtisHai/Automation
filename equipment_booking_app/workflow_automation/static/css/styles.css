@@ -15,7 +15,7 @@
 }
 
 :root {
-  --bg-color: #BEDAE5;
+  --bg-color: #244050;
   --text-color: #f1f1f1;
   --accent-start: #05E560;
   --accent-end: #B9FF00;
@@ -45,7 +45,7 @@ a:visited {
 }
 
 body.light-mode {
-  --bg-color: #BEDAE5;
+  --bg-color: #244050;
   --text-color: #222;
   --input-bg: #fff;
   --input-border: #ced4da;
