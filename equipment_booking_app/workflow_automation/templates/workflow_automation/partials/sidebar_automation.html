@@ -30,6 +30,10 @@
                 <i class="fas fa-share-alt"></i>
                 <span class="sidebar-label">Shared Workflows</span>
             </a>
+            <a href="{% url 'contact' %}" class="nav-link" title="Contact" aria-label="Contact">
+                <i class="fas fa-envelope"></i>
+                <span class="sidebar-label">Contact</span>
+            </a>
             {% if user.is_superuser %}
             <a href="{% url 'review_workflows' %}" class="nav-link" title="Review Requests" aria-label="Review Requests">
                 <i class="fas fa-check-circle"></i>
@@ -41,10 +45,6 @@
             <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
                 <i class="fas fa-user-circle"></i>
                 <span class="sidebar-label">Profile</span>
-            </a>
-            <a href="{% url 'contact' %}" class="nav-link" title="Contact" aria-label="Contact">
-                <i class="fas fa-envelope"></i>
-                <span class="sidebar-label">Contact</span>
             </a>
             {% if user.is_superuser %}
             <a href="{% url 'inbox' %}" class="nav-link" title="Inbox" aria-label="Inbox">
