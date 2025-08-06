@@ -202,12 +202,12 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body class="d-flex flex-column min-vh-100 dark-mode">
-    {% if '/automation/' in request.path %}
-        {% include 'workflow_automation/partials/sidebar_automation.html' %}
-    {% elif '/equipment/' in request.path %}
-        {% include 'workflow_automation/partials/sidebar_booking.html' %}
-    {% elif request.path == '/' %}
+    {% if request.path == '/' %}
         {% include 'workflow_automation/partials/sidebar_launcher.html' %}
+    {% elif 'equipment' in request.path or 'booking' in request.path %}
+        {% include 'workflow_automation/partials/sidebar_booking.html' %}
+    {% else %}
+        {% include 'workflow_automation/partials/sidebar_automation.html' %}
     {% endif %}
     <div id="main-content" class="flex-grow-1">
     <div id="zip-progress-container" class="fixed-top" style="display:none;">
