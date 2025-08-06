@@ -52,8 +52,9 @@ class ProfileForm(forms.ModelForm):
         self.fields['work_address'].widget.attrs.update({'class': 'form-control'})
         self.fields['work_division'].widget.attrs.update({'class': 'form-control'})
         self.fields['job_role'].widget.attrs.update({'class': 'form-control'})
+        self.fields['email'].widget.attrs.update({'class': 'form-control'})
         if 'instance' in kwargs:
-            self.fields['email'].initial = kwargs['instance'].user.email  
+            self.fields['email'].initial = kwargs['instance'].user.email
 
     def save(self, commit=True):
         profile = super(ProfileForm, self).save(commit=False)

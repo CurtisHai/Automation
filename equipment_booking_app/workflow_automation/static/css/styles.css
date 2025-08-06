@@ -105,15 +105,28 @@ h6 {
 
 .btn-primary:hover,
 .btn-primary:focus {
-  background-color: #1f3b49;
-  border-color: #1f3b49;
-  color: #fff;
+    background-color: #1f3b49;
+    border-color: #1f3b49;
+    color: #fff;
 }
 
 .btn:active,
 .auth-btn:active,
 .nav-link:active {
-  transform: scale(0.97);
+    transform: scale(0.97);
+}
+
+/* Custom button for account save changes */
+.btn-save-changes {
+    background-color: #73D567;
+    color: #192d38;
+    border: none;
+}
+
+.btn-save-changes:hover,
+.btn-save-changes:focus {
+    background-color: #66c45b;
+    color: #192d38;
 }
 
 input[type="text"],
