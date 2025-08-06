@@ -19,7 +19,6 @@
   --text-color: #f1f1f1;
   --accent-start: #05E560;
   --accent-end: #B9FF00;
-  --button-text-color: #192d38;
   --input-bg: #253545;
   --input-border: #3c4b5a;
 }
@@ -81,7 +80,7 @@ h6 {
 .btn {
   padding: 0.5rem 1rem;
   background-image: linear-gradient(to right, var(--accent-start), var(--accent-end));
-  color: var(--button-text-color);
+  color: #192d38;
   border: none;
   border-radius: 0.375rem;
   text-decoration: none;
