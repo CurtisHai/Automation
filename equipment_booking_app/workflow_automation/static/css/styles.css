@@ -129,6 +129,17 @@ h6 {
     color: #192d38;
 }
 
+/* Account details form layout */
+.account-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Read-only inputs styling */
+.form-control.readonly-field {
+  opacity: 0.6;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="email"],
