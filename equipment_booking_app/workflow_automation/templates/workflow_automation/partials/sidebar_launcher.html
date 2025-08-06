@@ -9,7 +9,7 @@
     <nav class="flex-column">
         <hr>
         {% if user.is_authenticated %}
-            <span class="text-light px-3 sidebar-section-title">Navigation</span>
+            <span class="text-light px-3">Navigation</span>
             <a href="{% url 'home' %}" class="nav-link" title="Automation Tools" aria-label="Automation Tools">
                 <i class="fas fa-robot"></i>
                 <span class="sidebar-label">Automation Tools</span>
@@ -19,7 +19,7 @@
                 <span class="sidebar-label">Equipment Booking</span>
             </a>
             <hr>
-            <span class="text-light px-3 sidebar-section-title">Quick Links</span>
+            <span class="text-light px-3">Quick Links</span>
             <a href="{% url 'create_booking' %}" class="nav-link" title="Create a Booking" aria-label="Create a Booking">
                 <i class="fas fa-calendar-plus"></i>
                 <span class="sidebar-label">Create a Booking</span>
@@ -41,7 +41,7 @@
                 <span class="sidebar-label">Contact</span>
             </a>
             <hr>
-            <span class="text-light px-3 sidebar-section-title">Account</span>
+            <span class="text-light px-3">Account</span>
             <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
                 <i class="fas fa-user-circle"></i>
                 <span class="sidebar-label">Profile</span>
