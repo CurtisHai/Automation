@@ -2,5 +2,29 @@
 
 {% block content %}
 <h1 class="text-center mt-4" style="color: #192d38;">Equipment Booking Dashboard</h1>
-<p class="text-center">This is a placeholder for the equipment booking dashboard.</p>
+
+{% if user.is_authenticated %}
+<div class="container mt-4">
+    <div class="row g-3 mb-4 text-center">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'create_booking' %}" class="btn btn-primary btn-lg w-100">Create Booking</a>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'my_bookings' %}" class="btn btn-primary btn-lg w-100">My Bookings</a>
+        </div>
+        {% if user.is_superuser %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'inbox' %}" class="btn btn-primary btn-lg w-100">Inbox</a>
+        </div>
+        {% endif %}
+        {% if user.is_staff %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <a href="{% url 'admin:index' %}" class="btn btn-primary btn-lg w-100">Admin Tools</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<p class="text-center">Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to book equipment.</p>
+{% endif %}
 {% endblock %}
