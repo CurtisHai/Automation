@@ -175,7 +175,7 @@ select:focus {
 }
 
 .sidebar.collapsed {
-  width: 110px;
+  width: 130px;
 }
 
 .sidebar .toggle-btn {
@@ -210,7 +210,7 @@ select:focus {
 }
 
 body.sidebar-collapsed #main-content {
-  margin-left: 110px;
+  margin-left: 130px;
 }
 
 .table-responsive {
