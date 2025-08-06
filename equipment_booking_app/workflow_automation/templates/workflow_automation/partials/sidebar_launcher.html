@@ -41,6 +41,12 @@
                 <span class="sidebar-label">Contact</span>
             </a>
             <hr>
+            <span class="text-light px-3">Account</span>
+            <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
+                <i class="fas fa-user-circle"></i>
+                <span class="sidebar-label">Profile</span>
+            </a>
+            <hr>
         {% else %}
             <a href="{% url 'login' %}" class="nav-link" title="Login" aria-label="Login">
                 <i class="fas fa-sign-in-alt"></i>

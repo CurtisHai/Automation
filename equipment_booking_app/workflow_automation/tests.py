@@ -364,11 +364,11 @@ class SidebarLinksTests(TestCase):
         self.assertContains(response, reverse("contact"))
         self.assertNotContains(response, reverse("inbox"))
 
-    def test_inbox_link_visible_for_superuser(self):
+    def test_contact_and_inbox_visible_for_superuser(self):
         self.client.force_login(self.admin)
         response = self.client.get(reverse("home"))
         self.assertContains(response, reverse("inbox"))
-        self.assertNotContains(response, reverse("contact"))
+        self.assertContains(response, reverse("contact"))
 
 
 class ContactPageTests(TestCase):
