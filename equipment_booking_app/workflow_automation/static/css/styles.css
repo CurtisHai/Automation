@@ -231,6 +231,7 @@ select:focus {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 20px;
 }
 
 body.sidebar-collapsed #main-content {
