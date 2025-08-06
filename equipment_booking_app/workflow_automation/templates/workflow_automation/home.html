@@ -10,41 +10,23 @@
 
         <div class="container">
             <!-- Priority automation actions -->
-            <div class="row g-3 mb-4 text-center">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'create_workflow' %}" class="btn btn-primary btn-lg w-100">Create Workflow</a>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4 text-center">
+                <div class="col d-flex">
+                    <a href="{% url 'create_workflow' %}" class="btn btn-automation btn-lg flex-fill">Create Workflow</a>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'run_workflow' %}" class="btn btn-primary btn-lg w-100">Run Workflow</a>
+                <div class="col d-flex">
+                    <a href="{% url 'run_workflow' %}" class="btn btn-automation btn-lg flex-fill">Run Workflow</a>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'my_workflows' %}" class="btn btn-primary btn-lg w-100">My Workflows</a>
+                <div class="col d-flex">
+                    <a href="{% url 'workflow_dashboard' %}" class="btn btn-automation btn-lg flex-fill">Workflow Dashboard</a>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'shared_workflows' %}" class="btn btn-primary btn-lg w-100">Shared Workflows</a>
+                <div class="col d-flex">
+                    <a href="{% url 'my_workflows' %}" class="btn btn-automation btn-lg flex-fill">My Workflows</a>
                 </div>
-                {% if user.is_superuser %}
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'review_workflows' %}" class="btn btn-primary btn-lg w-100">Review Requests{% if pending_count %} ({{ pending_count }}){% endif %}</a>
+                <div class="col d-flex">
+                    <a href="{% url 'shared_workflows' %}" class="btn btn-automation btn-lg flex-fill">Shared Workflows</a>
                 </div>
-                {% endif %}
             </div>
-
-            <!-- Secondary actions -->
-                <div class="row g-3 mb-4 text-center">
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                        <a href="{% url 'create_booking' %}" class="btn btn-secondary btn-lg w-100">Book Equipment</a>
-                    </div>
-                    {% if user.is_superuser %}
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                        <a href="{% url 'inbox' %}" class="btn btn-secondary btn-lg w-100">Inbox</a>
-                    </div>
-                    {% else %}
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                        <a href="{% url 'contact' %}" class="btn btn-secondary btn-lg w-100">Contact / Help</a>
-                    </div>
-                    {% endif %}
-                </div>
         </div>
 
         {% if notice %}
