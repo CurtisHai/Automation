@@ -2,7 +2,7 @@
 
 {% block content %}
 <h2 class="text-center mb-4">Workflow Progress</h2>
-<div class="w-75 mx-auto" style="color:#192d38;">
+<div class="w-75 mx-auto" style="color:var(--text-color);">
     <ul class="list-group mb-3">
     {% for line in logs %}
         <li class="list-group-item">{{ line }}</li>
