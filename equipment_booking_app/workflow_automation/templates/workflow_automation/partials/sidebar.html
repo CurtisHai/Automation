@@ -30,10 +30,17 @@
                 <i class="fas fa-user-circle"></i>
                 <span class="sidebar-label">Profile</span>
             </a>
-            <a href="{% url 'inbox' %}" class="nav-link" title="Inbox / Help" aria-label="Inbox / Help">
+            {% if user.is_superuser %}
+            <a href="{% url 'inbox' %}" class="nav-link" title="Inbox" aria-label="Inbox">
                 <i class="fas fa-inbox"></i>
-                <span class="sidebar-label">Inbox / Help</span>
+                <span class="sidebar-label">Inbox</span>
             </a>
+            {% else %}
+            <a href="{% url 'contact' %}" class="nav-link" title="Help" aria-label="Help">
+                <i class="fas fa-inbox"></i>
+                <span class="sidebar-label">Help</span>
+            </a>
+            {% endif %}
             <hr>
         {% else %}
             <a href="{% url 'login' %}" class="nav-link" title="Login" aria-label="Login">

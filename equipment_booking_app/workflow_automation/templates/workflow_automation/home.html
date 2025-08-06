@@ -31,14 +31,20 @@
             </div>
 
             <!-- Secondary actions -->
-            <div class="row g-3 mb-4 text-center">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'create_booking' %}" class="btn btn-secondary btn-lg w-100">Book Equipment</a>
+                <div class="row g-3 mb-4 text-center">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <a href="{% url 'create_booking' %}" class="btn btn-secondary btn-lg w-100">Book Equipment</a>
+                    </div>
+                    {% if user.is_superuser %}
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <a href="{% url 'inbox' %}" class="btn btn-secondary btn-lg w-100">Inbox</a>
+                    </div>
+                    {% else %}
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <a href="{% url 'contact' %}" class="btn btn-secondary btn-lg w-100">Contact / Help</a>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <a href="{% url 'contact' %}" class="btn btn-secondary btn-lg w-100">Contact / Help</a>
-                </div>
-            </div>
         </div>
 
         {% if notice %}
