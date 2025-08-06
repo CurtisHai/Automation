@@ -129,6 +129,19 @@ h6 {
     color: #192d38;
 }
 
+/* Green buttons used on the automation dashboard */
+.btn-automation {
+    background-color: #73D567;
+    color: #192d38;
+    border: none;
+}
+
+.btn-automation:hover,
+.btn-automation:focus {
+    background-color: #66c45b;
+    color: #192d38;
+}
+
 /* Account details form layout */
 .account-form {
   max-width: 600px;
