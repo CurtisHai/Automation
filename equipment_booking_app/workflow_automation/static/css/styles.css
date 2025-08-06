@@ -24,6 +24,12 @@
   --input-border: #3c4b5a;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   background-color: var(--bg-color);
   color: #192d38;
@@ -178,6 +184,12 @@ body.sidebar-collapsed #main-content {
   width: 100%;
   height: 10px;
   background-color: #192d38;
+}
+
+.table-responsive {
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 #zip-progress-container {
