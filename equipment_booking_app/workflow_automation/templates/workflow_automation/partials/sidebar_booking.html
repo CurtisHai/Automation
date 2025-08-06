@@ -9,26 +9,22 @@
     <nav class="flex-column">
         <hr>
         {% if user.is_authenticated %}
-            <a href="{% url 'home' %}" class="nav-link" title="Automation Tools" aria-label="Automation Tools">
-                <i class="fas fa-robot"></i>
-                <span class="sidebar-label">Automation Tools</span>
-            </a>
-            <a href="{% url 'equipment_dashboard' %}" class="nav-link" title="Equipment Booking" aria-label="Equipment Booking">
+            <span class="text-light px-3">Quick Links</span>
+            <a href="{% url 'equipment_dashboard' %}" class="nav-link" title="Equipment Home" aria-label="Equipment Home">
                 <i class="fas fa-calendar-alt"></i>
-                <span class="sidebar-label">Equipment Booking</span>
+                <span class="sidebar-label">Equipment Home</span>
             </a>
-            <hr>
             <a href="{% url 'create_booking' %}" class="nav-link" title="Create Booking" aria-label="Create Booking">
                 <i class="fas fa-calendar-plus"></i>
                 <span class="sidebar-label">Create Booking</span>
             </a>
-            <a href="{% url 'my_workflows' %}" class="nav-link" title="My Workflows" aria-label="My Workflows">
-                <i class="fas fa-list"></i>
-                <span class="sidebar-label">My Workflows</span>
+            <a href="{% url 'my_bookings' %}" class="nav-link" title="My Bookings" aria-label="My Bookings">
+                <i class="fas fa-book"></i>
+                <span class="sidebar-label">My Bookings</span>
             </a>
-            <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
-                <i class="fas fa-user-circle"></i>
-                <span class="sidebar-label">Profile</span>
+            <a href="{% url 'previous_bookings' %}" class="nav-link" title="Previous Bookings" aria-label="Previous Bookings">
+                <i class="fas fa-history"></i>
+                <span class="sidebar-label">Previous Bookings</span>
             </a>
             {% if user.is_superuser %}
             <a href="{% url 'inbox' %}" class="nav-link" title="Inbox" aria-label="Inbox">
@@ -37,10 +33,16 @@
             </a>
             {% else %}
             <a href="{% url 'contact' %}" class="nav-link" title="Help" aria-label="Help">
-                <i class="fas fa-inbox"></i>
+                <i class="fas fa-question-circle"></i>
                 <span class="sidebar-label">Help</span>
             </a>
             {% endif %}
+            <hr>
+            <span class="text-light px-3">Account</span>
+            <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
+                <i class="fas fa-user-circle"></i>
+                <span class="sidebar-label">Profile</span>
+            </a>
             <hr>
         {% else %}
             <a href="{% url 'login' %}" class="nav-link" title="Login" aria-label="Login">

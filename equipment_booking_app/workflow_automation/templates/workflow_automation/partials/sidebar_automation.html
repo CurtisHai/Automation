@@ -1,0 +1,79 @@
+{% load static %}
+<div id="sidebar" class="sidebar">
+    <div class="d-flex align-items-center">
+        <button id="sidebarToggle" class="toggle-btn mr-2">&#9776;</button>
+        <a href="{% url 'launcher' %}">
+            <img id="sidebarLogo" src="{% static 'images/Open side bar Logo.png' %}" alt="Logo" class="logo">
+        </a>
+    </div>
+    <nav class="flex-column">
+        <hr>
+        {% if user.is_authenticated %}
+            <span class="text-light px-3">Quick Links</span>
+            <a href="{% url 'home' %}" class="nav-link" title="Automation Home" aria-label="Automation Home">
+                <i class="fas fa-robot"></i>
+                <span class="sidebar-label">Automation Home</span>
+            </a>
+            <a href="{% url 'my_workflows' %}" class="nav-link" title="My Workflows" aria-label="My Workflows">
+                <i class="fas fa-list"></i>
+                <span class="sidebar-label">My Workflows</span>
+            </a>
+            <a href="{% url 'create_workflow' %}" class="nav-link" title="Create Workflow" aria-label="Create Workflow">
+                <i class="fas fa-plus-circle"></i>
+                <span class="sidebar-label">Create Workflow</span>
+            </a>
+            <a href="{% url 'run_workflow' %}" class="nav-link" title="Run Workflow" aria-label="Run Workflow">
+                <i class="fas fa-play-circle"></i>
+                <span class="sidebar-label">Run Workflow</span>
+            </a>
+            <a href="{% url 'shared_workflows' %}" class="nav-link" title="Shared Workflows" aria-label="Shared Workflows">
+                <i class="fas fa-share-alt"></i>
+                <span class="sidebar-label">Shared Workflows</span>
+            </a>
+            {% if user.is_superuser %}
+            <a href="{% url 'review_workflows' %}" class="nav-link" title="Review Requests" aria-label="Review Requests">
+                <i class="fas fa-check-circle"></i>
+                <span class="sidebar-label">Review Requests</span>
+            </a>
+            {% endif %}
+            <hr>
+            <span class="text-light px-3">Account</span>
+            <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
+                <i class="fas fa-user-circle"></i>
+                <span class="sidebar-label">Profile</span>
+            </a>
+            {% if user.is_superuser %}
+            <a href="{% url 'inbox' %}" class="nav-link" title="Inbox" aria-label="Inbox">
+                <i class="fas fa-inbox"></i>
+                <span class="sidebar-label">Inbox</span>
+            </a>
+            {% else %}
+            <a href="{% url 'contact' %}" class="nav-link" title="Help" aria-label="Help">
+                <i class="fas fa-question-circle"></i>
+                <span class="sidebar-label">Help</span>
+            </a>
+            {% endif %}
+            <hr>
+        {% else %}
+            <a href="{% url 'login' %}" class="nav-link" title="Login" aria-label="Login">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="sidebar-label">Login</span>
+            </a>
+            <a href="{% url 'signup' %}" class="nav-link" title="Sign Up" aria-label="Sign Up">
+                <i class="fas fa-user-plus"></i>
+                <span class="sidebar-label">Sign Up</span>
+            </a>
+            <hr>
+        {% endif %}
+    </nav>
+    {% if user.is_authenticated %}
+    <div class="mt-auto logout-container">
+        <hr>
+        <a href="{% url 'logout' %}" id="logout-link" class="nav-link" onclick="confirmLogout(event)" title="Logout" aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="sidebar-label">Logout</span>
+        </a>
+        <hr>
+    </div>
+    {% endif %}
+</div>
