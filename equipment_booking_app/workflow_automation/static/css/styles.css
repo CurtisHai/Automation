@@ -32,7 +32,7 @@ body {
 
 body {
   background-color: var(--bg-color);
-  color: #192d38;
+  color: var(--text-color);
   font-family: 'Bienvenue', sans-serif;
   min-height: 100vh;
   display: flex;
@@ -41,7 +41,7 @@ body {
 
 a,
 a:visited {
-  color: #192d38;
+  color: var(--text-color);
 }
 
 body.light-mode {
@@ -127,7 +127,16 @@ select:focus {
 
 .card {
   background-color: #1e2b38;
-  color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.card a,
+.card a:visited {
+  color: var(--text-color);
+}
+
+.table {
+  color: var(--text-color);
 }
 
 
@@ -190,13 +199,6 @@ body.sidebar-collapsed #main-content {
   margin-left: 110px;
 }
 
-.thin-header {
-  width: 100%;
-  height: 10px;
-  background-color: #192d38;
-  border-top-left-radius: 1.25rem;
-}
-
 .table-responsive {
   max-height: 80vh;
   overflow-y: auto;
@@ -233,9 +235,6 @@ footer {
     height: auto;
     position: relative;
     border-radius: 0;
-  }
-  .thin-header {
-    border-top-left-radius: 0;
   }
   footer {
     border-bottom-left-radius: 0;
