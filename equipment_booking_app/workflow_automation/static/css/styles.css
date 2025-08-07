@@ -245,6 +245,7 @@ select:focus {
   padding-top: 20px;
   z-index: 1000;
   color: white;
+  border: 1px solid var(--bs-light);
   display: flex;
   flex-direction: column;
   border-top-right-radius: 1.25rem;
