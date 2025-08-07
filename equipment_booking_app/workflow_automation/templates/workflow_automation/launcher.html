@@ -15,7 +15,7 @@
             <h5 class="card-title">Message Board</h5>
             <p class="card-text">{{ notice.message }}</p>
             {% if user.is_superuser %}
-            <form method="post" action="{% url 'remove_notice' %}" class="confirm-form" data-confirm="Delete this notice?">
+            <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">Remove Notice</button>
             </form>

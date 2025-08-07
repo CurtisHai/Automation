@@ -50,3 +50,51 @@
     {% endif %}
 </div>
 {% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const rawPicker = document.getElementById('raw_folder_picker');
+    document.getElementById('raw_folder_btn').addEventListener('click', function(){
+        rawPicker.click();
+    });
+
+    const outputPicker = document.getElementById('output_folder_picker');
+    document.getElementById('output_folder_btn').addEventListener('click', function(){
+        outputPicker.click();
+    });
+    function checkVisibility(){
+        const raw = document.getElementById('id_raw_data_folder').value;
+        const out = document.getElementById('id_output_folder').value;
+        const fields = document.getElementById('additional-fields');
+        if(raw && out){
+            fields.classList.remove('d-none');
+        }
+    }
+
+    outputPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
+            document.getElementById('id_output_folder').value = path;
+            document.getElementById('output_folder_label').textContent = path;
+            const base = path.replace(/[\\/]+$/, '').split(/[\\/]/).pop();
+            const suggestion = `${base}-3V-{timestamp}{ext}`;
+            const renameField = document.getElementById('id_rename_pattern');
+            if(renameField && !renameField.value){
+                renameField.value = suggestion;
+            }
+        }
+        checkVisibility();
+    });
+
+    rawPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
+            document.getElementById('id_raw_data_folder').value = path;
+            document.getElementById('raw_folder_label').textContent = path;
+        }
+        checkVisibility();
+    });
+    checkVisibility();
+});
+</script>
