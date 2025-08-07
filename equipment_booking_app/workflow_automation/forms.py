@@ -90,6 +90,15 @@ class MessageForm(forms.ModelForm):
         return instance
 
 
+class ResponseForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['response']
+        widgets = {
+            'response': forms.Textarea(attrs={'placeholder': 'Type your response here...'})
+        }
+
+
 class NoticeForm(forms.ModelForm):
     class Meta:
         model = Notice
