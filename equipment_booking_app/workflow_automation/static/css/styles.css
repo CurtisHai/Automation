@@ -81,7 +81,8 @@ h6 {
 
 .nav-link,
 .auth-btn,
-.btn {
+.btn,
+.btn-primary {
   padding: 0.5rem 1rem;
   background-color: #192d38;
   color: #fff;
@@ -93,37 +94,33 @@ h6 {
   display: inline-block;
 }
 
-.nav-link:hover,
-.auth-btn:hover,
-.btn:hover {
-  background-color: #1f3b49;
-  color: #fff;
+.btn-primary {
+  border-color: #192d38;
 }
 
-.btn-primary {
-  background-color: #192d38;
-  border-color: #192d38;
-  color: #fff;
+.nav-link:hover,
+.auth-btn:hover,
+.btn:hover,
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #1f3b49;
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-    background-color: #1f3b49;
-    border-color: #1f3b49;
-    color: #fff;
+  border-color: #1f3b49;
 }
 
 .btn:active,
 .auth-btn:active,
-.nav-link:active {
-    transform: scale(0.97);
+.nav-link:active,
+.btn-primary:active,
+.launcher-btn:active {
+  transform: scale(0.97);
 }
 
 /* Launcher page primary buttons */
 .launcher-btn {
-  background-color: #05E560;
-  color: #192d38;
-  border: none;
   border-radius: 0.375rem;
   padding: 2rem 1rem;
   font-size: 1.5rem;
@@ -134,52 +131,28 @@ h6 {
   transition: background-color 0.2s ease, transform 0.1s;
 }
 
-.launcher-btn:hover,
-.launcher-btn:focus {
-  background-color: #05DA5B;
-  color: #192d38;
-  text-decoration: none;
-}
-
-.launcher-btn:active {
-  transform: scale(0.97);
-  background-color: #05C352;
-}
-
-/* Custom button for account save changes */
-.btn-save-changes {
-    background-color: #05E560;
-    color: #192d38;
-    border: none;
-}
-
-.btn-save-changes:hover,
-.btn-save-changes:focus {
-    background-color: #05DA5B;
-    color: #192d38;
-}
-
-.btn-save-changes:active {
-    background-color: #05C352;
-    color: #192d38;
-}
-
-/* Green buttons used on the automation dashboard */
+/* Green button variants */
+.launcher-btn,
+.btn-save-changes,
 .btn-automation {
-    background-color: #05E560;
-    color: #192d38;
-    border: none;
+  background-color: #05E560;
+  color: #192d38;
+  border: none;
 }
 
+.launcher-btn:hover,
+.launcher-btn:focus,
+.btn-save-changes:hover,
+.btn-save-changes:focus,
 .btn-automation:hover,
 .btn-automation:focus {
-    background-color: #05DA5B;
-    color: #192d38;
+  background-color: #05DA5B;
 }
 
+.launcher-btn:active,
+.btn-save-changes:active,
 .btn-automation:active {
-    background-color: #05C352;
-    color: #192d38;
+  background-color: #05C352;
 }
 
 /* Account details form layout */
