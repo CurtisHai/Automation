@@ -67,14 +67,22 @@ class ProfileForm(forms.ModelForm):
 
 
 class MessageForm(forms.ModelForm):
-    workflow = forms.ModelChoiceField(queryset=Workflow.objects.none(), required=False)
+    workflow = forms.ModelChoiceField(
+        queryset=Workflow.objects.none(),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-control w-100"}),
+    )
 
     class Meta:
         model = Message
-        fields = ['subject', 'content', 'workflow']
+        fields = ["subject", "content", "workflow"]
         widgets = {
-            'subject': forms.TextInput(attrs={'placeholder': 'Enter subject here...'}),
-            'content': forms.Textarea(attrs={'placeholder': 'Type your message here...'}),
+            "subject": forms.TextInput(
+                attrs={"placeholder": "Enter subject here...", "class": "form-control w-100"}
+            ),
+            "content": forms.Textarea(
+                attrs={"placeholder": "Type your message here...", "class": "form-control w-100"}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
