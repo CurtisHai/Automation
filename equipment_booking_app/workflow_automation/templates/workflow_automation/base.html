@@ -82,37 +82,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/progress.js' %}"></script>
-
-    <script>
-        function confirmLogout(event) {
-            event.preventDefault();
-            const userConfirmed = confirm("Are you sure you want to log out?");
-            if (userConfirmed) {
-                window.location.href = event.currentTarget.href;
-            }
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            var toggleBtn = document.getElementById('sidebarToggle');
-            var sidebar = document.getElementById('sidebar');
-            var logo = document.getElementById('sidebarLogo');
-            var openLogo = "{% static 'images/Open side bar Logo.png' %}";
-            var collapsedLogo = "{% static 'images/Collapsed side bar Logo.png' %}";
-            var isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (isCollapsed) {
-                sidebar.classList.add('collapsed');
-                document.body.classList.add('sidebar-collapsed');
-                if (logo) { logo.src = collapsedLogo; }
-            } else {
-                if (logo) { logo.src = openLogo; }
-            }
-            toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                document.body.classList.toggle('sidebar-collapsed');
-                var collapsed = sidebar.classList.contains('collapsed');
-                if (logo) { logo.src = collapsed ? collapsedLogo : openLogo; }
-                localStorage.setItem('sidebarCollapsed', collapsed);
-            });
-        });
-    </script>
+    <script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>

@@ -96,15 +96,4 @@
 
     <button type="submit" class="btn btn-primary mt-3">Save Workflow</button>
 </form>
-
-<script>
-    document.querySelectorAll('.task-toggle').forEach(function(cb){
-        cb.addEventListener('change', function(){
-            var target = document.getElementById(this.dataset.target);
-            if(target){
-                target.style.display = this.checked ? 'block' : 'none';
-            }
-        });
-    });
-</script>
 {% endblock %}
