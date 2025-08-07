@@ -36,10 +36,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-image: url('../images/branded-background.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 a,
