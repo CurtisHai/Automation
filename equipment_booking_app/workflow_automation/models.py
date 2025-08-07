@@ -72,6 +72,14 @@ class Message(models.Model):
     workflow = models.ForeignKey('Workflow', null=True, blank=True, on_delete=models.SET_NULL, related_name='messages')
     is_review_request = models.BooleanField(default=False)
     is_read = models.BooleanField(default=False)
+    response = models.TextField(blank=True, null=True)
+    responded_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='responded_messages',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -6,6 +6,18 @@
     <p><strong>From:</strong> {{ message.sender.get_full_name|default:message.sender.username }}</p>
     <p><strong>Sent:</strong> {{ message.created_at }}</p>
     <p>{{ message.content|linebreaks }}</p>
+    {% if message.response %}
+    <hr>
+    <h4>Response</h4>
+    <p>{{ message.response|linebreaks }}</p>
+    {% else %}
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Send Response</button>
+        </form>
+    {% endif %}
 </div>
 {% endblock %}
 

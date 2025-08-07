@@ -24,6 +24,7 @@ from .forms import (
     BookingForm,
     ProfileForm,
     MessageForm,
+    ResponseForm,
     NoticeForm,
     WorkflowForm,
     WorkflowStepFormSet,
@@ -346,12 +347,10 @@ def contact(request):
         form = MessageForm(user=request.user)
 
     return render(request, 'workflow_automation/contact.html', {'form': form})
-
-
-
-
-
-
+@login_required
+def user_messages(request):
+    msgs = Message.objects.filter(sender=request.user).order_by('-created_at')
+    return render(request, 'workflow_automation/user_messages.html', {'user_messages': msgs})
 
 @user_passes_test(lambda u: u.is_superuser)
 def inbox(request):
@@ -426,7 +425,22 @@ def inbox(request):
 @user_passes_test(lambda u: u.is_superuser)
 def message_detail(request, message_id):
     msg = get_object_or_404(Message, id=message_id, recipient=request.user)
-    return render(request, 'workflow_automation/message_detail.html', {'message': msg})
+    if request.method == 'POST':
+        form = ResponseForm(request.POST, instance=msg)
+        if form.is_valid():
+            response = form.save(commit=False)
+            response.responded_by = request.user
+            response.is_read = True
+            response.save()
+            messages.success(request, 'Response saved successfully.')
+            return redirect('inbox')
+    else:
+        form = ResponseForm(instance=msg)
+    return render(
+        request,
+        'workflow_automation/message_detail.html',
+        {'message': msg, 'form': form},
+    )
 
 
 @user_passes_test(lambda u: u.is_superuser)

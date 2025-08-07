@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.urls import reverse
-from .models import Workflow, Profile
+from .models import Workflow, Profile, Message
 from .workflow_runner import WorkflowRunner
 from . import file_utils, views
 from .log_writer import write_workflow_log
@@ -412,4 +412,36 @@ class WorkflowDeleteTests(TestCase):
         self.client.force_login(self.admin)
         self.client.post(reverse("delete_workflow", args=[self.wf.id]))
         self.assertFalse(Workflow.objects.filter(id=self.wf.id).exists())
+
+
+class MessageResponseTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="msguser", password="pass", email="user@example.com"
+        )
+        self.admin = User.objects.create_user(
+            username="msgadmin", password="pass", email="admin@example.com", is_superuser=True
+        )
+        self.msg = Message.objects.create(
+            sender=self.user, recipient=self.admin, subject="Help", content="Need assistance"
+        )
+
+    def test_superuser_can_respond(self):
+        self.client.force_login(self.admin)
+        url = reverse("message_detail", args=[self.msg.id])
+        response = self.client.post(url, {"response": "Sure"})
+        self.msg.refresh_from_db()
+        self.assertEqual(self.msg.response, "Sure")
+        self.assertEqual(self.msg.responded_by, self.admin)
+        self.assertTrue(self.msg.is_read)
+        self.assertRedirects(response, reverse("inbox"))
+
+    def test_user_can_view_response(self):
+        self.msg.response = "Done"
+        self.msg.responded_by = self.admin
+        self.msg.is_read = True
+        self.msg.save()
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("user_messages"))
+        self.assertContains(response, "Done")
 
