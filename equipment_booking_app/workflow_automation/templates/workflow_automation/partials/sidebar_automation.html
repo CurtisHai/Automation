@@ -3,7 +3,7 @@
     <div class="d-flex align-items-center">
         <button id="sidebarToggle" class="toggle-btn mr-2">&#9776;</button>
         <a href="{% url 'launcher' %}">
-            <img id="sidebarLogo" src="{% static 'images/Open side bar Logo.png' %}" data-open-logo="{% static 'images/Open side bar Logo.png' %}" data-collapsed-logo="{% static 'images/Collapsed side bar Logo.png' %}" alt="Logo" class="logo">
+            <img id="sidebarLogo" src="{% static 'images/Open side bar Logo.png' %}" alt="Logo" class="logo">
         </a>
     </div>
     <nav class="flex-column">
@@ -68,7 +68,7 @@
     {% if user.is_authenticated %}
     <div class="mt-auto logout-container">
         <hr>
-        <a href="{% url 'logout' %}" id="logout-link" class="nav-link confirm-link" data-confirm="Are you sure you want to log out?" title="Logout" aria-label="Logout">
+        <a href="{% url 'logout' %}" id="logout-link" class="nav-link" onclick="confirmLogout(event)" title="Logout" aria-label="Logout">
             <i class="fas fa-sign-out-alt"></i>
             <span class="sidebar-label">Logout</span>
         </a>

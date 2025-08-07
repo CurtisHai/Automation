@@ -42,13 +42,13 @@
         <a href="{% url 'edit_workflow' wf.obj.id %}" class="btn btn-sm btn-warning ml-1">Edit</a>
         <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success ml-1">Run Workflow</a>
         {% if wf.obj.created_by == request.user %}
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline confirm-form" data-confirm="Are you sure you want to delete this workflow?">
+        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
         <div class="small text-muted">This will permanently delete the workflow from your account.</div>
         {% if request.user.is_staff and wf.obj.downloaded_by.exists %}
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline confirm-form" data-confirm="This will delete the workflow globally. It will also be removed from all users who downloaded it.">
+        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('This will delete the workflow globally. It will also be removed from all users who downloaded it.')">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger btn-sm mt-1">Admin Delete</button>
         </form>
@@ -84,13 +84,13 @@
     </td>
     <td>
         <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success">Run Workflow</a>
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline confirm-form" data-confirm="Are you sure you want to delete this workflow?">
+        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
         <div class="small text-muted">This will remove your local copy. The original remains online.</div>
         {% if request.user.is_staff %}
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline confirm-form" data-confirm="This will delete the workflow globally. It will also be removed from all users who downloaded it.">
+        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('This will delete the workflow globally. It will also be removed from all users who downloaded it.')">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger btn-sm mt-1">Admin Delete</button>
         </form>
@@ -103,4 +103,16 @@
 </div>
 {% endif %}
 
+<script>
+document.getElementById('statusFilter').addEventListener('change', function() {
+    var filter = this.value;
+    document.querySelectorAll('#my-workflows tbody tr').forEach(function(row) {
+        if (!filter || row.dataset.status === filter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}

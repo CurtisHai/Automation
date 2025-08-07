@@ -50,9 +50,9 @@
                         
                         <!-- Delete option for superusers only -->
                         {% if is_superuser %}
-                        <form method="POST" action="{% url 'delete_booking' booking.id %}" class="d-inline confirm-form" data-confirm="Are you sure you want to delete this booking?">
+                        <form method="POST" action="{% url 'delete_booking' booking.id %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)">Delete</button>
                         </form>
                         {% endif %}
                     </td>
@@ -111,5 +111,13 @@
         </form>
     </div>
 
+    <!-- JavaScript function to confirm the delete action -->
+    <script>
+    function confirmDelete(button) {
+        if (confirm("Are you sure you want to delete this booking?")) {
+            button.closest('form').submit();
+        }
+    }
+    </script>
 </div>
 {% endblock %}

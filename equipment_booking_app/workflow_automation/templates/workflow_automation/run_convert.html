@@ -30,3 +30,20 @@
     {% endif %}
 </div>
 {% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const inputPicker = document.getElementById('input_folder_picker');
+    document.getElementById('input_folder_btn').addEventListener('click', function(){
+        inputPicker.click();
+    });
+    inputPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
+            document.getElementById('id_input_path').value = path;
+            document.getElementById('input_folder_label').textContent = path;
+        }
+    });
+});
+</script>
