@@ -12,191 +12,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="{% static 'images/Collapsed side bar Logo.png' %}">
 
-    <!-- Custom font definitions for the app -->
-    <style>
-        /* Sidebar layout */
-        #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background-color: #0f222d;
-            width: 320px;
-            transition: width 0.3s;
-            overflow-x: hidden;
-            padding-top: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #sidebar.collapsed {
-            width: 130px;
-        }
-
-        #sidebar .toggle-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        #main-content {
-            margin-left: 320px;
-            transition: margin-left 0.3s;
-        }
-
-        body.sidebar-collapsed #main-content {
-            margin-left: 130px;
-        }
-
-        /* Sidebar icon and label behaviour */
-        #sidebar nav a,
-        #sidebar .auth-btn,
-        #sidebar #logout-link,
-        #sidebar button:not(#sidebarToggle) {
-            display: flex;
-            align-items: center;
-            font-family: 'Gamechanger', sans-serif;
-            height: 40px;
-        }
-
-        #sidebar nav a i,
-        #sidebar .auth-btn i,
-        #sidebar #logout-link i,
-        #sidebar button:not(#sidebarToggle) i {
-            margin-right: 10px;
-        }
-
-        #sidebar nav a .sidebar-label,
-        #sidebar .auth-btn .sidebar-label,
-        #sidebar #logout-link .sidebar-label,
-        #sidebar button:not(#sidebarToggle) .sidebar-label {
-            white-space: nowrap;
-            transition: opacity 0.3s ease, width 0.3s ease;
-        }
-
-        #sidebar.collapsed nav a,
-        #sidebar.collapsed .auth-btn,
-        #sidebar.collapsed #logout-link,
-        #sidebar.collapsed button:not(#sidebarToggle) {
-            justify-content: center;
-        }
-
-        #sidebar.collapsed nav a i,
-        #sidebar.collapsed .auth-btn i,
-        #sidebar.collapsed #logout-link i,
-        #sidebar.collapsed button:not(#sidebarToggle) i {
-            margin-right: 0;
-        }
-
-        #sidebar.collapsed nav a .sidebar-label,
-        #sidebar.collapsed .auth-btn .sidebar-label,
-        #sidebar.collapsed #logout-link .sidebar-label,
-        #sidebar.collapsed button:not(#sidebarToggle) .sidebar-label {
-            opacity: 0;
-            width: 0;
-        }
-
-        #sidebar.collapsed .text-center {
-            display: none;
-        }
-    
-        .logo {
-            max-height: 40px; 
-            margin-right: 20px;
-        }
-    
-        .center-nav {
-            font-size: 1.2rem;
-            display: flex;
-            gap: 10px;
-            flex-grow: 1;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    
-        .nav-link {
-            padding: 10px 20px;
-            background-color: #192d38;
-            color: #fff;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-            margin-right: 10px;
-            display: inline-block;
-        }
-
-        .nav-link:hover {
-            background-color: #1f3b49;
-            color: #fff;
-        }
-    
-        #logout-link {
-            font-size: 1.2rem;
-            margin-left: auto;
-        }
-    
-        .auth-btn {
-            background-color: #192d38;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            margin-right: 10px;
-            transition: background-color 0.3s ease;
-            display: inline-block;
-        }
-
-        .auth-btn:hover {
-            background-color: #1f3b49;
-            color: #fff;
-        }
-    
-        .btn {
-            background-color: #192d38;
-            color: #fff;
-            border: none;
-            margin-right: 10px;
-            border-radius: 10px;
-        }
-
-        .btn:hover {
-            background-color: #1f3b49;
-            color: #fff;
-        }
-
-        .btn-primary {
-            background-color: #192d38;
-            border-color: #192d38;
-            color: #fff;
-        }
-
-        .btn-primary:hover,
-        .btn-primary:focus {
-            background-color: #1f3b49;
-            border-color: #1f3b49;
-            color: #fff;
-        }
-
-        /* Sidebar spacing */
-        #sidebar nav {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #sidebar nav a {
-            margin: 0 10px;
-        }
-
-        #sidebar hr {
-            border-color: rgba(255, 255, 255, 0.2);
-            margin: 1rem 0;
-        }
-    </style>
-    
 
     <!-- Link to the custom CSS file for additional styles -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -210,11 +25,11 @@
         {% include 'workflow_automation/partials/sidebar_automation.html' %}
     {% endif %}
     <div id="main-content" class="flex-grow-1">
-    <div id="zip-progress-container" class="fixed-top" style="display:none;">
+    <div id="zip-progress-container" class="fixed-top d-none">
         <div class="d-flex justify-content-between align-items-center">
             <span id="zip-task-name">Zipping RCP Files</span>
             <div class="progress flex-grow-1 mx-3">
-                <div id="zip-progress-bar" class="progress-bar" role="progressbar" style="width:0%"></div>
+                <div id="zip-progress-bar" class="progress-bar" role="progressbar"></div>
             </div>
             <span id="zip-progress-percent">0%</span>
             <button class="btn btn-link text-light p-0 ml-2" data-toggle="collapse" data-target="#zip-progress-detail" aria-expanded="false">Expand</button>
@@ -258,7 +73,7 @@
     </main>
     </div>
 
-    <footer class="mt-auto py-1 text-center" style="background-color: #0f222d; color: #ccc; width: 100%;">
+    <footer class="mt-auto py-1 text-center">
         © Curtis Hailes, AtkinsRéalis 2025
     </footer>
     
