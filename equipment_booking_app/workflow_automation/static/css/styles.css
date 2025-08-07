@@ -1,14 +1,14 @@
 @font-face {
-  font-family: 'Gamechanger';
-  src: url('../fonts/Gamechanger-Medium.ttf') format('truetype');
+  font-family: "Gamechanger";
+  src: url("../fonts/Gamechanger-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Bienvenue';
-  src: url('../fonts/Bienvenue-Medium.ttf') format('truetype');
+  font-family: "Bienvenue";
+  src: url("../fonts/Bienvenue-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -16,8 +16,8 @@
 
 :root {
   --text-color: #f1f1f1;
-  --accent-start: #05E560;
-  --accent-end: #B9FF00;
+  --accent-start: #05e560;
+  --accent-end: #b9ff00;
   --input-bg: #253545;
   --input-border: #3c4b5a;
 }
@@ -30,13 +30,13 @@ body {
 
 body {
   background-color: #244050;
-  background-image: url('../images/background.svg');
+  background-image: url("../images/background.svg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   color: var(--text-color);
-  font-family: 'Bienvenue', sans-serif;
+  font-family: "Bienvenue", sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -68,16 +68,14 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Gamechanger', sans-serif;
+  font-family: "Gamechanger", sans-serif;
 }
-
 
 .logo {
   max-height: 40px;
   margin-right: 20px;
   display: block;
 }
-
 
 .nav-link,
 .auth-btn,
@@ -108,19 +106,35 @@ h6 {
 
 .btn-primary:hover,
 .btn-primary:focus {
+<<<<<<< Updated upstream
   border-color: #1f3b49;
+=======
+  background-color: #1f3b49;
+  border-color: #1f3b49;
+  color: #fff;
+>>>>>>> Stashed changes
 }
 
 .btn:active,
 .auth-btn:active,
+<<<<<<< Updated upstream
 .nav-link:active,
 .btn-primary:active,
 .launcher-btn:active {
+=======
+.nav-link:active {
+>>>>>>> Stashed changes
   transform: scale(0.97);
 }
 
 /* Launcher page primary buttons */
 .launcher-btn {
+<<<<<<< Updated upstream
+=======
+  background-color: #05e560;
+  color: #192d38;
+  border: none;
+>>>>>>> Stashed changes
   border-radius: 0.375rem;
   padding: 2rem 1rem;
   font-size: 1.5rem;
@@ -131,11 +145,47 @@ h6 {
   transition: background-color 0.2s ease, transform 0.1s;
 }
 
+<<<<<<< Updated upstream
 /* Green button variants */
 .launcher-btn,
 .btn-save-changes,
 .btn-automation {
   background-color: #05E560;
+=======
+.launcher-btn:hover,
+.launcher-btn:focus {
+  background-color: #05da5b;
+  color: #192d38;
+  text-decoration: none;
+}
+
+.launcher-btn:active {
+  transform: scale(0.97);
+  background-color: #05c352;
+}
+
+/* Custom button for account save changes */
+.btn-save-changes {
+  background-color: #05e560;
+  color: #192d38;
+  border: none;
+}
+
+.btn-save-changes:hover,
+.btn-save-changes:focus {
+  background-color: #05da5b;
+  color: #192d38;
+}
+
+.btn-save-changes:active {
+  background-color: #05c352;
+  color: #192d38;
+}
+
+/* Green buttons used on the automation dashboard */
+.btn-automation {
+  background-color: #05e560;
+>>>>>>> Stashed changes
   color: #192d38;
   border: none;
 }
@@ -146,13 +196,23 @@ h6 {
 .btn-save-changes:focus,
 .btn-automation:hover,
 .btn-automation:focus {
+<<<<<<< Updated upstream
   background-color: #05DA5B;
+=======
+  background-color: #05da5b;
+  color: #192d38;
+>>>>>>> Stashed changes
 }
 
 .launcher-btn:active,
 .btn-save-changes:active,
 .btn-automation:active {
+<<<<<<< Updated upstream
   background-color: #05C352;
+=======
+  background-color: #05c352;
+  color: #192d38;
+>>>>>>> Stashed changes
 }
 
 /* Account details form layout */
@@ -203,15 +263,12 @@ select:focus {
   color: var(--text-color);
 }
 
-
-
-
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #192d38;
+  background-color: #122631;
   width: 320px;
   transition: width 0.3s;
   overflow-x: hidden;
@@ -284,12 +341,16 @@ body.sidebar-collapsed #main-content {
 }
 
 #zip-progress-container .progress-bar {
-  background-image: linear-gradient(to right, var(--accent-start), var(--accent-end));
+  background-image: linear-gradient(
+    to right,
+    var(--accent-start),
+    var(--accent-end)
+  );
   color: #192d38;
 }
 
 footer {
-  background-color: #192d38;
+  background-color: #122631;
   color: #ccc;
   width: 100%;
   border-bottom-left-radius: 1.25rem;
@@ -309,7 +370,6 @@ footer {
     margin-left: 0;
   }
 }
-
 
 .content-box {
   width: 100%;
