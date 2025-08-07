@@ -5,19 +5,19 @@
 <div class="card p-4 content-box mb-4">
     <form method="post">
         {% csrf_token %}
-        <div class="d-none">
+        <div style="display:none;">
             {{ form.input_path }}
             {{ form.output_zip }}
         </div>
         <div class="form-group">
             <label>Select Input Folder</label><br>
-            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple class="d-none">
+            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
             <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
             <span id="input_folder_label" class="ml-2"></span>
         </div>
         <div class="form-group">
             <label>Select Output Folder</label><br>
-            <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple class="d-none">
+            <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
             <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
             <span id="output_folder_label" class="ml-2"></span>
         </div>

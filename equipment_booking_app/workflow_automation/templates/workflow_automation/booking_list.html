@@ -13,8 +13,8 @@
 
     <!-- Responsive table for displaying upcoming bookings -->
     <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover w-100 bg-white">
-            <thead class="table-header">
+        <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
+            <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;">
                 <tr class="text-center">
                     {% if is_superuser %}
                         <th>User</th> 
@@ -37,12 +37,12 @@
                     <td>
                         <!-- Allow superusers to edit any booking, and regular users to edit only future bookings -->
                         {% if is_superuser %}
-                            <form action="{% url 'edit_booking' booking.id %}" method="get" class="d-inline">
+                            <form action="{% url 'edit_booking' booking.id %}" method="get" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary btn-sm">Edit</button>
                             </form>
                         {% elif booking.start_time > current_time and booking.user == request.user %}
-                            <form action="{% url 'edit_booking' booking.id %}" method="get" class="d-inline">
+                            <form action="{% url 'edit_booking' booking.id %}" method="get" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary btn-sm">Edit</button>
                             </form>
@@ -50,7 +50,7 @@
                         
                         <!-- Delete option for superusers only -->
                         {% if is_superuser %}
-                        <form method="POST" action="{% url 'delete_booking' booking.id %}" class="d-inline">
+                        <form method="POST" action="{% url 'delete_booking' booking.id %}" style="display:inline;">
                             {% csrf_token %}
                             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)">Delete</button>
                         </form>
@@ -71,8 +71,8 @@
     {% if previous_bookings %}
     <h2 class="text-center mb-4 mt-5">Previous Bookings</h2>
     <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover w-100 bg-white">
-            <thead class="table-header"> <!-- Table header for previous bookings -->
+        <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
+            <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;"> <!-- Table header for previous bookings -->
                 <tr class="text-center">
                     {% if is_superuser %}
                         <th>User</th> <!-- Display user for superusers -->
@@ -105,7 +105,7 @@
 
     <!-- Button to view all previous bookings -->
     <div class="text-center mt-4 mb-5"> <!-- Add space between content and footer -->
-        <form action="{% url 'previous_bookings' %}" method="get" class="d-inline">
+        <form action="{% url 'previous_bookings' %}" method="get" style="display:inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">View All Previous Bookings</button>
         </form>

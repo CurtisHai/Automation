@@ -5,26 +5,26 @@
 <div class="card p-4 content-box mb-4">
     <form method="post">
         {% csrf_token %}
-        <div class="d-none">
+        <div style="display:none;">
             {{ form.raw_data_folder }}
             {{ form.output_folder }}
         </div>
 
         <div class="form-group">
             <label>Select RAW Data Folder</label><br>
-            <input type="file" id="raw_folder_picker" webkitdirectory mozdirectory directory multiple class="d-none">
+            <input type="file" id="raw_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
             <button type="button" class="btn btn-secondary" id="raw_folder_btn">Browse</button>
             <span id="raw_folder_label" class="ml-2">{{ raw_folder }}</span>
         </div>
 
         <div class="form-group">
             <label>Select Output Folder</label><br>
-            <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple class="d-none">
+            <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
             <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
             <span id="output_folder_label" class="ml-2"></span>
         </div>
 
-        <div id="additional-fields" class="d-none">
+        <div id="additional-fields" style="display:none;">
             <div class="form-group">
                 <label for="id_user_initials">Your Initials</label>
                 {{ form.user_initials }}
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const out = document.getElementById('id_output_folder').value;
         const fields = document.getElementById('additional-fields');
         if(raw && out){
-            fields.classList.remove('d-none');
+            fields.style.display = 'block';
         }
     }
 

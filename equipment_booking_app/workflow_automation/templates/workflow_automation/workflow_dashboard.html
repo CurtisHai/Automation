@@ -11,7 +11,7 @@
 {% if workflows %}
     <ul class="list-group">
     {% for workflow in workflows %}
-        <li class="list-group-item text-dark-blue">
+        <li class="list-group-item" style="color:#192d38;">
             <strong>{{ workflow.name }}</strong> - {{ workflow.description }}
             <ul class="mb-2">
                 {% for step in workflow.steps.all %}
@@ -23,8 +23,8 @@
     </ul>
 {% elif recent_runs %}
     <div class="table-responsive">
-    <table class="table table-striped table-bordered table-hover w-100 bg-white">
-        <thead class="table-header">
+    <table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff;">
+        <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color:#192d38; text-align:center;">
             <tr><th>Name</th><th>Last Used</th><th>Actions</th></tr>
         </thead>
         <tbody>

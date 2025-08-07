@@ -60,7 +60,7 @@
         </div>
 
         <!-- Hidden fields to store folder paths -->
-        <div class="d-none">
+        <div style="display:none;">
             {{ form.input_path }}
             {{ form.output_path }}
         </div>
@@ -68,21 +68,21 @@
         <!-- Folder pickers -->
         <div id="single-folder" class="form-group">
             <label>Select Folder</label><br>
-            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple name="" class="d-none">
+            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
             <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
             <span id="input_folder_label" class="ml-2"></span>
         </div>
 
-        <div id="two-folders" class="d-none">
+        <div id="two-folders" style="display:none;">
             <div class="form-group">
                 <label>Select Input Folder</label><br>
-                <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple name="" class="d-none">
+                <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
                 <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
                 <span id="input_folder_label2" class="ml-2"></span>
             </div>
             <div class="form-group">
                 <label>Select Output Folder</label><br>
-                <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple name="" class="d-none">
+                <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
                 <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
                 <span id="output_folder_label" class="ml-2"></span>
             </div>
@@ -107,7 +107,7 @@
                     {% if step.step_type == 'setup_structure' %}
                         <div class="form-group">
                             <label>Select RAW Data Folder</label><br>
-                              <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple class="d-none">
+                              <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple style="display:none;">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
                             <span id="raw_label_{{ forloop.counter }}" class="ml-2"></span>
                             {{ step_form.raw_data_folder }}
@@ -145,11 +145,11 @@ function updatePickers() {
     const single = document.getElementById('single-folder');
     const two = document.getElementById('two-folders');
     if (same === 'True') {
-        single.classList.remove('d-none');
-        two.classList.add('d-none');
+        single.style.display = 'block';
+        two.style.display = 'none';
     } else {
-        single.classList.add('d-none');
-        two.classList.remove('d-none');
+        single.style.display = 'none';
+        two.style.display = 'block';
     }
 }
 

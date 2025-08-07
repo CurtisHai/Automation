@@ -5,8 +5,8 @@
     <h2 class="text-center mb-4">Workflow Review Requests</h2>
     {% if pending_workflows %}
     <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover w-100 bg-white">
-            <thead class="table-header">
+        <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
+            <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;">
                 <tr class="text-center">
                     <th>Workflow</th>
                     <th>Submitted By</th>
@@ -29,7 +29,7 @@
                         <form method="post" class="d-inline">
                             {% csrf_token %}
                             <input type="hidden" name="reject_workflow" value="{{ wf.id }}">
-                            <textarea name="rejection_comment" rows="1" class="form-control d-inline-block mb-1 w-150" placeholder="Comment" required></textarea>
+                            <textarea name="rejection_comment" rows="1" class="form-control d-inline-block mb-1" style="width:150px;" placeholder="Comment" required></textarea>
                             <button type="submit" class="btn btn-sm btn-danger">Reject</button>
                         </form>
                     </td>
@@ -47,8 +47,8 @@
     <h2 class="text-center mb-4">Unsettled Messages</h2>
     {% if unsettled_messages %}
     <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover w-100 bg-white">
-            <thead class="table-header">
+        <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
+            <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;">
                 <tr class="text-center">
                     <th>Sender</th>
                     <th>Subject</th>
@@ -85,8 +85,8 @@
     <h2 class="text-center mb-4">Settled Messages</h2>
     {% if settled_messages %}
     <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover w-100 bg-white">
-            <thead class="table-header">
+        <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
+            <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;">
                 <tr class="text-center">
                     <th>Sender</th>
                     <th>Subject</th>
