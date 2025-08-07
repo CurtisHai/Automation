@@ -461,3 +461,10 @@ class UserAccountsAccessTests(TestCase):
         response = self.client.get(reverse("user_accounts"))
         self.assertEqual(response.status_code, 403)
 
+
+class LauncherAccessTests(TestCase):
+    def test_launcher_requires_login(self):
+        response = self.client.get(reverse("launcher"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("login"), response.url)
+
