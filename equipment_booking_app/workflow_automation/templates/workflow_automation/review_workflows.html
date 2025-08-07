@@ -36,7 +36,7 @@
       {% csrf_token %}
       <input type="hidden" name="workflow_id" value="{{ wf.id }}">
       <input type="hidden" name="action" value="reject">
-      <input type="text" name="comment" placeholder="Comment" class="form-control d-inline" style="width:200px;">
+      <input type="text" name="comment" placeholder="Comment" class="form-control d-inline w-200">
       <button type="submit" class="btn btn-danger ms-1">Reject</button>
     </form>
   </div>
