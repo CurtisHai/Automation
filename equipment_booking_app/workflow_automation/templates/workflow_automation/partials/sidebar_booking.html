@@ -39,6 +39,10 @@
                 <i class="fas fa-inbox"></i>
                 <span class="sidebar-label">Inbox</span>
             </a>
+            <a href="{% url 'user_accounts' %}" class="nav-link" title="User Accounts" aria-label="User Accounts">
+                <i class="fas fa-users"></i>
+                <span class="sidebar-label">User Accounts</span>
+            </a>
             {% endif %}
             {% if user.is_staff %}
             <a href="{% url 'admin:index' %}" class="nav-link" title="Admin Tools" aria-label="Admin Tools">

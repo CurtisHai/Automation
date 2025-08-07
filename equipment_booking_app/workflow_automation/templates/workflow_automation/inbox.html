@@ -44,8 +44,8 @@
 </div>
 
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Unread Messages</h2>
-    {% if unread_messages %}
+    <h2 class="text-center mb-4">Unsettled Messages</h2>
+    {% if unsettled_messages %}
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
             <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;">
@@ -58,7 +58,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for msg in unread_messages %}
+                {% for msg in unsettled_messages %}
                 <tr class="text-center">
                     <td>{{ msg.sender.get_full_name|default:msg.sender.username }}</td>
                     <td>{{ msg.subject }}</td>
@@ -68,7 +68,7 @@
                         <a href="{% url 'message_detail' msg.id %}" class="btn btn-sm btn-primary mb-1">View</a>
                         <form method="post" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" name="mark_read" value="{{ msg.id }}" class="btn btn-sm btn-secondary">Mark as Read</button>
+                            <button type="submit" name="mark_replied" value="{{ msg.id }}" class="btn btn-sm btn-secondary">Mark Replied</button>
                         </form>
                     </td>
                 </tr>
@@ -83,7 +83,7 @@
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">Settled Messages</h2>
-    {% if read_messages %}
+    {% if settled_messages %}
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover w-100" style="background-color: #ffffff; width: 100%;">
             <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); color: #192d38; font-size: 1.25rem; text-align: center;">
@@ -96,7 +96,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for msg in read_messages %}
+                {% for msg in settled_messages %}
                 <tr class="text-center">
                     <td>{{ msg.sender.get_full_name|default:msg.sender.username }}</td>
                     <td>{{ msg.subject }}</td>
