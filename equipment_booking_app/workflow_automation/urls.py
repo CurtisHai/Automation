@@ -16,6 +16,7 @@ urlpatterns = [
     path('create-booking/', views.create_booking, name='create_booking'),
     path('previous-bookings/', views.previous_bookings, name='previous_bookings'),
     path('my-bookings/', views.booking_list, name='my_bookings'),
+    path('accounts/all/', views.user_accounts, name='user_accounts'),
     path('inbox/', views.inbox, name='inbox'),
     path('messages/', views.user_messages, name='user_messages'),
     path('manage-notice/', views.manage_notice, name='manage_notice'),

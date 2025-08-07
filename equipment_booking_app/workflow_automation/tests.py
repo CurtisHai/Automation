@@ -445,3 +445,19 @@ class MessageResponseTests(TestCase):
         response = self.client.get(reverse("user_messages"))
         self.assertContains(response, "Done")
 
+
+class UserAccountsAccessTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="ua_user", password="pass")
+        self.admin = User.objects.create_user(username="ua_admin", password="pass", is_superuser=True)
+
+    def test_superuser_can_view_accounts(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("user_accounts"))
+        self.assertContains(response, self.user.username)
+
+    def test_regular_user_forbidden(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("user_accounts"))
+        self.assertEqual(response.status_code, 403)
+

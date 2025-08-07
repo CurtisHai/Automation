@@ -313,6 +313,14 @@ def previous_bookings(request):
 
 
 @login_required
+def user_accounts(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You are not allowed to view this page.")
+    users = User.objects.all().select_related('profile')
+    return render(request, 'workflow_automation/user_accounts.html', {'users': users})
+
+
+@login_required
 def contact(request):
     if not request.user.email:
         messages.error(request, 'You need an active email associated with your account to send a message.')
@@ -355,12 +363,12 @@ def user_messages(request):
 @user_passes_test(lambda u: u.is_superuser)
 def inbox(request):
     pending_workflows = Workflow.objects.filter(awaiting_review=True).select_related('created_by')
-    unread_messages = (
+    unsettled_messages = (
         Message.objects.filter(recipient=request.user, is_review_request=False, is_read=False)
         .select_related('sender')
         .order_by('-created_at')
     )
-    read_messages = (
+    settled_messages = (
         Message.objects.filter(recipient=request.user, is_review_request=False, is_read=True)
         .select_related('sender')
         .order_by('-created_at')
@@ -404,8 +412,8 @@ def inbox(request):
             )
             messages.success(request, 'Workflow rejected.')
             return redirect('inbox')
-        if 'mark_read' in request.POST:
-            msg_id = request.POST.get('mark_read')
+        if 'mark_replied' in request.POST:
+            msg_id = request.POST.get('mark_replied')
             msg = get_object_or_404(Message, id=msg_id, recipient=request.user)
             msg.is_read = True
             msg.save()
@@ -416,8 +424,8 @@ def inbox(request):
         'workflow_automation/inbox.html',
         {
             'pending_workflows': pending_workflows,
-            'unread_messages': unread_messages,
-            'read_messages': read_messages,
+            'unsettled_messages': unsettled_messages,
+            'settled_messages': settled_messages,
         },
     )
 
