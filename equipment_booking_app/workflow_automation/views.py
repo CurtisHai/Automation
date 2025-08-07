@@ -57,6 +57,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 
 
+@login_required
 def launcher(request):
     """Render the root landing page with message board and section links."""
     notice = Notice.objects.last()
