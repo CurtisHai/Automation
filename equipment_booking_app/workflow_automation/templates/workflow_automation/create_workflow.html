@@ -31,7 +31,7 @@
             <input class="form-check-input task-toggle" data-target="setup_settings" type="checkbox" id="setup_cb" name="include_setup_structure" {% if steps_map.setup_structure %}checked{% endif %}>
             <label class="form-check-label" for="setup_cb">Setup folder structure</label>
         </div>
-        <div id="setup_settings" class="ml-4 mt-2 {% if steps_map.setup_structure %}d-block{% else %}d-none{% endif %}">
+        <div id="setup_settings" class="ml-4 mt-2" style="display:{% if steps_map.setup_structure %}block{% else %}none{% endif %};">
             <input type="number" name="order_setup_structure" min="1" class="form-control" placeholder="Order" value="{{ steps_map.setup_structure.order|default:'' }}">
             <div class="form-check mt-2">
                 <input class="form-check-input" type="checkbox" id="id_setup_full_structure" name="setup_full_structure" {% if steps_map.setup_structure and steps_map.setup_structure.config.full_structure %}checked{% endif %}>
@@ -43,7 +43,7 @@
             <input class="form-check-input task-toggle" data-target="convert_settings" type="checkbox" id="convert_cb" name="include_convert_360_video" {% if steps_map.convert_360_video %}checked{% endif %}>
             <label class="form-check-label" for="convert_cb">Convert media</label>
         </div>
-        <div id="convert_settings" class="ml-4 mt-2 {% if steps_map.convert_360_video %}d-block{% else %}d-none{% endif %}">
+        <div id="convert_settings" class="ml-4 mt-2" style="display:{% if steps_map.convert_360_video %}block{% else %}none{% endif %};">
             <label for="id_convert_format">Convert To</label>
             <select name="convert_format" id="id_convert_format" class="form-control">
                 <option value="">Skip this step</option>
@@ -57,7 +57,7 @@
             <input class="form-check-input task-toggle" data-target="rename_settings" type="checkbox" id="rename_cb" name="include_rename" {% if steps_map.rename %}checked{% endif %}>
             <label class="form-check-label" for="rename_cb">Rename files</label>
         </div>
-        <div id="rename_settings" class="ml-4 mt-2 {% if steps_map.rename %}d-block{% else %}d-none{% endif %}">
+        <div id="rename_settings" class="ml-4 mt-2" style="display:{% if steps_map.rename %}block{% else %}none{% endif %};">
             <label for="id_rename_pattern">Rename Pattern</label>
             <input type="text" name="rename_pattern" id="id_rename_pattern" class="form-control" placeholder="Leave unchanged" title="Enable smart renaming using file path and timestamp" value="{{ steps_map.rename.config.rename_pattern|default:'' }}">
             <input type="number" name="order_rename" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.rename.order|default:'' }}">
@@ -67,7 +67,7 @@
             <input class="form-check-input task-toggle" data-target="remove_audio_settings" type="checkbox" id="audio_cb" name="include_remove_audio" {% if steps_map.remove_audio %}checked{% endif %}>
             <label class="form-check-label" for="audio_cb">Remove audio from 360 videos</label>
         </div>
-        <div id="remove_audio_settings" class="ml-4 mt-2 {% if steps_map.remove_audio %}d-block{% else %}d-none{% endif %}">
+        <div id="remove_audio_settings" class="ml-4 mt-2" style="display:{% if steps_map.remove_audio %}block{% else %}none{% endif %};">
             <input type="number" name="order_remove_audio" min="1" class="form-control" placeholder="Order" value="{{ steps_map.remove_audio.order|default:'' }}">
         </div>
 
@@ -75,7 +75,7 @@
             <input class="form-check-input task-toggle" data-target="trim_settings" type="checkbox" id="trim_cb" name="include_trim" {% if steps_map.trim %}checked{% endif %}>
             <label class="form-check-label" for="trim_cb">Crop video start/end times</label>
         </div>
-        <div id="trim_settings" class="ml-4 mt-2 {% if steps_map.trim %}d-block{% else %}d-none{% endif %}">
+        <div id="trim_settings" class="ml-4 mt-2" style="display:{% if steps_map.trim %}block{% else %}none{% endif %};">
             <label for="id_start_seconds">Seconds from Start</label>
             <input type="number" name="start_seconds" id="id_start_seconds" class="form-control" value="{{ steps_map.trim.config.start_seconds|default:0 }}" title="Select how many seconds to trim from start/end">
             <label class="mt-2" for="id_end_seconds">Seconds from End</label>
@@ -87,7 +87,7 @@
             <input class="form-check-input task-toggle" data-target="organize_settings" type="checkbox" id="organize_cb" name="include_organize_files" {% if steps_map.organize_files %}checked{% endif %}>
             <label class="form-check-label" for="organize_cb">Place files in correct folder structure</label>
         </div>
-        <div id="organize_settings" class="ml-4 mt-2 {% if steps_map.organize_files %}d-block{% else %}d-none{% endif %}">
+        <div id="organize_settings" class="ml-4 mt-2" style="display:{% if steps_map.organize_files %}block{% else %}none{% endif %};">
             <label for="id_target_folder">Target Folder</label>
             <input type="text" name="target_folder" id="id_target_folder" class="form-control" placeholder="Leave unchanged" value="{{ steps_map.organize_files.config.target_folder|default:'' }}">
             <input type="number" name="order_organize_files" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.organize_files.order|default:'' }}">

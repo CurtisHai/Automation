@@ -264,17 +264,8 @@ select:focus {
   line-height: 1;
 }
 
-.sidebar .nav-link,
-.sidebar .auth-btn,
-.sidebar #logout-link,
-.sidebar button:not(#sidebarToggle) {
-  display: flex;
-  align-items: center;
-  font-family: "Gamechanger", sans-serif;
-  color: #fff;
-}
-
 .sidebar .nav-link {
+  display: block;
   margin: 0 10px;
 }
 
@@ -288,19 +279,12 @@ select:focus {
   margin-bottom: 2.25rem;
 }
 
-.sidebar hr {
-  border-color: rgba(255, 255, 255, 0.2);
-  margin: 1rem 0;
-}
-
 #main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 20px;
-  margin-left: 320px;
-  transition: margin-left 0.3s;
 }
 
 body.sidebar-collapsed #main-content {
@@ -361,35 +345,4 @@ footer {
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.text-dark-blue {
-  color: #192d38;
-}
-
-.table-header {
-  background-image: linear-gradient(to right, #05e560, #b9ff00);
-  color: #192d38;
-  font-size: 1.25rem;
-  text-align: center;
-}
-
-.min-vh-80 {
-  min-height: 80vh;
-}
-
-.w-150 {
-  width: 150px;
-}
-
-.w-200 {
-  width: 200px;
-}
-
-#zip-progress-bar {
-  width: 0%;
-}
-
-.fs-1-2 {
-  font-size: 1.2rem;
 }
