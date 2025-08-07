@@ -31,11 +31,6 @@ body {
 
 body {
   background-color: var(--bg-color);
-  background-image: url('../images/gxZskZ05yr8jfiV8.svg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-attachment: fixed;
   color: var(--text-color);
   font-family: 'Bienvenue', sans-serif;
   min-height: 100vh;
