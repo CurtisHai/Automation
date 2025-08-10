@@ -347,7 +347,10 @@ def contact(request):
     return render(request, 'workflow_automation/contact.html', {'form': form})
 @login_required
 def user_messages(request):
-    msgs = Message.objects.filter(sender=request.user).order_by('-created_at')
+    msgs = (
+        Message.objects.filter(sender=request.user, workflow__isnull=True)
+        .order_by('-created_at')
+    )
     return render(request, 'workflow_automation/user_messages.html', {'user_messages': msgs})
 
 @user_passes_test(lambda u: u.is_superuser)
