@@ -48,7 +48,7 @@
             </div>
         {% endif %}
     {% endif %}
-    <form method="post" enctype="multipart/form-data">
+    <form method="post">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_workflow">Workflow</label>
@@ -68,7 +68,7 @@
         <!-- Folder pickers -->
         <div id="single-folder" class="form-group">
             <label>Select Folder</label><br>
-            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
+            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
             <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
             <span id="input_folder_label" class="ml-2"></span>
         </div>
@@ -76,13 +76,13 @@
         <div id="two-folders" style="display:none;">
             <div class="form-group">
                 <label>Select Input Folder</label><br>
-                <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
+                <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple style="display:none;">
                 <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
                 <span id="input_folder_label2" class="ml-2"></span>
             </div>
             <div class="form-group">
                 <label>Select Output Folder</label><br>
-                <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple name="" style="display:none;">
+                <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
                 <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
                 <span id="output_folder_label" class="ml-2"></span>
             </div>
