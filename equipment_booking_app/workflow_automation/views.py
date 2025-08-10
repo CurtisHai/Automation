@@ -61,13 +61,6 @@ def launcher(request):
     """Render the root landing page with message board and section links."""
     notice = Notice.objects.last()
 
-    if request.method == "POST" and request.user.is_superuser:
-        message = request.POST.get("message")
-        if message:
-            Notice.objects.create(message=message, created_by=request.user)
-            messages.success(request, "Notice created successfully!")
-            return redirect("launcher")
-
     context = {"notice": notice}
     return render(request, "workflow_automation/launcher.html", context)
 

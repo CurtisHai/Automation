@@ -2,51 +2,38 @@
 {% load static %}
 
 {% block content %}
-{% if user.is_authenticated %}
-<h1 class="text-center mt-4" style="color: #ffffff;">Welcome {{ user.username }}</h1>
-{% else %}
-<h1 class="text-center mt-4" style="color: #ffffff;">Welcome</h1>
-{% endif %}
+<h1 class="text-center mt-4">Home</h1>
 
-<div class="container mt-4 text-center d-flex flex-column align-items-center">
-    {% if notice %}
-    <div class="card mb-4 content-box">
-        <div class="card-body">
-            <h5 class="card-title">Message Board</h5>
-            <p class="card-text">{{ notice.message }}</p>
-            {% if user.is_superuser %}
-            <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Remove Notice</button>
-            </form>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-
-    {% if user.is_superuser %}
-    <div class="card mb-4 content-box">
-        <div class="card-body">
-            <h5 class="card-title">Create a Notice</h5>
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="message">Notice Message:</label>
-                    <textarea name="message" id="message" rows="4" class="form-control" required></textarea>
+<section class="mt-4">
+    {% if user.is_authenticated %}
+        <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
+        <div class="container">
+            {% if notice %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Message Board</h5>
+                    <p class="card-text">{{ notice.message }}</p>
+                    {% if user.is_superuser %}
+                    <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Remove Notice</button>
+                    </form>
+                    {% endif %}
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Create Notice</button>
-            </form>
+            </div>
+            {% endif %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 g-3 mb-4 text-center justify-content-center">
+                <div class="col d-flex">
+                    <a href="{% url 'home' %}" class="btn btn-automation btn-lg flex-fill">Automation Tools</a>
+                </div>
+                <div class="col d-flex">
+                    <a href="{% url 'equipment_dashboard' %}" class="btn btn-automation btn-lg flex-fill">Equipment Booking</a>
+                </div>
+            </div>
         </div>
-    </div>
+    {% else %}
+        <p class="text-center">Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.</p>
     {% endif %}
-
-    <div class="row g-2 mt-2 mb-4 content-box">
-        <div class="col-6">
-            <a href="{% url 'home' %}" class="launcher-btn">Automation Tools</a>
-        </div>
-        <div class="col-6">
-            <a href="{% url 'equipment_dashboard' %}" class="launcher-btn">Equipment Booking</a>
-        </div>
-    </div>
-</div>
+</section>
 {% endblock %}
+
