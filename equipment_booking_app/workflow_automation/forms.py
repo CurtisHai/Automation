@@ -11,7 +11,9 @@ class BookingForm(forms.ModelForm):
         widgets = {
             'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'reason': forms.Textarea(attrs={'placeholder': 'Type your booking justification here...'}),
+            'reason': forms.Textarea(
+                attrs={'placeholder': 'Please type the reason here...'}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -26,8 +28,15 @@ class BookingForm(forms.ModelForm):
             self.fields['user'].queryset = User.objects.filter(id=user.id)
             self.fields['user'].initial = user  # Auto-fill with the logged-in user
             self.fields['user'].widget.attrs['readonly'] = True
-            self.fields['user'].disabled = True 
+            self.fields['user'].disabled = True
             self.fields['user'].required = False  # Exclude from POST validation
+
+        # Apply Bootstrap form-control class to all fields for consistent styling
+        for field in self.fields.values():
+            existing_classes = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (
+                existing_classes + ' form-control'
+            ).strip()
 
     def save(self, commit=True):
         booking = super().save(commit=False)
