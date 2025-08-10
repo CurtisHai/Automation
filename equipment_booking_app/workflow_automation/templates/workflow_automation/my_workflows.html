@@ -21,17 +21,7 @@
 {% for wf in my_workflows %}
 <tr class="text-center" data-status="{{ wf.status_category }}">
     <td>{{ wf.obj.name }} <span class="badge bg-success">mine</span></td>
-    <td>
-        {% if wf.status_category == 'Published' %}
-            <span class="badge bg-success">Published: Yes</span>
-        {% elif wf.status_category == 'Awaiting Review' %}
-            <span class="badge bg-info text-dark">Status: Awaiting Review</span>
-        {% elif wf.status_category == 'Rejected' %}
-            <span class="badge bg-danger">{{ wf.status_text }}</span>
-        {% else %}
-            <span class="badge bg-secondary">Published: No</span>
-        {% endif %}
-    </td>
+    <td>{{ wf.status_text }}</td>
     <td>
         {% if wf.status_category == 'Unpublished' or wf.status_category == 'Rejected' %}
         <form method="post" action="{% url 'request_review' wf.obj.id %}" class="d-inline">
@@ -75,13 +65,7 @@
 <tr class="text-center">
     <td>{{ wf.obj.name }} <span class="badge bg-secondary">shared</span></td>
     <td>{% if wf.obj.source_creator %}{{ wf.obj.source_creator.username }}{% else %}Shared{% endif %}</td>
-    <td>
-        {% if wf.status_category == 'Published' %}
-            <span class="badge bg-success">Published: Yes</span>
-        {% else %}
-            <span class="badge bg-secondary">Published: No</span>
-        {% endif %}
-    </td>
+    <td>{{ wf.status_text }}</td>
     <td>
         <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success">Run Workflow</a>
         <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
