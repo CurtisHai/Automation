@@ -206,6 +206,10 @@ class WorkflowRun(models.Model):
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     log = models.TextField(blank=True)
+    current_step = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, default="pending")
+    current_action = models.CharField(max_length=255, blank=True)
+    error_message = models.TextField(blank=True)
 
     def __str__(self):
         return (
