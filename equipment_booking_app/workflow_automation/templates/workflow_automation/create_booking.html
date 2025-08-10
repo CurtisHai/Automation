@@ -2,7 +2,7 @@
 <div class="container mt-5">
   <h2 class="text-center mb-4">Create Booking</h2>
 
-  <div class="card p-4 content-box mb-5" style="color: #192d38">
+  <div class="card p-4 content-box mb-5 account-form">
     <form method="post">
       {% csrf_token %}
 
@@ -42,17 +42,7 @@
         <div class="col-4 text-right">
           <label for="id_reason">Reason:</label>
         </div>
-        <div class="col-8">
-          <!-- Textarea with placeholder to prompt users -->
-          <textarea
-            name="reason"
-            id="id_reason"
-            class="form-control"
-            placeholder="Please type the reason here..."
-          >
-{{ form.reason.value|default_if_none:'' }}</textarea
-          >
-        </div>
+        <div class="col-8">{{ form.reason }}</div>
       </div>
 
       <!-- Project number input field -->
@@ -86,9 +76,14 @@
       {% endif %}
 
       <!-- Submit button for creating a booking -->
-      <button type="submit" class="btn btn-primary btn-block mt-4">
-        Create Booking
-      </button>
+      <div class="row mt-4">
+        <div class="col-4"></div>
+        <div class="col-8">
+          <button type="submit" class="btn btn-save-changes w-100">
+            Create Booking
+          </button>
+        </div>
+      </div>
     </form>
   </div>
 </div>
