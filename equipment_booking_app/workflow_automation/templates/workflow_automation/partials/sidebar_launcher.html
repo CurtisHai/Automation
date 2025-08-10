@@ -36,10 +36,12 @@
                 <i class="fas fa-share-alt"></i>
                 <span class="sidebar-label">Shared Workflows</span>
             </a>
+            {% if not user.is_superuser %}
             <a href="{% url 'contact' %}" class="nav-link" title="Contact" aria-label="Contact">
                 <i class="fas fa-envelope"></i>
                 <span class="sidebar-label">Contact</span>
             </a>
+            {% endif %}
             <hr>
             <span class="text-light px-3">Account</span>
             <a href="{% url 'accounts' %}" class="nav-link" title="Profile" aria-label="Profile">
