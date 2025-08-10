@@ -38,8 +38,7 @@ from .forms import (
     StepSettingsForm,
 )
 
-from .workflow_runner import WorkflowRunner
-from utils import rename, converter, zipper, progress, zip_task
+from utils import rename, converter, zipper, progress, zip_task, workflow_task
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 import threading
@@ -872,34 +871,8 @@ def run_workflow(request, workflow_id=None):
                             request.session[f"run_{run.id}_video_map"] = video_map
                         request.session.modified = True
                         return redirect("workflow_progress", run_id=run.id)
-
-                    runner = WorkflowRunner(
-                        workflow,
-                        input_folder,
-                        output_folder,
-                        project_code=run.project_code,
-                        initials=run.initials,
-                        step_configs=configs,
-                        qa_video_review=workflow.qa_video_review,
-                        video_order_map=video_map,
-                        use_date_suffix=workflow.use_date_suffix,
-                    )
-
-                    # Execute steps sequentially and persist logs after each
-                    for _ in workflow.steps.all():
-                        runner.run_next()
-                        run.log = "\n".join(runner.logs)
-                        run.save()
-
-                    run.completed_at = timezone.now()
-                    run.save()
-                    write_workflow_log(run, runner.logs, runner)
-                    final_logs = runner.logs
-                    return render(
-                        request,
-                        "workflow_automation/workflow_progress.html",
-                        {"run": run, "logs": final_logs, "done": True, "run_mode": "run_all"},
-                    )
+                    workflow_task.start_workflow(run, configs, video_map)
+                    return redirect("workflow_progress", run_id=run.id)
 
             # If validation fails fall through to redisplay the form
             StepFormSet = build_step_formset(workflow)
@@ -1036,145 +1009,35 @@ def run_workflow(request, workflow_id=None):
 
 @login_required
 def workflow_progress(request, run_id):
-    """Display progress and execute steps one by one."""
+    """Render progress page for a running workflow."""
 
     run = get_object_or_404(WorkflowRun, id=run_id, user=request.user)
-    configs = request.session.get(f"run_{run_id}_configs", [])
-    step_index = request.session.get(f"run_{run_id}_index", 0)
-    run_mode = "pause" if run.pause_between_steps else "run_all"
-
-    review_state = request.session.get(f"run_{run_id}_review")
-    video_map = request.session.get(f"run_{run_id}_video_map")
-    rename_state = request.session.get(f"run_{run_id}_renames", [])
-
-    runner = WorkflowRunner(
-        run.workflow,
-        run.input_path,
-        run.output_path,
-        project_code=run.project_code,
-        initials=run.initials,
-        step_configs=configs,
-        run_mode=run_mode,
-        qa_video_review=run.workflow.qa_video_review,
-        video_order_map=video_map,
-        use_date_suffix=run.workflow.use_date_suffix,
+    return render(
+        request,
+        "workflow_automation/workflow_progress.html",
+        {"run": run},
     )
-    runner.current_step = step_index
-    runner.logs = run.log.splitlines() if run.log else []
-    runner.rename_actions = rename_state
 
-    if review_state:
-        runner.conversion_index = review_state.get("index", 0)
-        runner.review_pending = True
-        runner.review_image = review_state.get("image", "")
-        runner.review_file = review_state.get("file", "")
 
-    if runner.review_pending:
-        default_zone = ""
-        if video_map:
-            mapping = video_map.get(os.path.basename(runner.review_file))
-            if mapping:
-                default_zone = mapping.get("zone", "")
-        form = VideoReviewForm(request.POST or None, initial={"zone_id": default_zone})
-        if request.method == "POST" and form.is_valid():
-            zone = form.cleaned_data["zone_id"]
-            flag = form.cleaned_data["flag_manual_edit"]
-            old_name = os.path.basename(runner.review_file)
-            new_path = file_utils.rename_with_zone(
-                runner.review_file,
-                os.path.dirname(runner.review_file),
-                zone,
-                use_date_suffix=runner.use_date_suffix,
-            )
-            new_name = os.path.basename(new_path)
-            if new_name != old_name:
-                runner.logs.append(f"Renamed {old_name} -> {new_name}")
-            runner.record_rename(runner.review_file, new_path, manual=True, flagged=flag)
-            idx = runner.conversion_index - 1
-            if 0 <= idx < len(runner.files):
-                runner.files[idx] = new_path
-            runner.review_file = new_path
+@login_required
+def workflow_status(request, run_id):
+    """Return JSON status for the running workflow."""
 
-            runner.rename_actions.append({
-                "file": old_name,
-                "new_name": new_name,
-                "flagged": bool(flag),
-            })
-
-            msg = f"Reviewed {new_name} - Zone {zone}"
-            if flag:
-                msg += " (flagged for manual edit)"
-            runner.logs.append(msg)
-            runner.review_pending = False
-            request.session.pop(f"run_{run_id}_review", None)
-            request.session[f"run_{run_id}_renames"] = runner.rename_actions
-            run.log = "\n".join(runner.logs)
-            run.save()
-            if run.completed_at is None:
-                if run_mode == "run_all":
-                    runner.run_all()
-                else:
-                    runner.run_next()
-        else:
-            return render(
-                request,
-                "workflow_automation/video_review.html",
-                {
-                    "run": run,
-                    "form": form,
-                    "preview_url": runner.review_image,
-                    "crop_start": runner.last_crop_start,
-                    "crop_end": runner.last_crop_end,
-                    "audio_removed": runner.last_remove_audio,
-                },
-            )
-
-    if run.completed_at is None:
-        if run_mode == "run_all":
-            runner.run_all()
-        else:
-            if request.method == "POST" or step_index == 0:
-                runner.run_next()
-                step_index = runner.current_step
-                if step_index >= run.workflow.steps.count():
-                    run.completed_at = timezone.now()
-                    request.session.pop(f"run_{run_id}_index", None)
-                else:
-                    request.session[f"run_{run_id}_index"] = step_index
-                request.session.modified = True
-
-        if runner.review_pending:
-            request.session[f"run_{run_id}_review"] = {
-                "index": runner.conversion_index,
-                "image": runner.review_image,
-                "file": runner.review_file,
-            }
-            request.session.modified = True
-        else:
-            request.session.pop(f"run_{run_id}_review", None)
-        request.session[f"run_{run_id}_renames"] = runner.rename_actions
-
-        run.log = "\n".join(runner.logs)
-        run.save()
-        if run.completed_at is not None:
-            write_workflow_log(run, runner.logs, runner)
-            request.session.pop(f"run_{run_id}_video_map", None)
-            request.session.pop(f"run_{run_id}_renames", None)
-
-    done = run.completed_at is not None
-
-    if run_mode == "pause" and not done:
-        step_name = ""
-        if step_index > 0 and step_index <= run.workflow.steps.count():
-            step_obj = run.workflow.steps.all()[step_index - 1]
-            step_name = step_obj.get_step_type_display()
-        step_logs = runner.logs[-2:]
-        context = {"run": run, "step_name": step_name, "step_logs": step_logs}
-        template = "workflow_automation/pause_confirmation.html"
-    else:
-        context = {"run": run, "logs": runner.logs, "done": done, "run_mode": run_mode}
-        template = "workflow_automation/workflow_progress.html"
-    return render(request, template, context)
+    run = get_object_or_404(WorkflowRun, id=run_id, user=request.user)
+    total = run.workflow.steps.count()
+    percent = int(run.current_step / total * 100) if total else 0
+    if run.status == "completed":
+        percent = 100
+    data = {
+        "status": run.status,
+        "current_step": run.current_step,
+        "total_steps": total,
+        "percent": percent,
+        "current_action": run.current_action,
+        "logs": run.log.splitlines()[-10:] if run.log else [],
+        "error": run.error_message,
+    }
+    return JsonResponse(data)
 
 
 @login_required

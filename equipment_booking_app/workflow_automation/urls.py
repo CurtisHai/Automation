@@ -35,6 +35,7 @@ urlpatterns = [
     path('workflows/run/<int:workflow_id>/', views.run_workflow, name='run_workflow_specific'),
     path('workflows/run/', views.run_workflow, name='run_workflow'),
     path('workflows/progress/<int:run_id>/', views.workflow_progress, name='workflow_progress'),
+    path('workflows/status/<int:run_id>/', views.workflow_status, name='workflow_status'),
     path('run-rename/', views.run_rename_view, name='run_rename'),
     path('run-convert/', views.run_convert_view, name='run_convert'),
     path('run-zip/', views.run_zip_view, name='run_zip'),
