@@ -11,7 +11,6 @@
                     <th>Subject</th>
                     <th>Date Sent</th>
                     <th>Message</th>
-                    <th>Response</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +19,6 @@
                     <td>{{ msg.subject }}</td>
                     <td>{{ msg.created_at }}</td>
                     <td>{{ msg.content|linebreaks }}</td>
-                    <td>{{ msg.response|default:'No response yet'|linebreaks }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
