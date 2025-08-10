@@ -14,11 +14,22 @@
                     <h5 class="card-title">Message Board</h5>
                     <p class="card-text">{{ notice.message }}</p>
                     {% if user.is_superuser %}
-                    <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Remove Notice</button>
-                    </form>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'manage_notice' %}" class="btn btn-primary">New Notice</a>
+                        <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Remove Notice</button>
+                        </form>
+                    </div>
                     {% endif %}
+                </div>
+            </div>
+            {% elif user.is_superuser %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Message Board</h5>
+                    <p class="card-text">No notice posted.</p>
+                    <a href="{% url 'manage_notice' %}" class="btn btn-primary">Create Notice</a>
                 </div>
             </div>
             {% endif %}
@@ -36,4 +47,3 @@
     {% endif %}
 </section>
 {% endblock %}
-
