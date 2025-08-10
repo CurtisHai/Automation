@@ -44,6 +44,11 @@ body {
   padding-bottom: 0;
 }
 
+.badge {
+  font-size: 14.4px;
+  font-family: "Bienvenue", sans-serif;
+}
+
 a,
 a:visited {
   color: var(--text-color);
