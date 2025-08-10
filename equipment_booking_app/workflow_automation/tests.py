@@ -436,14 +436,14 @@ class MessageResponseTests(TestCase):
         self.assertTrue(self.msg.is_read)
         self.assertRedirects(response, reverse("inbox"))
 
-    def test_user_can_view_response(self):
+    def test_user_messages_page_excludes_response(self):
         self.msg.response = "Done"
         self.msg.responded_by = self.admin
         self.msg.is_read = True
         self.msg.save()
         self.client.force_login(self.user)
         response = self.client.get(reverse("user_messages"))
-        self.assertContains(response, "Done")
+        self.assertNotContains(response, "Done")
 
 
 class UserAccountsAccessTests(TestCase):
