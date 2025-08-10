@@ -105,7 +105,7 @@
 
     <!-- Button to view all previous bookings -->
     <div class="text-center mt-4 mb-5"> <!-- Add space between content and footer -->
-        <form action="{% url 'previous_bookings' %}" method="get" style="display:inline;">
+        <form action="{% url 'previous_bookings' %}" method="post" style="display:inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">View All Previous Bookings</button>
         </form>
