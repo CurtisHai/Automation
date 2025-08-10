@@ -154,31 +154,50 @@
             color: #fff;
         }
     
-        .btn {
-            background-color: #192d38;
-            color: #fff;
-            border: none;
-            margin-right: 10px;
-            border-radius: 10px;
-        }
+         .btn,
+         .btn-primary,
+         .btn-secondary,
+         .btn-success {
+             background-color: #05e560;
+             color: #192d38;
+             border: none;
+             margin-right: 10px;
+             border-radius: 10px;
+         }
 
-        .btn:hover {
-            background-color: #1f3b49;
-            color: #fff;
-        }
+         .btn-primary,
+         .btn-secondary,
+         .btn-success {
+             border-color: #05e560;
+         }
 
-        .btn-primary {
-            background-color: #192d38;
-            border-color: #192d38;
-            color: #fff;
-        }
+         .btn:hover,
+         .btn-primary:hover,
+         .btn-secondary:hover,
+         .btn-success:hover,
+         .btn:focus,
+         .btn-primary:focus,
+         .btn-secondary:focus,
+         .btn-success:focus {
+             background-color: #04c04b;
+             border-color: #04c04b;
+             color: #192d38;
+         }
 
-        .btn-primary:hover,
-        .btn-primary:focus {
-            background-color: #1f3b49;
-            border-color: #1f3b49;
-            color: #fff;
-        }
+         .btn-danger {
+             background-color: #dc3545;
+             border-color: #dc3545;
+             color: #fff;
+             margin-right: 10px;
+             border-radius: 10px;
+         }
+
+         .btn-danger:hover,
+         .btn-danger:focus {
+             background-color: #c82333;
+             border-color: #c82333;
+             color: #fff;
+         }
 
         /* Sidebar spacing */
         #sidebar nav {
@@ -251,7 +270,7 @@
     </div>
     {% endif %}
 
-    <main class="container flex-grow-1 d-flex flex-column align-items-center">
+     <main class="container flex-grow-1">
         {% block content %}
         {% endblock %}
 
