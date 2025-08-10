@@ -288,7 +288,7 @@ select:focus {
 }
 
 .table {
-  color: var(--text-color);
+  color: #192d38;
 }
 
 .sidebar {
