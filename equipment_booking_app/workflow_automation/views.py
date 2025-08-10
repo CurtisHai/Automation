@@ -600,17 +600,17 @@ def my_workflows(request):
         items = []
         for wf in queryset:
             if wf.review_status == "pending":
-                status_text = "Status: Awaiting Review"
+                status_text = "Awaiting Review"
                 category = "Awaiting Review"
             elif wf.review_status == "rejected":
                 comment = wf.rejection_comment if wf.created_by_id == request.user.id else ""
-                status_text = f"Status: Rejected" + (f" - {comment}" if comment else "")
+                status_text = "Rejected" + (f" - {comment}" if comment else "")
                 category = "Rejected"
             elif wf.review_status == "accepted" or wf.is_published or imported:
-                status_text = "Published: Yes"
+                status_text = "Published"
                 category = "Published"
             else:
-                status_text = "Published: No"
+                status_text = "Unpublished"
                 category = "Unpublished"
             items.append({"obj": wf, "status_text": status_text, "status_category": category})
         return items
