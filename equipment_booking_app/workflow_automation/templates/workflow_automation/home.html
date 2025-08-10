@@ -28,37 +28,6 @@
                 </div>
             </div>
         </div>
-
-        {% if notice %}
-        <div class="card content-box mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Notice Board</h5>
-                <p class="card-text">{{ notice.message }}</p>
-                {% if user.is_superuser %}
-                    <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Remove Notice</button>
-                    </form>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-
-        {% if user.is_superuser %}
-        <div class="card content-box">
-            <div class="card-body">
-                <h5 class="card-title">Create a Notice</h5>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="message">Notice Message:</label>
-                        <textarea name="message" id="message" rows="4" class="form-control" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-2">Create Notice</button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
     {% else %}
         <p class="text-center">Welcome to the AtkinsRéalis Equipment Booking App!</p>
         <p class="text-center">Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.</p>

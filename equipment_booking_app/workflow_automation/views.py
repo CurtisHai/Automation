@@ -75,23 +75,13 @@ def launcher(request):
 @login_required
 def home(request):
     """Render the dashboard-style home page."""
-    notice = Notice.objects.last()
     pending_count = 0
 
     if request.user.is_superuser:
         pending_count = Workflow.objects.filter(awaiting_review=True).count()
         if pending_count:
             messages.info(request, f"You have {pending_count} workflow review requests pending.")
-
-    if request.method == "POST" and request.user.is_superuser:
-        message = request.POST.get("message")
-        if message:
-            Notice.objects.create(message=message, created_by=request.user)
-            messages.success(request, "Notice created successfully!")
-            return redirect("home")
-
     context = {
-        "notice": notice,
         "pending_count": pending_count,
     }
     return render(request, "workflow_automation/home.html", context)
