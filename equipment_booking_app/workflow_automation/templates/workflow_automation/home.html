@@ -5,47 +5,53 @@
 <h1 class="text-center mt-4">Automation Dashboard</h1>
 
 <section class="mt-4">
-    {% if user.is_authenticated %}
-        <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
+  {% if user.is_authenticated %}
+    <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
 
-        <div class="container">
-            <!-- Priority automation actions -->
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4 text-center">
-                <div class="col d-flex">
-                    <a href="{% url 'create_workflow' %}" class="btn btn-automation btn-lg flex-fill">Create Workflow</a>
-                </div>
-                <div class="col d-flex">
-                    <a href="{% url 'run_workflow' %}" class="btn btn-automation btn-lg flex-fill">Run Workflow</a>
-                </div>
-                <div class="col d-flex">
-                    <a href="{% url 'workflow_dashboard' %}" class="btn btn-automation btn-lg flex-fill">Workflow Dashboard</a>
-                </div>
-                <div class="col d-flex">
-                    <a href="{% url 'my_workflows' %}" class="btn btn-automation btn-lg flex-fill">My Workflows</a>
-                </div>
-                <div class="col d-flex">
-                    <a href="{% url 'shared_workflows' %}" class="btn btn-automation btn-lg flex-fill">Shared Workflows</a>
-                </div>
-                <div class="col d-flex">
-                    <button id="demo-btn" class="btn btn-secondary btn-lg flex-fill">Demo Workflow</button>
-                </div>
-            </div>
-
-            <div id="demo-container" class="content-box mt-4 d-none" style="color:#192d38;">
-                <div class="progress mb-3">
-                    <div id="demo-progress-bar" class="progress-bar" role="progressbar" style="width:0%">0%</div>
-                </div>
-                <p id="demo-current-action" class="mb-3"></p>
-                <ul id="demo-log" class="list-group mb-3"></ul>
-                <div id="demo-complete" class="alert alert-success d-none">Demo complete</div>
-            </div>
-
-            <script src="{% static 'js/demo_workflow.js' %}"></script>
+    <div class="container">
+      <!-- Primary automation actions -->
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mb-2 text-center">
+        <div class="col d-flex">
+          <a href="{% url 'create_workflow' %}" class="btn btn-automation btn-lg flex-fill">Create Workflow</a>
         </div>
-    {% else %}
-        <p class="text-center">Welcome to the AtkinsRéalis Equipment Booking App!</p>
-        <p class="text-center">Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.</p>
-    {% endif %}
-</section>
+        <div class="col d-flex">
+          <a href="{% url 'run_workflow' %}" class="btn btn-automation btn-lg flex-fill">Run Workflow</a>
+        </div>
+        <div class="col d-flex">
+          <a href="{% url 'workflow_dashboard' %}" class="btn btn-automation btn-lg flex-fill">Workflow Dashboard</a>
+        </div>
+        <div class="col d-flex">
+          <a href="{% url 'my_workflows' %}" class="btn btn-automation btn-lg flex-fill">My Workflows</a>
+        </div>
+        <div class="col d-flex">
+          <a href="{% url 'shared_workflows' %}" class="btn btn-automation btn-lg flex-fill">Shared Workflows</a>
+        </div>
+      </div>
 
+      <!-- Demo button: small, red, and slightly below -->
+      <div class="row justify-content-center mt-2 mb-4">
+        <div class="col-auto">
+          <button id="demo-btn" class="btn btn-danger btn-sm">Demo Workflow</button>
+        </div>
+      </div>
+
+      <div id="demo-container" class="content-box mt-2 d-none" style="color:#192d38;">
+        <div class="progress mb-3">
+          <div id="demo-progress-bar" class="progress-bar" role="progressbar" style="width:0%">0%</div>
+        </div>
+        <p id="demo-current-action" class="mb-3"></p>
+        <ul id="demo-log" class="list-group mb-3"></ul>
+        <div id="demo-complete" class="alert alert-success d-none">Demo complete</div>
+      </div>
+
+      <script src="{% static 'js/demo_workflow.js' %}"></script>
+    </div>
+  {% else %}
+    <p class="text-center">Welcome to the AtkinsRéalis Equipment Booking App!</p>
+    <p class="text-center">
+      Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or
+      <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.
+    </p>
+  {% endif %}
+</section>
 {% endblock %}

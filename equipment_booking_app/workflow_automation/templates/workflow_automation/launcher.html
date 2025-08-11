@@ -1,6 +1,44 @@
 {% extends 'workflow_automation/base.html' %}
 {% load static %}
+
 {% block content %}
+
+<style>
+  /* Subtle green glow for the notice card */
+  .notice-card {
+    border: 1px solid rgba(5, 229, 96, 0.35); /* outline */
+    box-shadow:
+      0 0 0 2px rgba(5, 229, 96, 0.18) inset,   /* soft inner outline */
+      0 0 18px rgba(5, 229, 96, 0.22);          /* outer glow */
+    border-radius: 12px;
+  }
+
+  /* Slightly brighten on hover/focus to feel interactive */
+  .notice-card:hover,
+  .notice-card:focus-within {
+    box-shadow:
+      0 0 0 2px rgba(5, 229, 96, 0.24) inset,
+      0 0 22px rgba(5, 229, 96, 0.28);
+    border-color: rgba(5, 229, 96, 0.45);
+  }
+
+  /* Use CSS var if available (falls back to hex) */
+  .notice-card {
+    --g: var(--brand-green, #05e560);
+    border-color: color-mix(in srgb, var(--g) 35%, transparent);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--g) 18%, transparent) inset,
+      0 0 18px color-mix(in srgb, var(--g) 22%, transparent);
+  }
+  .notice-card:hover,
+  .notice-card:focus-within {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--g) 24%, transparent) inset,
+      0 0 22px color-mix(in srgb, var(--g) 28%, transparent);
+    border-color: color-mix(in srgb, var(--g) 45%, transparent);
+  }
+</style>
+
 <h1 class="text-center mt-4">Home</h1>
 
 <section class="mt-4">
@@ -8,7 +46,7 @@
   <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
   <div class="container">
     {% if notice %}
-    <div class="card mb-4">
+    <div class="card mb-4 notice-card">
       <div class="card-body">
         <h5 class="card-title">Message Board</h5>
         <p class="card-text">{{ notice.message }}</p>
@@ -28,7 +66,7 @@
       </div>
     </div>
     {% elif user.is_superuser %}
-    <div class="card mb-4">
+    <div class="card mb-4 notice-card">
       <div class="card-body">
         <h5 class="card-title">Message Board</h5>
         <p class="card-text">No notice posted.</p>

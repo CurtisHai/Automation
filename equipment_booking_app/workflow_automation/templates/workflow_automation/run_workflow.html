@@ -2,239 +2,282 @@
 
 {% block content %}
 <h2 class="text-center mb-4">Run Workflow</h2>
-<div class="card p-4 content-box mb-4">
-    {% if confirm %}
-        <div class="alert alert-success">
-            <strong>Input Folder:</strong> {{ input_folder }}<br>
-            <strong>Output Folder:</strong> {{ output_folder }}
+
+<!-- Scrolls internally (green scrollbar), page itself does not scroll -->
+<div class="card p-5 content-box mb-4 scroll-y run-form-container">
+  {% if confirm %}
+    <div class="alert alert-success mb-4">
+      <strong>Input Folder:</strong> {{ input_folder }}<br>
+      <strong>Output Folder:</strong> {{ output_folder }}
+    </div>
+
+    {% if suggested_workflow %}
+      <div class="alert alert-info mb-4">
+        Suggested Workflow: {{ suggested_workflow.name }} — Use this?
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" name="accept_suggested" value="1" class="btn btn-sm btn-success ml-2">✅ Yes</button>
+          <button type="submit" name="reject_suggested" value="1" class="btn btn-sm btn-danger ml-1">❌ No</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="alert alert-warning text-center mb-4">
+        No workflow matched — please choose an option:
+        <div class="mt-2">
+          <a href="{% url 'create_workflow' %}" class="btn btn-sm btn-primary mr-2">🔧 Create New Workflow</a>
+          <a href="{% url 'shared_workflows' %}" class="btn btn-sm btn-primary mr-2">☁️ Search Shared Workflows</a>
+          <a href="{% url 'run_workflow' %}" class="btn btn-sm btn-primary">⏪ Choose a Different Folder</a>
         </div>
-        {% if suggested_workflow %}
-            <div class="alert alert-info">
-                Suggested Workflow: {{ suggested_workflow.name }} — Use this?
-                <form method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" name="accept_suggested" value="1" class="btn btn-sm btn-success ml-2">✅ Yes</button>
-                    <button type="submit" name="reject_suggested" value="1" class="btn btn-sm btn-danger ml-1">❌ No</button>
-                </form>
-            </div>
-        {% else %}
-            <div class="alert alert-warning text-center">
-                No workflow matched — please choose an option:
-                <div class="mt-2">
-                    <a href="{% url 'create_workflow' %}" class="btn btn-sm btn-primary mr-2">🔧 Create New Workflow</a>
-                    <a href="{% url 'shared_workflows' %}" class="btn btn-sm btn-primary mr-2">☁️ Search Shared Workflows</a>
-                    <a href="{% url 'run_workflow' %}" class="btn btn-sm btn-primary">⏪ Choose a Different Folder</a>
-                </div>
-            </div>
-        {% endif %}
-        {% if proposed_name %}
-            <div class="alert alert-info mt-2">
-                Proposed file name: {{ proposed_name }}. Accept?
-                <form method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" name="accept_filename" value="1" class="btn btn-sm btn-success ml-2">Yes</button>
-                    <button type="submit" name="reject_filename" value="1" class="btn btn-sm btn-danger ml-1">No</button>
-                </form>
-            </div>
-        {% endif %}
-        {% if manual_override %}
-            <div class="alert alert-warning mt-2">
-                Enter preferred base file name:
-                <form method="post" class="form-inline mt-1">
-                    {% csrf_token %}
-                    <input type="text" name="manual_name" class="form-control mr-2">
-                    <button type="submit" name="override_filename" value="1" class="btn btn-primary">Set</button>
-                </form>
-            </div>
-        {% endif %}
+      </div>
     {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_workflow">Workflow</label>
-            {{ form.workflow }}
-        </div>
-        <div class="form-group">
-            {{ form.use_input_path.label_tag }}<br>
-            {{ form.use_input_path }}
-        </div>
 
-        <!-- Hidden fields to store folder paths -->
-        <div style="display:none;">
-            {{ form.input_path }}
-            {{ form.output_path }}
-        </div>
+    {% if proposed_name %}
+      <div class="alert alert-info mt-2 mb-4">
+        Proposed file name: {{ proposed_name }}. Accept?
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" name="accept_filename" value="1" class="btn btn-sm btn-success ml-2">Yes</button>
+          <button type="submit" name="reject_filename" value="1" class="btn btn-sm btn-danger ml-1">No</button>
+        </form>
+      </div>
+    {% endif %}
 
-        <!-- Folder pickers -->
-        <div id="single-folder" class="form-group">
-            <label>Select Folder</label><br>
-            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-            <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
-            <span id="input_folder_label" class="ml-2"></span>
-        </div>
+    {% if manual_override %}
+      <div class="alert alert-warning mt-2 mb-4">
+        Enter preferred base file name:
+        <form method="post" class="form-inline mt-1">
+          {% csrf_token %}
+          <input type="text" name="manual_name" class="form-control mr-2">
+          <button type="submit" name="override_filename" value="1" class="btn btn-primary">Set</button>
+        </form>
+      </div>
+    {% endif %}
+  {% endif %}
 
-        <div id="two-folders" style="display:none;">
-            <div class="form-group">
-                <label>Select Input Folder</label><br>
-                <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple style="display:none;">
-                <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
-                <span id="input_folder_label2" class="ml-2"></span>
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-group mb-4">
+      <label for="id_workflow" class="font-weight-medium">Workflow</label>
+      {{ form.workflow }}
+    </div>
+
+    <div class="form-group mb-4">
+      {{ form.use_input_path.label_tag }}<br>
+      {{ form.use_input_path }}
+    </div>
+
+    <!-- Hidden fields -->
+    <div style="display:none;">
+      {{ form.input_path }}
+      {{ form.output_path }}
+    </div>
+
+    <!-- Folder pickers -->
+    <div id="single-folder" class="form-group mb-4">
+      <label class="font-weight-medium">Select Folder</label><br>
+      <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+      <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
+      <span id="input_folder_label" class="ml-2"></span>
+    </div>
+
+    <div id="two-folders" style="display:none;">
+      <div class="form-group mb-4">
+        <label class="font-weight-medium">Select Input Folder</label><br>
+        <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple style="display:none;">
+        <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
+        <span id="input_folder_label2" class="ml-2"></span>
+      </div>
+      <div class="form-group mb-4">
+        <label class="font-weight-medium">Select Output Folder</label><br>
+        <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+        <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
+        <span id="output_folder_label" class="ml-2"></span>
+      </div>
+    </div>
+
+    <div class="form-group mb-4">
+      <label for="id_project_code" class="font-weight-medium">Project Code</label>
+      {{ form.project_code }}
+    </div>
+
+    <div class="form-group mb-4">
+      <label for="id_initials" class="font-weight-medium">Initials</label>
+      {{ form.initials }}
+    </div>
+
+    <div class="form-check mb-4">
+      {{ form.pause_between_steps }} {{ form.pause_between_steps.label_tag }}
+    </div>
+
+    {% if step_pairs %}
+      <h4 class="mt-4 mb-3">Step Settings</h4>
+      {% for step, step_form in step_pairs %}
+        <div class="border rounded p-3 mb-3">
+          <strong>{{ step.get_step_type_display }}</strong>
+          {% if step.step_type == 'setup_structure' %}
+            <div class="form-group mt-3 mb-3">
+              <label class="font-weight-medium">Select RAW Data Folder</label><br>
+              <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple style="display:none;">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
+              <span id="raw_label_{{ forloop.counter }}" class="ml-2"></span>
+              {{ step_form.raw_data_folder }}
             </div>
-            <div class="form-group">
-                <label>Select Output Folder</label><br>
-                <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-                <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
-                <span id="output_folder_label" class="ml-2"></span>
+            <div class="form-check mt-2">
+              {{ step_form.full_structure }} {{ step_form.full_structure.label_tag }}
             </div>
+          {% else %}
+            {{ step_form.as_p }}
+          {% endif %}
         </div>
-        <div class="form-group">
-            <label for="id_project_code">Project Code</label>
-            {{ form.project_code }}
-        </div>
-        <div class="form-group">
-            <label for="id_initials">Initials</label>
-            {{ form.initials }}
-        </div>
-        <div class="form-check mb-3">
-            {{ form.pause_between_steps }} {{ form.pause_between_steps.label_tag }}
-        </div>
+      {% endfor %}
+    {% endif %}
 
-        {% if step_pairs %}
-            <h4 class="mt-4">Step Settings</h4>
-            {% for step, step_form in step_pairs %}
-                <div class="border rounded p-2 mb-2">
-                    <strong>{{ step.get_step_type_display }}</strong>
-                    {% if step.step_type == 'setup_structure' %}
-                        <div class="form-group">
-                            <label>Select RAW Data Folder</label><br>
-                              <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple style="display:none;">
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
-                            <span id="raw_label_{{ forloop.counter }}" class="ml-2"></span>
-                            {{ step_form.raw_data_folder }}
-                        </div>
-                        <div class="form-check mt-2">
-                            {{ step_form.full_structure }} {{ step_form.full_structure.label_tag }}
-                        </div>
-                    {% else %}
-                        {{ step_form.as_p }}
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% endif %}
+    {% if video_forms %}
+      <h4 class="mt-4 mb-3">Video Order</h4>
+      <ul id="video-list" class="list-group mb-4">
+        {% for form in video_forms %}
+          <li class="list-group-item d-flex align-items-center" draggable="true">
+            <span class="mr-2">&#x2630;</span>
+            <span class="mr-3">{{ form.file_name.value }}</span>
+            {{ form.file_name }}
+            {{ form.order }}
+            {{ form.zone_id }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-        {% if video_forms %}
-            <h4 class="mt-4">Video Order</h4>
-            <ul id="video-list" class="list-group mb-3">
-            {% for form in video_forms %}
-                <li class="list-group-item d-flex align-items-center" draggable="true">
-                    <span class="mr-2">&#x2630;</span>
-                    <span class="mr-3">{{ form.file_name.value }}</span>
-                    {{ form.file_name }}
-                    {{ form.order }}
-                    {{ form.zone_id }}
-                </li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-        <button type="submit" class="btn btn-primary mt-3">Run Workflow</button>
-    </form>
+    <button type="submit" class="btn btn-primary mt-2">Run Workflow</button>
+  </form>
 </div>
+
+<style>
+/* Internal scroll with green slim bar */
+.run-form-container{
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-green) rgba(255,255,255,0.08);
+}
+.run-form-container::-webkit-scrollbar{ width:8px; }
+.run-form-container::-webkit-scrollbar-track{ background:rgba(255,255,255,0.08); border-radius:8px; }
+.run-form-container::-webkit-scrollbar-thumb{ background:var(--brand-green); border-radius:8px; }
+.run-form-container::-webkit-scrollbar-thumb:hover{ background:var(--brand-green-dark); }
+
+/* Consistent wider field widths */
+.form-control,
+select.form-control,
+textarea.form-control{
+  width:100% !important;
+  max-width:720px;
+}
+textarea.form-control{ resize:none; }
+
+/* Comfortable spacing & label weight */
+.form-group label{ font-weight:500; }
+.form-group{ margin-bottom:1.25rem; }
+.form-check{ margin-bottom:1.25rem; }
+</style>
+
 <script>
 function updatePickers() {
-    const same = document.querySelector('input[name="use_input_path"]:checked').value;
-    const single = document.getElementById('single-folder');
-    const two = document.getElementById('two-folders');
-    if (same === 'True') {
-        single.style.display = 'block';
-        two.style.display = 'none';
-    } else {
-        single.style.display = 'none';
-        two.style.display = 'block';
-    }
+  const selected = document.querySelector('input[name="use_input_path"]:checked');
+  if (!selected) return;
+  const same = selected.value;
+  const single = document.getElementById('single-folder');
+  const two = document.getElementById('two-folders');
+  if (same === 'True') {
+    single.style.display = 'block';
+    two.style.display = 'none';
+  } else {
+    single.style.display = 'none';
+    two.style.display = 'block';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-    updatePickers();
-    document.querySelectorAll('input[name="use_input_path"]').forEach(function(el){
-        el.addEventListener('change', updatePickers);
-    });
+  updatePickers();
+  document.querySelectorAll('input[name="use_input_path"]').forEach(function(el){
+    el.addEventListener('change', updatePickers);
+  });
 
-    const inputPicker = document.getElementById('input_folder_picker');
-    document.getElementById('input_folder_btn').addEventListener('click', function(){
-        inputPicker.click();
-    });
-    inputPicker.addEventListener('change', function(){
-        if (this.files.length) {
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_input_path').value = path;
-            document.getElementById('id_output_path').value = path;
-            document.getElementById('input_folder_label').textContent = path;
-        }
-    });
-
-    const inputPicker2 = document.getElementById('input_folder_picker2');
-    document.getElementById('input_folder_btn2').addEventListener('click', function(){
-        inputPicker2.click();
-    });
-    inputPicker2.addEventListener('change', function(){
-        if (this.files.length) {
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_input_path').value = path;
-            document.getElementById('input_folder_label2').textContent = path;
-        }
-    });
-
-    const outputPicker = document.getElementById('output_folder_picker');
-    document.getElementById('output_folder_btn').addEventListener('click', function(){
-        outputPicker.click();
-    });
-    outputPicker.addEventListener('change', function(){
-        if (this.files.length) {
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_output_path').value = path;
-            document.getElementById('output_folder_label').textContent = path;
-        }
-    });
-
-    document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
-        picker.addEventListener('change', function(){
-            if (this.files.length) {
-                const file = this.files[0];
-                const path = file.path || file.webkitRelativePath.split('/')[0];
-                const counter = this.id.split('_')[2];
-                document.getElementById('id_form-' + (counter - 1) + '-raw_data_folder').value = path;
-                document.getElementById('raw_label_' + counter).textContent = path;
-            }
-        });
-    });
-
-    const videoList = document.getElementById('video-list');
-    if (videoList) {
-        const updateOrder = () => {
-            videoList.querySelectorAll('li').forEach((li, idx) => {
-                li.querySelector('input[name$="-order"]').value = idx + 1;
-            });
-        };
-        let dragItem = null;
-        videoList.addEventListener('dragstart', e => {
-            dragItem = e.target.closest('li');
-        });
-        videoList.addEventListener('dragover', e => {
-            e.preventDefault();
-        });
-        videoList.addEventListener('drop', e => {
-            e.preventDefault();
-            const target = e.target.closest('li');
-            if (dragItem && target && dragItem !== target) {
-                videoList.insertBefore(dragItem, target);
-                updateOrder();
-            }
-        });
-        updateOrder();
+  // Single-folder picker
+  const inputPicker = document.getElementById('input_folder_picker');
+  document.getElementById('input_folder_btn').addEventListener('click', () => inputPicker.click());
+  inputPicker.addEventListener('change', function(){
+    if (this.files.length) {
+      const file = this.files[0];
+      const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+      document.getElementById('id_input_path').value = path;
+      document.getElementById('id_output_path').value = path;
+      document.getElementById('input_folder_label').textContent = path;
     }
+  });
+
+  // Two-folder pickers
+  const inputPicker2 = document.getElementById('input_folder_picker2');
+  const outputPicker = document.getElementById('output_folder_picker');
+
+  document.getElementById('input_folder_btn2').addEventListener('click', () => inputPicker2.click());
+  inputPicker2.addEventListener('change', function(){
+    if (this.files.length) {
+      const file = this.files[0];
+      const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+      document.getElementById('id_input_path').value = path;
+      document.getElementById('input_folder_label2').textContent = path;
+    }
+  });
+
+  document.getElementById('output_folder_btn').addEventListener('click', () => outputPicker.click());
+  outputPicker.addEventListener('change', function(){
+    if (this.files.length) {
+      const file = this.files[0];
+      const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+      document.getElementById('id_output_path').value = path;
+      document.getElementById('output_folder_label').textContent = path;
+    }
+  });
+
+  // RAW folder pickers in step settings (if present)
+  document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
+    picker.addEventListener('change', function(){
+      if (this.files.length) {
+        const file = this.files[0];
+        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const counter = this.id.split('_')[2];
+        const inputId = 'id_form-' + (counter - 1) + '-raw_data_folder';
+        const labelId = 'raw_label_' + counter;
+        const input = document.getElementById(inputId);
+        if (input) input.value = path;
+        const label = document.getElementById(labelId);
+        if (label) label.textContent = path;
+      }
+    });
+  });
+
+  // Drag & drop ordering for videos
+  const videoList = document.getElementById('video-list');
+  if (videoList) {
+    const updateOrder = () => {
+      videoList.querySelectorAll('li').forEach((li, idx) => {
+        const orderInput = li.querySelector('input[name$="-order"]');
+        if (orderInput) orderInput.value = idx + 1;
+      });
+    };
+    let dragItem = null;
+    videoList.addEventListener('dragstart', e => { dragItem = e.target.closest('li'); });
+    videoList.addEventListener('dragover', e => e.preventDefault());
+    videoList.addEventListener('drop', e => {
+      e.preventDefault();
+      const target = e.target.closest('li');
+      if (dragItem && target && dragItem !== target) {
+        videoList.insertBefore(dragItem, target);
+        updateOrder();
+      }
+    });
+    updateOrder();
+  }
 });
 </script>
 {% endblock %}
