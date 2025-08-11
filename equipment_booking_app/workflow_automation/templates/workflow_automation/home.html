@@ -26,7 +26,21 @@
                 <div class="col d-flex">
                     <a href="{% url 'shared_workflows' %}" class="btn btn-automation btn-lg flex-fill">Shared Workflows</a>
                 </div>
+                <div class="col d-flex">
+                    <button id="demo-btn" class="btn btn-secondary btn-lg flex-fill">Demo Workflow</button>
+                </div>
             </div>
+
+            <div id="demo-container" class="content-box mt-4 d-none" style="color:#192d38;">
+                <div class="progress mb-3">
+                    <div id="demo-progress-bar" class="progress-bar" role="progressbar" style="width:0%">0%</div>
+                </div>
+                <p id="demo-current-action" class="mb-3"></p>
+                <ul id="demo-log" class="list-group mb-3"></ul>
+                <div id="demo-complete" class="alert alert-success d-none">Demo complete</div>
+            </div>
+
+            <script src="{% static 'js/demo_workflow.js' %}"></script>
         </div>
     {% else %}
         <p class="text-center">Welcome to the AtkinsRéalis Equipment Booking App!</p>
