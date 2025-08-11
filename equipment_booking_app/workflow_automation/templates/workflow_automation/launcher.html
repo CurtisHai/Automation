@@ -1,49 +1,53 @@
 {% extends 'workflow_automation/base.html' %}
 {% load static %}
-
 {% block content %}
 <h1 class="text-center mt-4">Home</h1>
 
 <section class="mt-4">
-    {% if user.is_authenticated %}
-        <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
-        <div class="container">
-            {% if notice %}
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Message Board</h5>
-                    <p class="card-text">{{ notice.message }}</p>
-                    {% if user.is_superuser %}
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'manage_notice' %}" class="btn btn-primary">New Notice</a>
-                        <form method="post" action="{% url 'remove_notice' %}" onsubmit="return confirm('Delete this notice?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Remove Notice</button>
-                        </form>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% elif user.is_superuser %}
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Message Board</h5>
-                    <p class="card-text">No notice posted.</p>
-                    <a href="{% url 'manage_notice' %}" class="btn btn-primary">Create Notice</a>
-                </div>
-            </div>
-            {% endif %}
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 g-3 mb-4 text-center justify-content-center">
-                <div class="col d-flex">
-                    <a href="{% url 'home' %}" class="btn btn-automation btn-lg flex-fill">Automation Tools</a>
-                </div>
-                <div class="col d-flex">
-                    <a href="{% url 'equipment_dashboard' %}" class="btn btn-automation btn-lg flex-fill">Equipment Booking</a>
-                </div>
-            </div>
+  {% if user.is_authenticated %}
+  <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
+  <div class="container">
+    {% if notice %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Message Board</h5>
+        <p class="card-text">{{ notice.message }}</p>
+        {% if user.is_superuser %}
+        <div class="d-flex gap-2">
+          <a href="{% url 'manage_notice' %}" class="btn btn-primary">New Notice</a>
+          <form
+            method="post"
+            action="{% url 'remove_notice' %}"
+            onsubmit="return confirm('Delete this notice?');"
+          >
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Remove Notice</button>
+          </form>
         </div>
-    {% else %}
-        <p class="text-center">Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% elif user.is_superuser %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Message Board</h5>
+        <p class="card-text">No notice posted.</p>
+        <a href="{% url 'manage_notice' %}" class="btn btn-primary">Create Notice</a>
+      </div>
+    </div>
     {% endif %}
+
+    <!-- Button Row with Padding -->
+    <div class="text-center mb-4">
+      <a href="{% url 'home' %}" class="btn btn-automation btn-lg px-4 me-3">Automation Tools</a>
+      <a href="{% url 'equipment_dashboard' %}" class="btn btn-automation btn-lg px-4">Equipment Booking</a>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-center">
+    Please <a href="{% url 'login' %}" class="btn btn-primary">Login</a> or
+    <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a> to continue.
+  </p>
+  {% endif %}
 </section>
 {% endblock %}
