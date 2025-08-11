@@ -129,8 +129,6 @@
     #sidebar.collapsed #logout-link .sidebar-label {
       opacity: 0; width: 0; overflow: hidden;
     }
-
-    /* Keep any centered text block in header hidden when collapsed (if present) */
     #sidebar.collapsed .text-center { display: none; }
 
     /* Logout pinned at bottom, never pushes off-screen */
@@ -149,17 +147,90 @@
     }
     .nav-link:hover { background-color:#1f3b49; color:#fff; }
 
-    /* ====== Buttons ====== */
-    .btn, .btn-primary, .btn-secondary, .btn-success {
-      background-color: var(--brand-green); color:#192d38 !important; border:none; margin-right:10px; border-radius:10px;
+    /* ====== GREEN BUTTON SYSTEM (site-wide sheen & glow) ======
+       Applies to all green buttons except .btn-danger and .btn-link. */
+    .btn:not(.btn-danger):not(.btn-link),
+    .btn-primary,
+    .btn-secondary,
+    .btn-success,
+    .btn-automation {
+      position: relative;
+      overflow: hidden; /* for radial highlight */
+      border: 1px solid rgba(5,229,96,.45);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg,
+          var(--brand-green) 0%,
+          #06d957 100%);
+      color: #192d38 !important;
+      box-shadow:
+        0 6px 18px rgba(5,229,96,.22),
+        inset 0 0 0 2px rgba(255,255,255,.15);
+      transition: transform .12s ease,
+                  box-shadow .12s ease,
+                  color .12s ease,
+                  background .2s ease;
     }
-    .btn-primary, .btn-secondary, .btn-success { border-color: var(--brand-green); }
-    .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-success:hover,
-    .btn:focus, .btn-primary:focus, .btn-secondary:focus, .btn-success:focus {
-      background-color: var(--brand-green-dark); border-color: var(--brand-green-dark); color:#fff !important;
+    /* radial gloss */
+    .btn:not(.btn-danger):not(.btn-link)::after,
+    .btn-primary::after,
+    .btn-secondary::after,
+    .btn-success::after,
+    .btn-automation::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(60% 60% at 50% 10%,
+          rgba(255,255,255,.35) 0%,
+          rgba(255,255,255,0) 60%);
+      opacity: .22;
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none;
     }
-    .btn-danger { background-color:#dc3545; border-color:#dc3545; color:#fff; margin-right:10px; border-radius:10px; }
-    .btn-danger:hover, .btn-danger:focus { background-color:#c82333; border-color:#c82333; color:#fff; }
+    .btn:not(.btn-danger):not(.btn-link):hover,
+    .btn:not(.btn-danger):not(.btn-link):focus,
+    .btn-primary:hover, .btn-primary:focus,
+    .btn-secondary:hover, .btn-secondary:focus,
+    .btn-success:hover, .btn-success:focus,
+    .btn-automation:hover, .btn-automation:focus {
+      transform: translateY(-1px);
+      box-shadow:
+        0 10px 24px rgba(5,229,96,.28),
+        0 0 0 3px rgba(5,229,96,.18);
+      color: #fff !important;
+    }
+    .btn:not(.btn-danger):not(.btn-link):hover::after,
+    .btn:not(.btn-danger):not(.btn-link):focus::after,
+    .btn-primary:hover::after, .btn-primary:focus::after,
+    .btn-secondary:hover::after, .btn-secondary:focus::after,
+    .btn-success:hover::after, .btn-success:focus::after,
+    .btn-automation:hover::after, .btn-automation:focus::after {
+      opacity: .42;
+      transform: scale(1.02);
+    }
+    .btn:not(.btn-danger):not(.btn-link):active,
+    .btn-primary:active, .btn-secondary:active, .btn-success:active,
+    .btn-automation:active {
+      transform: translateY(0);
+      box-shadow:
+        0 6px 16px rgba(5,229,96,.25),
+        inset 0 2px 6px rgba(0,0,0,.15);
+    }
+
+    /* Keep classic red danger buttons */
+    .btn-danger {
+      background-color:#dc3545; border-color:#dc3545; color:#fff;
+      border-radius:12px;
+    }
+    .btn-danger:hover, .btn-danger:focus {
+      background-color:#c82333; border-color:#c82333; color:#fff;
+      box-shadow: 0 6px 18px rgba(200,35,51,.25);
+    }
+
+    /* Size/spacing consistency */
+    .btn { margin-right:10px; }
+    .btn:last-child { margin-right:0; }
 
     /* ====== Form utilities ====== */
     .form-row-inline { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; flex-wrap:nowrap; }

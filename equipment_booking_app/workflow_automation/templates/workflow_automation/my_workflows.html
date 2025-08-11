@@ -2,101 +2,210 @@
 
 {% block content %}
 <h2 class="text-center mb-4">My Workflows</h2>
-<div class="mb-3">
-    <label for="statusFilter" class="form-label">Filter by status:</label>
-    <select id="statusFilter" class="form-select w-auto d-inline-block">
-        <option value="">All</option>
-        <option value="Published">Published</option>
-        <option value="Unpublished">Unpublished</option>
-        <option value="Awaiting Review">Awaiting Review</option>
-        <option value="Rejected">Rejected</option>
-    </select>
-</div>
-<div class="table-responsive mb-5">
-<table id="my-workflows" class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
-<thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); text-align:center;">
-<tr><th>Name</th><th>Status</th><th>Actions</th></tr>
-</thead>
-<tbody>
-{% for wf in my_workflows %}
-<tr class="text-center" data-status="{{ wf.status_category }}">
-    <td>{{ wf.obj.name }} <span class="badge bg-success">mine</span></td>
-    <td>{{ wf.status_text }}</td>
-    <td>
-        {% if wf.status_category == 'Unpublished' or wf.status_category == 'Rejected' %}
-        <form method="post" action="{% url 'request_review' wf.obj.id %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-primary">Request Review</button>
-        </form>
-        {% endif %}
-        <a href="{% url 'edit_workflow' wf.obj.id %}" class="btn btn-sm btn-warning ml-1">Edit</a>
-        <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success ml-1">Run Workflow</a>
-        {% if wf.obj.created_by == request.user %}
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-        </form>
-        <div class="small text-muted">This will permanently delete the workflow from your account.</div>
-        {% if request.user.is_staff and wf.obj.downloaded_by.exists %}
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('This will delete the workflow globally. It will also be removed from all users who downloaded it.')">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm mt-1">Admin Delete</button>
-        </form>
-        {% endif %}
-        {% endif %}
-    </td>
-</tr>
-{% empty %}
-<tr><td colspan="3" class="text-center">No workflows found.</td></tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
 
-{% if imported_workflows %}
-<h3 class="text-center mb-4">Imported Workflows</h3>
-<div class="table-responsive">
-<table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff; width:100%;">
-<thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); text-align:center;">
-<tr><th>Name</th><th>Source</th><th>Status</th><th>Actions</th></tr>
-</thead>
-<tbody>
-{% for wf in imported_workflows %}
-<tr class="text-center">
-    <td>{{ wf.obj.name }} <span class="badge bg-secondary">shared</span></td>
-    <td>{% if wf.obj.source_creator %}{{ wf.obj.source_creator.username }}{% else %}Shared{% endif %}</td>
-    <td>{{ wf.status_text }}</td>
-    <td>
-        <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-success">Run Workflow</a>
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-        </form>
-        <div class="small text-muted">This will remove your local copy. The original remains online.</div>
-        {% if request.user.is_staff %}
-        <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('This will delete the workflow globally. It will also be removed from all users who downloaded it.')">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm mt-1">Admin Delete</button>
-        </form>
-        {% endif %}
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+<style>
+  /* ---- Wider layout: let the table span the content width ---- */
+  .workflow-tables-container {
+    width: 100%;
+  }
+
+  /* ---- Table container: dark card + internal green scrollbar ---- */
+  .table-wrap {
+    background: var(--chip-bg, #192d38);
+    border-radius: 12px;
+    overflow: auto;                         /* internal scroll only */
+    max-height: calc(100vh - 260px);        /* adjust if header/footer height changes */
+    box-shadow:
+      0 0 0 1px rgba(5,229,96,.14) inset,
+      0 8px 24px rgba(0,0,0,.25);
+  }
+  .table-wrap.scroll-y {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-green, #05e560) rgba(255,255,255,0.08);
+  }
+  .table-wrap.scroll-y::-webkit-scrollbar { width: 8px; height: 8px; }
+  .table-wrap.scroll-y::-webkit-scrollbar-track { background: rgba(255,255,255,0.08); border-radius: 8px; }
+  .table-wrap.scroll-y::-webkit-scrollbar-thumb { background: var(--brand-green, #05e560); border-radius: 8px; }
+  .table-wrap.scroll-y::-webkit-scrollbar-thumb:hover { background: var(--brand-green-dark, #04c04b); }
+
+  /* ---- Dark table style ---- */
+  .table-modern {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #e7eff2;
+  }
+  .table-modern thead th {
+    position: sticky; top: 0; z-index: 2;
+    background:
+      linear-gradient(90deg, rgba(5,229,96,.22), rgba(5,229,96,.12)),
+      var(--sidebar-bg, #0f222d);
+    color: #eaf8f0;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(5,229,96,.35);
+    padding: .9rem 1.25rem;
+    text-align: center;
+  }
+  .table-modern thead th:first-child { border-top-left-radius: 12px; }
+  .table-modern thead th:last-child  { border-top-right-radius: 12px; }
+
+  .table-modern tbody td {
+    padding: .9rem 1.25rem;
+    vertical-align: middle;
+    border-top: 1px solid rgba(255,255,255,.06);
+    text-align: center;
+  }
+
+  .table-modern tbody tr:nth-child(even) {
+    background: rgba(255,255,255,.03);
+  }
+  .table-modern tbody tr:hover {
+    background: rgba(5,229,96,.08);
+  }
+
+  /* Round bottom corners on last row */
+  .table-modern tbody tr:last-child td:first-child { border-bottom-left-radius: 12px; }
+  .table-modern tbody tr:last-child td:last-child  { border-bottom-right-radius: 12px; }
+
+  /* ---- Actions column width so buttons don’t wrap awkwardly ---- */
+  .col-actions-wide { min-width: 420px; }
+
+  /* ---- Button spacing in cells ---- */
+  .table-modern td .btn { margin-right: .35rem; margin-top: .25rem; }
+  .table-modern td .btn:last-child { margin-right: 0; }
+  .table-modern td .small { margin-top: .35rem; display: block; color: #a8b6bf; }
+
+  /* ---- Filter row (BS4) ---- */
+  .filter-row {
+    display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  }
+  .filter-row label { margin: 0; font-weight: 500; color: #e7eff2; }
+  .filter-select { min-width: 220px; }
+
+  /* ---- Badges on dark background ---- */
+  .badge-success { background-color: var(--brand-green, #05e560); color: #192d38; }
+  .badge-secondary { background-color: #6c757d; color: #fff; }
+</style>
+
+<div class="container-fluid workflow-tables-container px-0">
+  <div class="mb-3 filter-row">
+    <label for="statusFilter">Filter by status:</label>
+    <select id="statusFilter" class="form-control form-control-sm filter-select">
+      <option value="">All</option>
+      <option value="Published">Published</option>
+      <option value="Unpublished">Unpublished</option>
+      <option value="Awaiting Review">Awaiting Review</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+  </div>
+
+  <div class="table-wrap scroll-y mb-5">
+    <table id="my-workflows" class="table table-modern">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th class="col-actions-wide">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for wf in my_workflows %}
+        <tr data-status="{{ wf.status_category }}">
+          <td>
+            {{ wf.obj.name }}
+            <span class="badge badge-success ml-1">mine</span>
+          </td>
+          <td>{{ wf.status_text }}</td>
+          <td>
+            {% if wf.status_category == 'Unpublished' or wf.status_category == 'Rejected' %}
+            <form method="post" action="{% url 'request_review' wf.obj.id %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-primary">Request Review</button>
+            </form>
+            {% endif %}
+            <a href="{% url 'edit_workflow' wf.obj.id %}" class="btn btn-sm btn-primary">Edit</a>
+            <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-primary">Run Workflow</a>
+
+            {% if wf.obj.created_by == request.user %}
+            <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+            <div class="small">This will permanently delete the workflow from your account.</div>
+
+            {% if request.user.is_staff and wf.obj.downloaded_by.exists %}
+            <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('This will delete the workflow globally. It will also be removed from all users who downloaded it.')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm mt-1">Admin Delete</button>
+            </form>
+            {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No workflows found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if imported_workflows %}
+  <h3 class="text-center mb-4">Imported Workflows</h3>
+
+  <div class="table-wrap scroll-y">
+    <table class="table table-modern">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Source</th>
+          <th>Status</th>
+          <th class="col-actions-wide">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for wf in imported_workflows %}
+        <tr>
+          <td>
+            {{ wf.obj.name }}
+            <span class="badge badge-secondary ml-1">shared</span>
+          </td>
+          <td>{% if wf.obj.source_creator %}{{ wf.obj.source_creator.username }}{% else %}Shared{% endif %}</td>
+          <td>{{ wf.status_text }}</td>
+          <td>
+            <a href="{% url 'run_workflow_specific' wf.obj.id %}" class="btn btn-sm btn-primary">Run Workflow</a>
+            <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this workflow?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+            <div class="small">This will remove your local copy. The original remains online.</div>
+
+            {% if request.user.is_staff %}
+            <form method="POST" action="{% url 'delete_workflow' wf.obj.id %}" class="d-inline" onsubmit="return confirm('This will delete the workflow globally. It will also be removed from all users who downloaded it.')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm mt-1">Admin Delete</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
 </div>
-{% endif %}
 
 <script>
-document.getElementById('statusFilter').addEventListener('change', function() {
+  // Filter rows in "My Workflows" by status
+  document.getElementById('statusFilter').addEventListener('change', function() {
     var filter = this.value;
     document.querySelectorAll('#my-workflows tbody tr').forEach(function(row) {
-        if (!filter || row.dataset.status === filter) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+      if (!filter || row.dataset.status === filter) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
     });
-});
+  });
 </script>
 {% endblock %}

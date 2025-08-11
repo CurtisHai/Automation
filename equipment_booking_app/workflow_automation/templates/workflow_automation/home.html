@@ -4,6 +4,66 @@
 {% block content %}
 <h1 class="text-center mt-4">Automation Dashboard</h1>
 
+<style>
+  /* Polished green CTA buttons */
+  .btn-automation{
+    position: relative;
+    overflow: hidden;                  /* for the radial highlight */
+    border: 1px solid rgba(5,229,96,.45);
+    border-radius: 14px;
+    background:
+      linear-gradient(180deg,
+        var(--brand-green, #05e560) 0%,
+        #06d957 100%);
+    color: #192d38 !important;
+    box-shadow:
+      0 6px 18px rgba(5,229,96,.22),
+      inset 0 0 0 2px rgba(255,255,255,.15);
+    transition: transform .12s ease,
+                box-shadow .12s ease,
+                color .12s ease,
+                background .2s ease;
+  }
+  /* Radial gloss highlight */
+  .btn-automation::after{
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(60% 60% at 50% 10%,
+        rgba(255,255,255,.35) 0%,
+        rgba(255,255,255,0) 60%);
+    opacity: .22;
+    transition: opacity .2s ease, transform .2s ease;
+    pointer-events: none;
+  }
+  .btn-automation:hover,
+  .btn-automation:focus{
+    transform: translateY(-1px);
+    box-shadow:
+      0 10px 24px rgba(5,229,96,.28),
+      0 0 0 3px rgba(5,229,96,.18);
+    color: #fff !important;            /* readable on hover */
+  }
+  .btn-automation:hover::after,
+  .btn-automation:focus::after{
+    opacity: .42;
+    transform: scale(1.02);
+  }
+  .btn-automation:active{
+    transform: translateY(0);
+    box-shadow:
+      0 6px 16px rgba(5,229,96,.25),
+      inset 0 2px 6px rgba(0,0,0,.15);
+  }
+
+  /* Optional: ensure consistent height for large buttons */
+  .btn-automation.btn-lg{
+    padding-top: .9rem;
+    padding-bottom: .9rem;
+  }
+</style>
+
 <section class="mt-4">
   {% if user.is_authenticated %}
     <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
