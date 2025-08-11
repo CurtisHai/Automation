@@ -8,7 +8,7 @@
     <h2 class="text-center mb-4">Create Workflow</h2>
   {% endif %}
 
-  <!-- Shorter scrollable form -->
+  <!-- Scrolls internally; page itself does not scroll -->
   <div class="card p-4 content-box mb-5 account-form scroll-y workflow-form-container">
     <form method="post">
       {% csrf_token %}
@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <!-- Description -->
+      <!-- Description (locked to 5 lines) -->
       <div class="form-row-inline">
         <label for="id_description" class="col-form-label label-fixed">Description</label>
         <div class="field-flex">
@@ -46,7 +46,6 @@
       </div>
 
       <hr class="my-3">
-
       <h4 class="mb-3">Tasks</h4>
 
       <!-- Setup folder structure -->
@@ -62,9 +61,6 @@
 
           <div id="setup_settings" class="mt-2 ml-4"
                style="display:{% if steps_map.setup_structure %}block{% else %}none{% endif %};">
-            <input type="number" name="order_setup_structure" min="1"
-                   class="form-control mb-2" placeholder="Order"
-                   value="{{ steps_map.setup_structure.order|default:'' }}">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="id_setup_full_structure"
                      name="setup_full_structure"
@@ -96,9 +92,6 @@
               <option value="mp4" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'mp4' %}selected{% endif %}>MP4</option>
               <option value="avi" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'avi' %}selected{% endif %}>AVI</option>
             </select>
-            <input type="number" name="order_convert_360_video" min="1"
-                   class="form-control mt-2" placeholder="Order"
-                   value="{{ steps_map.convert_360_video.order|default:'' }}">
           </div>
         </div>
       </div>
@@ -121,9 +114,6 @@
                    class="form-control" placeholder="Leave unchanged"
                    title="Enable smart renaming using file path and timestamp"
                    value="{{ steps_map.rename.config.rename_pattern|default:'' }}">
-            <input type="number" name="order_rename" min="1"
-                   class="form-control mt-2" placeholder="Order"
-                   value="{{ steps_map.rename.order|default:'' }}">
           </div>
         </div>
       </div>
@@ -141,9 +131,7 @@
 
           <div id="remove_audio_settings" class="mt-2 ml-4"
                style="display:{% if steps_map.remove_audio %}block{% else %}none{% endif %};">
-            <input type="number" name="order_remove_audio" min="1"
-                   class="form-control" placeholder="Order"
-                   value="{{ steps_map.remove_audio.order|default:'' }}">
+            <!-- order removed -->
           </div>
         </div>
       </div>
@@ -171,9 +159,6 @@
                    class="form-control"
                    value="{{ steps_map.trim.config.end_seconds|default:0 }}"
                    title="Select how many seconds to trim from start/end">
-            <input type="number" name="order_trim" min="1"
-                   class="form-control mt-2" placeholder="Order"
-                   value="{{ steps_map.trim.order|default:'' }}">
           </div>
         </div>
       </div>
@@ -195,9 +180,6 @@
             <input type="text" name="target_folder" id="id_target_folder"
                    class="form-control" placeholder="Leave unchanged"
                    value="{{ steps_map.organize_files.config.target_folder|default:'' }}">
-            <input type="number" name="order_organize_files" min="1"
-                   class="form-control mt-2" placeholder="Order"
-                   value="{{ steps_map.organize_files.order|default:'' }}">
           </div>
         </div>
       </div>
@@ -224,10 +206,40 @@
 </script>
 
 <style>
-/* Make workflow form shorter with internal scroll */
+/* Internal scroll for the card */
 .workflow-form-container {
-    max-height: calc(100vh - 200px); /* adjust 200px to fit your header/footer */
-    overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-green) rgba(255,255,255,0.08);
+}
+.workflow-form-container::-webkit-scrollbar { width: 8px; }
+.workflow-form-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.08); border-radius: 8px; }
+.workflow-form-container::-webkit-scrollbar-thumb { background: var(--brand-green); border-radius: 8px; }
+.workflow-form-container::-webkit-scrollbar-thumb:hover { background: var(--brand-green-dark); }
+
+/* Uniform, wider field widths (name, selects, textareas, etc.) */
+.field-flex > .form-control,
+.field-flex > textarea.form-control,
+.field-flex > select.form-control {
+  width: 100% !important;
+  max-width: 720px;   /* make wider than before */
+}
+
+/* Description locked to 5 lines */
+textarea#id_description {
+  resize: none;
+  min-height: calc(1.5em * 5 + .75rem + 2px);
+  max-height: calc(1.5em * 5 + .75rem + 2px);
+}
+
+/* Keep small screens friendly */
+@media (max-width: 768px) {
+  .field-flex > .form-control,
+  .field-flex > textarea.form-control,
+  .field-flex > select.form-control {
+    max-width: 100%;
+  }
 }
 </style>
 {% endblock %}
