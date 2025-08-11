@@ -1,110 +1,233 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-{% if workflow %}
-<h2 class="text-center mb-4">Edit Workflow</h2>
-{% else %}
-<h2 class="text-center mb-4">Create Workflow</h2>
-{% endif %}
-<form method="post">
-    {% if workflow %}
-    <input type="hidden" name="workflow_id" value="{{ workflow.id }}">
-    {% endif %}
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="id_name">Workflow Name</label>
-        {{ form.name }}
-    </div>
-    <div class="form-group">
-        <label for="id_description">Description</label>
-        {{ form.description }}
-    </div>
-    <div class="form-check mb-3">
-        {{ form.qa_video_review }} {{ form.qa_video_review.label_tag }}
-    </div>
-    <div class="form-check mb-3">
-        {{ form.use_date_suffix }} {{ form.use_date_suffix.label_tag }}
-    </div>
-    <h4>Tasks</h4>
-    <div class="mb-3">
-        <div class="form-check">
-            <input class="form-check-input task-toggle" data-target="setup_settings" type="checkbox" id="setup_cb" name="include_setup_structure" {% if steps_map.setup_structure %}checked{% endif %}>
+<div class="container mt-5">
+  {% if workflow %}
+    <h2 class="text-center mb-4">Edit Workflow</h2>
+  {% else %}
+    <h2 class="text-center mb-4">Create Workflow</h2>
+  {% endif %}
+
+  <!-- Shorter scrollable form -->
+  <div class="card p-4 content-box mb-5 account-form scroll-y workflow-form-container">
+    <form method="post">
+      {% csrf_token %}
+      {% if workflow %}
+        <input type="hidden" name="workflow_id" value="{{ workflow.id }}">
+      {% endif %}
+
+      <!-- Workflow Name -->
+      <div class="form-row-inline">
+        <label for="id_name" class="col-form-label label-fixed">Workflow Name</label>
+        <div class="field-flex">
+          {{ form.name }}
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-row-inline">
+        <label for="id_description" class="col-form-label label-fixed">Description</label>
+        <div class="field-flex">
+          {{ form.description }}
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Options</label>
+        <div class="field-flex">
+          <div class="form-check mb-2">
+            {{ form.qa_video_review }} {{ form.qa_video_review.label_tag }}
+          </div>
+          <div class="form-check mb-0">
+            {{ form.use_date_suffix }} {{ form.use_date_suffix.label_tag }}
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <h4 class="mb-3">Tasks</h4>
+
+      <!-- Setup folder structure -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Setup</label>
+        <div class="field-flex">
+          <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="setup_settings"
+                   type="checkbox" id="setup_cb" name="include_setup_structure"
+                   {% if steps_map.setup_structure %}checked{% endif %}>
             <label class="form-check-label" for="setup_cb">Setup folder structure</label>
-        </div>
-        <div id="setup_settings" class="ml-4 mt-2" style="display:{% if steps_map.setup_structure %}block{% else %}none{% endif %};">
-            <input type="number" name="order_setup_structure" min="1" class="form-control" placeholder="Order" value="{{ steps_map.setup_structure.order|default:'' }}">
-            <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox" id="id_setup_full_structure" name="setup_full_structure" {% if steps_map.setup_structure and steps_map.setup_structure.config.full_structure %}checked{% endif %}>
-                <label class="form-check-label" for="id_setup_full_structure">Generate full folder structure?</label>
+          </div>
+
+          <div id="setup_settings" class="mt-2 ml-4"
+               style="display:{% if steps_map.setup_structure %}block{% else %}none{% endif %};">
+            <input type="number" name="order_setup_structure" min="1"
+                   class="form-control mb-2" placeholder="Order"
+                   value="{{ steps_map.setup_structure.order|default:'' }}">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="id_setup_full_structure"
+                     name="setup_full_structure"
+                     {% if steps_map.setup_structure and steps_map.setup_structure.config.full_structure %}checked{% endif %}>
+              <label class="form-check-label" for="id_setup_full_structure">
+                Generate full folder structure?
+              </label>
             </div>
+          </div>
         </div>
+      </div>
 
-        <div class="form-check">
-            <input class="form-check-input task-toggle" data-target="convert_settings" type="checkbox" id="convert_cb" name="include_convert_360_video" {% if steps_map.convert_360_video %}checked{% endif %}>
+      <!-- Convert media -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Convert</label>
+        <div class="field-flex">
+          <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="convert_settings"
+                   type="checkbox" id="convert_cb" name="include_convert_360_video"
+                   {% if steps_map.convert_360_video %}checked{% endif %}>
             <label class="form-check-label" for="convert_cb">Convert media</label>
-        </div>
-        <div id="convert_settings" class="ml-4 mt-2" style="display:{% if steps_map.convert_360_video %}block{% else %}none{% endif %};">
-            <label for="id_convert_format">Convert To</label>
+          </div>
+
+          <div id="convert_settings" class="mt-2 ml-4"
+               style="display:{% if steps_map.convert_360_video %}block{% else %}none{% endif %};">
+            <label for="id_convert_format" class="mb-1">Convert To</label>
             <select name="convert_format" id="id_convert_format" class="form-control">
-                <option value="">Skip this step</option>
-                <option value="mp4" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'mp4' %}selected{% endif %}>MP4</option>
-                <option value="avi" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'avi' %}selected{% endif %}>AVI</option>
+              <option value="">Skip this step</option>
+              <option value="mp4" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'mp4' %}selected{% endif %}>MP4</option>
+              <option value="avi" {% if steps_map.convert_360_video and steps_map.convert_360_video.config.convert_format == 'avi' %}selected{% endif %}>AVI</option>
             </select>
-            <input type="number" name="order_convert_360_video" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.convert_360_video.order|default:'' }}">
+            <input type="number" name="order_convert_360_video" min="1"
+                   class="form-control mt-2" placeholder="Order"
+                   value="{{ steps_map.convert_360_video.order|default:'' }}">
+          </div>
         </div>
+      </div>
 
-        <div class="form-check mt-3">
-            <input class="form-check-input task-toggle" data-target="rename_settings" type="checkbox" id="rename_cb" name="include_rename" {% if steps_map.rename %}checked{% endif %}>
+      <!-- Rename files -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Rename</label>
+        <div class="field-flex">
+          <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="rename_settings"
+                   type="checkbox" id="rename_cb" name="include_rename"
+                   {% if steps_map.rename %}checked{% endif %}>
             <label class="form-check-label" for="rename_cb">Rename files</label>
-        </div>
-        <div id="rename_settings" class="ml-4 mt-2" style="display:{% if steps_map.rename %}block{% else %}none{% endif %};">
-            <label for="id_rename_pattern">Rename Pattern</label>
-            <input type="text" name="rename_pattern" id="id_rename_pattern" class="form-control" placeholder="Leave unchanged" title="Enable smart renaming using file path and timestamp" value="{{ steps_map.rename.config.rename_pattern|default:'' }}">
-            <input type="number" name="order_rename" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.rename.order|default:'' }}">
-        </div>
+          </div>
 
-        <div class="form-check mt-3">
-            <input class="form-check-input task-toggle" data-target="remove_audio_settings" type="checkbox" id="audio_cb" name="include_remove_audio" {% if steps_map.remove_audio %}checked{% endif %}>
+          <div id="rename_settings" class="mt-2 ml-4"
+               style="display:{% if steps_map.rename %}block{% else %}none{% endif %};">
+            <label for="id_rename_pattern" class="mb-1">Rename Pattern</label>
+            <input type="text" name="rename_pattern" id="id_rename_pattern"
+                   class="form-control" placeholder="Leave unchanged"
+                   title="Enable smart renaming using file path and timestamp"
+                   value="{{ steps_map.rename.config.rename_pattern|default:'' }}">
+            <input type="number" name="order_rename" min="1"
+                   class="form-control mt-2" placeholder="Order"
+                   value="{{ steps_map.rename.order|default:'' }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Remove audio -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Audio</label>
+        <div class="field-flex">
+          <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="remove_audio_settings"
+                   type="checkbox" id="audio_cb" name="include_remove_audio"
+                   {% if steps_map.remove_audio %}checked{% endif %}>
             <label class="form-check-label" for="audio_cb">Remove audio from 360 videos</label>
-        </div>
-        <div id="remove_audio_settings" class="ml-4 mt-2" style="display:{% if steps_map.remove_audio %}block{% else %}none{% endif %};">
-            <input type="number" name="order_remove_audio" min="1" class="form-control" placeholder="Order" value="{{ steps_map.remove_audio.order|default:'' }}">
-        </div>
+          </div>
 
-        <div class="form-check mt-3">
-            <input class="form-check-input task-toggle" data-target="trim_settings" type="checkbox" id="trim_cb" name="include_trim" {% if steps_map.trim %}checked{% endif %}>
+          <div id="remove_audio_settings" class="mt-2 ml-4"
+               style="display:{% if steps_map.remove_audio %}block{% else %}none{% endif %};">
+            <input type="number" name="order_remove_audio" min="1"
+                   class="form-control" placeholder="Order"
+                   value="{{ steps_map.remove_audio.order|default:'' }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Trim video -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Trim</label>
+        <div class="field-flex">
+          <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="trim_settings"
+                   type="checkbox" id="trim_cb" name="include_trim"
+                   {% if steps_map.trim %}checked{% endif %}>
             <label class="form-check-label" for="trim_cb">Crop video start/end times</label>
-        </div>
-        <div id="trim_settings" class="ml-4 mt-2" style="display:{% if steps_map.trim %}block{% else %}none{% endif %};">
-            <label for="id_start_seconds">Seconds from Start</label>
-            <input type="number" name="start_seconds" id="id_start_seconds" class="form-control" value="{{ steps_map.trim.config.start_seconds|default:0 }}" title="Select how many seconds to trim from start/end">
-            <label class="mt-2" for="id_end_seconds">Seconds from End</label>
-            <input type="number" name="end_seconds" id="id_end_seconds" class="form-control" value="{{ steps_map.trim.config.end_seconds|default:0 }}" title="Select how many seconds to trim from start/end">
-            <input type="number" name="order_trim" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.trim.order|default:'' }}">
-        </div>
+          </div>
 
-        <div class="form-check mt-3">
-            <input class="form-check-input task-toggle" data-target="organize_settings" type="checkbox" id="organize_cb" name="include_organize_files" {% if steps_map.organize_files %}checked{% endif %}>
+          <div id="trim_settings" class="mt-2 ml-4"
+               style="display:{% if steps_map.trim %}block{% else %}none{% endif %};">
+            <label for="id_start_seconds" class="mb-1">Seconds from Start</label>
+            <input type="number" name="start_seconds" id="id_start_seconds"
+                   class="form-control"
+                   value="{{ steps_map.trim.config.start_seconds|default:0 }}"
+                   title="Select how many seconds to trim from start/end">
+            <label for="id_end_seconds" class="mt-2 mb-1">Seconds from End</label>
+            <input type="number" name="end_seconds" id="id_end_seconds"
+                   class="form-control"
+                   value="{{ steps_map.trim.config.end_seconds|default:0 }}"
+                   title="Select how many seconds to trim from start/end">
+            <input type="number" name="order_trim" min="1"
+                   class="form-control mt-2" placeholder="Order"
+                   value="{{ steps_map.trim.order|default:'' }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Organize files -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Organize</label>
+        <div class="field-flex">
+          <div class="form-check">
+            <input class="form-check-input task-toggle" data-target="organize_settings"
+                   type="checkbox" id="organize_cb" name="include_organize_files"
+                   {% if steps_map.organize_files %}checked{% endif %}>
             <label class="form-check-label" for="organize_cb">Place files in correct folder structure</label>
-        </div>
-        <div id="organize_settings" class="ml-4 mt-2" style="display:{% if steps_map.organize_files %}block{% else %}none{% endif %};">
-            <label for="id_target_folder">Target Folder</label>
-            <input type="text" name="target_folder" id="id_target_folder" class="form-control" placeholder="Leave unchanged" value="{{ steps_map.organize_files.config.target_folder|default:'' }}">
-            <input type="number" name="order_organize_files" min="1" class="form-control mt-2" placeholder="Order" value="{{ steps_map.organize_files.order|default:'' }}">
-        </div>
-    </div>
+          </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Save Workflow</button>
-</form>
+          <div id="organize_settings" class="mt-2 ml-4"
+               style="display:{% if steps_map.organize_files %}block{% else %}none{% endif %};">
+            <label for="id_target_folder" class="mb-1">Target Folder</label>
+            <input type="text" name="target_folder" id="id_target_folder"
+                   class="form-control" placeholder="Leave unchanged"
+                   value="{{ steps_map.organize_files.config.target_folder|default:'' }}">
+            <input type="number" name="order_organize_files" min="1"
+                   class="form-control mt-2" placeholder="Order"
+                   value="{{ steps_map.organize_files.order|default:'' }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Save button aligned to inputs -->
+      <div class="form-row-inline mt-4">
+        <div class="label-fixed"></div>
+        <div class="field-flex">
+          <button type="submit" class="btn btn-save-changes w-100">Save Workflow</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
-    document.querySelectorAll('.task-toggle').forEach(function(cb){
-        cb.addEventListener('change', function(){
-            var target = document.getElementById(this.dataset.target);
-            if(target){
-                target.style.display = this.checked ? 'block' : 'none';
-            }
-        });
+  // Toggle each task's settings visibility
+  document.querySelectorAll('.task-toggle').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var target = document.getElementById(this.dataset.target);
+      if (target) target.style.display = this.checked ? 'block' : 'none';
     });
+  });
 </script>
+
+<style>
+/* Make workflow form shorter with internal scroll */
+.workflow-form-container {
+    max-height: calc(100vh - 200px); /* adjust 200px to fit your header/footer */
+    overflow-y: auto;
+}
+</style>
 {% endblock %}

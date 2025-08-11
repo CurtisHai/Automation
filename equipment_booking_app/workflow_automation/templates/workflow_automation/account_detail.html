@@ -2,111 +2,107 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Your Account Details</h2>
+  <h2 class="text-center mb-4">Your Account Details</h2>
 
-    <!-- Card for form layout with Bootstrap styling -->
-    <div class="card p-4 content-box mb-5 account-form">
-        <form method="post" action="{% url 'accounts' %}">
-            {% csrf_token %}
+  <!-- Scrolls inside the card only (uses global .scroll-y from base) -->
+  <div class="card p-4 content-box mb-5 account-form scroll-y">
+    <form method="post" action="{% url 'accounts' %}">
+      {% csrf_token %}
 
-            <!-- Display username in a readonly input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label>Username:</label>
-                </div>
-                <div class="col-8">
-                    <input type="text" class="form-control" value="{{ user.username }}" readonly>
-                </div>
-            </div>
+      <!-- Username (readonly) -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Username:</label>
+        <div class="field-flex">
+          <input type="text" class="form-control" value="{{ user.username }}" readonly>
+        </div>
+      </div>
 
-            <!-- Initials input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label for="id_initials">Initials:</label>
-                </div>
-                <div class="col-8">
-                    {{ form.initials }}
-                </div>
-            </div>
+      <!-- Initials -->
+      <div class="form-row-inline">
+        <label for="id_initials" class="col-form-label label-fixed">Initials:</label>
+        <div class="field-flex">
+          {{ form.initials }}
+        </div>
+      </div>
 
-            <!-- Email input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label for="id_email">Email:</label>
-                </div>
-                <div class="col-8">
-                    {{ form.email }}
-                </div>
-            </div>
+      <!-- Email -->
+      <div class="form-row-inline">
+        <label for="id_email" class="col-form-label label-fixed">Email:</label>
+        <div class="field-flex">
+          {{ form.email }}
+        </div>
+      </div>
 
-            <!-- Phone number input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label for="id_phone_number">Phone Number:</label>
-                </div>
-                <div class="col-8">
-                    {{ form.phone_number }}
-                </div>
-            </div>
+      <!-- Phone number -->
+      <div class="form-row-inline">
+        <label for="id_phone_number" class="col-form-label label-fixed">Phone Number:</label>
+        <div class="field-flex">
+          {{ form.phone_number }}
+        </div>
+      </div>
 
-            <!-- Work address input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label for="id_work_address">Work Address:</label>
-                </div>
-                <div class="col-8">
-                    {{ form.work_address }}
-                </div>
-            </div>
+      <!-- Work address -->
+      <div class="form-row-inline">
+        <label for="id_work_address" class="col-form-label label-fixed">Work Address:</label>
+        <div class="field-flex">
+          {{ form.work_address }}
+        </div>
+      </div>
 
-            <!-- Display fixed company name in a readonly input -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label>Company:</label>
-                </div>
-                <div class="col-8">
-                    <input type="text" class="form-control readonly-field" value="{{ fixed_company }}" readonly>
-                </div>
-            </div>
+      <!-- Company (readonly) -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Company:</label>
+        <div class="field-flex">
+          <input type="text" class="form-control readonly-field" value="{{ fixed_company }}" readonly>
+        </div>
+      </div>
 
-            <!-- Work division input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label for="id_work_division">Work Division:</label>
-                </div>
-                <div class="col-8">
-                    {{ form.work_division }}
-                </div>
-            </div>
+      <!-- Work division -->
+      <div class="form-row-inline">
+        <label for="id_work_division" class="col-form-label label-fixed">Work Division:</label>
+        <div class="field-flex">
+          {{ form.work_division }}
+        </div>
+      </div>
 
-            <!-- Job role input field -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label for="id_job_role">Job Role:</label>
-                </div>
-                <div class="col-8">
-                    {{ form.job_role }}
-                </div>
-            </div>
+      <!-- Job role -->
+      <div class="form-row-inline">
+        <label for="id_job_role" class="col-form-label label-fixed">Job Role:</label>
+        <div class="field-flex">
+          {{ form.job_role }}
+        </div>
+      </div>
 
-            <!-- Display user type in a readonly input -->
-            <div class="row mb-3">
-                <div class="col-4 text-right">
-                    <label>User Type:</label>
-                </div>
-                <div class="col-8">
-                    <input type="text" class="form-control readonly-field" value="{{ user_type }}" readonly>
-                </div>
-            </div>
+      <!-- User type (readonly) -->
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">User Type:</label>
+        <div class="field-flex">
+          <input type="text" class="form-control readonly-field" value="{{ user_type }}" readonly>
+        </div>
+      </div>
 
-            <!-- Submit button to save changes -->
-            <div class="row mt-4">
-                <div class="col-4"></div>
-                <div class="col-8">
-                    <button type="submit" class="btn btn-save-changes w-100">Save Changes</button>
-                </div>
-            </div>
-        </form>
-    </div>
+      <!-- Errors -->
+      {% if form.errors %}
+      <div class="alert alert-danger mt-3">
+        <ul class="errorlist mb-2">
+          {% for field in form %}
+            {% if field.errors %}
+              <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        <p class="mb-0">Please fix the above errors and try again.</p>
+      </div>
+      {% endif %}
+
+      <!-- Save button (matches input width) -->
+      <div class="form-row-inline mt-4">
+        <div class="label-fixed"></div>
+        <div class="field-flex">
+          <button type="submit" class="btn btn-save-changes w-100">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

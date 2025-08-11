@@ -1,4 +1,61 @@
-{% extends 'workflow_automation/base.html' %} {% block content %}
+{% extends 'workflow_automation/base.html' %}
+{% block content %}
+
+<style>
+  /* ---- Scroll behavior: lock the page, scroll only the form card ---- */
+  html, body {
+    height: 100%;
+    overflow: hidden;              /* no page scrollbar */
+  }
+  /* Make the card the only scrollable area */
+  .content-box.account-form {
+    max-height: calc(100vh - 200px);  /* adjust if your header/footer height differs */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Inline form layout (kept from the previous version) ---- */
+  .form-row-inline {
+    display: flex;
+    align-items: center;
+    gap: .75rem;          /* small horizontal space between label and input */
+    margin-bottom: 1rem;  /* vertical spacing between rows */
+    flex-wrap: nowrap;
+  }
+  .form-row-inline .label-fixed {
+    width: 180px;         /* consistent label column */
+    text-align: left;
+    margin: 0;
+  }
+  .form-row-inline .field-flex {
+    flex: 1 1 auto;       /* inputs take remaining width */
+  }
+
+  /* Reason box: fixed height and non-resizable */
+  textarea#id_reason { resize: none; }
+
+  /* Buttons */
+  .btn-cancel { color: #fff !important; }
+  .btn-save-changes:hover,
+  .btn-save-changes:focus {
+    color: #fff !important;   /* green button text turns white on hover/focus */
+  }
+
+  /* Mobile: stack label above field */
+  @media (max-width: 576px) {
+    .form-row-inline { flex-wrap: wrap; }
+    .form-row-inline .label-fixed {
+      width: 100%;
+      margin-bottom: .25rem;
+    }
+    .form-row-inline .field-flex {
+      width: 100%;
+      flex: 0 0 100%;
+    }
+  }
+</style>
+
 <div class="container mt-5">
   <h2 class="text-center mb-4">Create Booking</h2>
 
@@ -6,82 +63,70 @@
     <form method="post">
       {% csrf_token %}
 
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_user">User:</label>
-        </div>
-        <div class="col-8">{{ form.user }}</div>
+      <!-- User -->
+      <div class="form-row-inline">
+        <label for="id_user" class="col-form-label label-fixed">User:</label>
+        <div class="field-flex">{{ form.user }}</div>
       </div>
 
-      <!-- Equipment selection field with Bootstrap grid layout -->
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_equipment">Equipment:</label>
-        </div>
-        <div class="col-8">{{ form.equipment }}</div>
+      <!-- Equipment -->
+      <div class="form-row-inline">
+        <label for="id_equipment" class="col-form-label label-fixed">Equipment:</label>
+        <div class="field-flex">{{ form.equipment }}</div>
       </div>
 
-      <!-- Start time input field -->
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_start_time">Start Time:</label>
-        </div>
-        <div class="col-8">{{ form.start_time }}</div>
+      <!-- Start Time -->
+      <div class="form-row-inline">
+        <label for="id_start_time" class="col-form-label label-fixed">Start Time:</label>
+        <div class="field-flex">{{ form.start_time }}</div>
       </div>
 
-      <!-- End time input field -->
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_end_time">End Time:</label>
-        </div>
-        <div class="col-8">{{ form.end_time }}</div>
+      <!-- End Time -->
+      <div class="form-row-inline">
+        <label for="id_end_time" class="col-form-label label-fixed">End Time:</label>
+        <div class="field-flex">{{ form.end_time }}</div>
       </div>
 
-      <!-- Reason field with placeholder text -->
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_reason">Reason:</label>
+      <!-- Reason -->
+      <div class="form-row-inline">
+        <label for="id_reason" class="col-form-label label-fixed">Reason:</label>
+        <div class="field-flex">
+          <textarea name="reason" id="id_reason" class="form-control" rows="5">{{ form.reason.value|default_if_none:'' }}</textarea>
         </div>
-        <div class="col-8">{{ form.reason }}</div>
       </div>
 
-      <!-- Project number input field -->
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_project_number">Project Number:</label>
-        </div>
-        <div class="col-8">{{ form.project_number }}</div>
+      <!-- Project Number -->
+      <div class="form-row-inline">
+        <label for="id_project_number" class="col-form-label label-fixed">Project Number:</label>
+        <div class="field-flex">{{ form.project_number }}</div>
       </div>
 
-      <!-- Use location input field -->
-      <div class="row mb-3">
-        <div class="col-4 text-right">
-          <label for="id_use_location">Use Location:</label>
-        </div>
-        <div class="col-8">{{ form.use_location }}</div>
+      <!-- Use Location -->
+      <div class="form-row-inline">
+        <label for="id_use_location" class="col-form-label label-fixed">Use Location:</label>
+        <div class="field-flex">{{ form.use_location }}</div>
       </div>
 
-      <!-- Display form validation errors, if any -->
+      <!-- Errors -->
       {% if form.errors %}
       <div class="alert alert-danger mt-3">
-        <ul class="errorlist">
-          {% for field in form %} {% if field.errors %}
-          <li>
-            <strong>{{ field.label }}:</strong> {{ field.errors|striptags }}
-          </li>
-          {% endif %} {% endfor %}
+        <ul class="errorlist mb-2">
+          {% for field in form %}
+            {% if field.errors %}
+              <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+            {% endif %}
+          {% endfor %}
         </ul>
-        <p>Please fix the above errors and try again.</p>
+        <p class="mb-0">Please fix the above errors and try again.</p>
       </div>
       {% endif %}
 
-      <!-- Submit button for creating a booking -->
-      <div class="row mt-4">
-        <div class="col-4"></div>
-        <div class="col-8">
-          <button type="submit" class="btn btn-save-changes w-100">
-            Create Booking
-          </button>
+      <!-- Cancel & Submit (match input width) -->
+      <div class="form-row-inline mt-4">
+        <div class="label-fixed"></div>
+        <div class="field-flex d-flex gap-2">
+          <a href="{% url 'equipment_dashboard' %}" class="btn btn-danger btn-cancel flex-fill">Cancel</a>
+          <button type="submit" class="btn btn-save-changes flex-fill">Create Booking</button>
         </div>
       </div>
     </form>
