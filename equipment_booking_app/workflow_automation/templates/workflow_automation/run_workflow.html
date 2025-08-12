@@ -16,17 +16,17 @@
         Suggested Workflow: {{ suggested_workflow.name }} — Use this?
         <form method="post" class="d-inline">
           {% csrf_token %}
-          <button type="submit" name="accept_suggested" value="1" class="btn btn-sm btn-success ml-2">✅ Yes</button>
-          <button type="submit" name="reject_suggested" value="1" class="btn btn-sm btn-danger ml-1">❌ No</button>
+          <button type="submit" name="accept_suggested" value="1" class="btn btn-sm btn-success ml-2">Yes</button>
+          <button type="submit" name="reject_suggested" value="1" class="btn btn-sm btn-danger ml-1">No</button>
         </form>
       </div>
     {% else %}
       <div class="alert alert-warning text-center mb-4">
         No workflow matched — please choose an option:
         <div class="mt-2">
-          <a href="{% url 'create_workflow' %}" class="btn btn-sm btn-primary mr-2">🔧 Create New Workflow</a>
-          <a href="{% url 'shared_workflows' %}" class="btn btn-sm btn-primary mr-2">☁️ Search Shared Workflows</a>
-          <a href="{% url 'run_workflow' %}" class="btn btn-sm btn-primary">⏪ Choose a Different Folder</a>
+          <a href="{% url 'create_workflow' %}" class="btn btn-sm btn-primary mr-2">Create New Workflow</a>
+          <a href="{% url 'shared_workflows' %}" class="btn btn-sm btn-primary mr-2">Search Shared Workflows</a>
+          <a href="{% url 'run_workflow' %}" class="btn btn-sm btn-primary">Choose a Different Folder</a>
         </div>
       </div>
     {% endif %}
@@ -54,17 +54,30 @@
     {% endif %}
   {% endif %}
 
-  <form method="post">
+  <form method="post" class="run-form">
     {% csrf_token %}
 
-    <div class="form-group mb-4">
-      <label for="id_workflow" class="font-weight-medium">Workflow</label>
-      {{ form.workflow }}
+    <!-- Workflow -->
+    <div class="form-row-inline">
+      <label for="id_workflow" class="col-form-label label-fixed">Workflow</label>
+      <div class="field-flex">
+        {{ form.workflow }}
+      </div>
     </div>
 
-    <div class="form-group mb-4">
-      {{ form.use_input_path.label_tag }}<br>
-      {{ form.use_input_path }}
+    <!-- Different Output? (Yes => two folders, No => same folder) -->
+    <div class="form-row-inline">
+      <label class="col-form-label label-fixed">Different Output</label>
+      <div class="field-flex options-inline">
+        {% with v=form.use_input_path.value|stringformat:"s" %}
+          <label class="mr-3 mb-0">
+            <input type="radio" name="use_input_path" value="False" {% if v == 'False' %}checked{% endif %}> Yes
+          </label>
+          <label class="mb-0">
+            <input type="radio" name="use_input_path" value="True" {% if v == 'True' or v == '' or v == 'None' %}checked{% endif %}> No
+          </label>
+        {% endwith %}
+      </div>
     </div>
 
     <!-- Hidden fields -->
@@ -74,67 +87,100 @@
     </div>
 
     <!-- Folder pickers -->
-    <div id="single-folder" class="form-group mb-4">
-      <label class="font-weight-medium">Select Folder</label><br>
-      <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-      <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
-      <span id="input_folder_label" class="ml-2"></span>
+    <div id="single-folder" class="form-row-inline">
+      <label class="col-form-label label-fixed">Select Folder</label>
+      <div class="field-flex d-flex align-items-center gap-8">
+        <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+        <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
+        <span id="input_folder_label" class="ml-2 small text-muted"></span>
+      </div>
     </div>
 
     <div id="two-folders" style="display:none;">
-      <div class="form-group mb-4">
-        <label class="font-weight-medium">Select Input Folder</label><br>
-        <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple style="display:none;">
-        <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
-        <span id="input_folder_label2" class="ml-2"></span>
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Select Input Folder</label>
+        <div class="field-flex d-flex align-items-center gap-8">
+          <input type="file" id="input_folder_picker2" webkitdirectory mozdirectory directory multiple style="display:none;">
+          <button type="button" class="btn btn-secondary" id="input_folder_btn2">Browse</button>
+          <span id="input_folder_label2" class="ml-2 small text-muted"></span>
+        </div>
       </div>
-      <div class="form-group mb-4">
-        <label class="font-weight-medium">Select Output Folder</label><br>
-        <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-        <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
-        <span id="output_folder_label" class="ml-2"></span>
+      <div class="form-row-inline">
+        <label class="col-form-label label-fixed">Select Output Folder</label>
+        <div class="field-flex d-flex align-items-center gap-8">
+          <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+          <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
+          <span id="output_folder_label" class="ml-2 small text-muted"></span>
+        </div>
       </div>
     </div>
 
-    <div class="form-group mb-4">
-      <label for="id_project_code" class="font-weight-medium">Project Code</label>
-      {{ form.project_code }}
+    <!-- Project code -->
+    <div class="form-row-inline">
+      <label for="id_project_code" class="col-form-label label-fixed">Project Code</label>
+      <div class="field-flex">
+        {{ form.project_code }}
+      </div>
     </div>
 
-    <div class="form-group mb-4">
-      <label for="id_initials" class="font-weight-medium">Initials</label>
-      {{ form.initials }}
+    <!-- Initials -->
+    <div class="form-row-inline">
+      <label for="id_initials" class="col-form-label label-fixed">Initials</label>
+      <div class="field-flex">
+        {{ form.initials }}
+      </div>
     </div>
 
-    <div class="form-check mb-4">
-      {{ form.pause_between_steps }} {{ form.pause_between_steps.label_tag }}
+    <!-- Pause between steps -->
+    <div class="form-row-inline">
+      <label class="col-form-label label-fixed">Pause Between Steps</label>
+      <div class="field-flex checkbox-inline">
+        {{ form.pause_between_steps }} {{ form.pause_between_steps.label_tag }}
+      </div>
     </div>
 
     {% if step_pairs %}
-      <h4 class="mt-4 mb-3">Step Settings</h4>
       {% for step, step_form in step_pairs %}
-        <div class="border rounded p-3 mb-3">
-          <strong>{{ step.get_step_type_display }}</strong>
-          {% if step.step_type == 'setup_structure' %}
-            <div class="form-group mt-3 mb-3">
-              <label class="font-weight-medium">Select RAW Data Folder</label><br>
+        {% if step.step_type == 'setup_structure' %}
+          <div class="form-row-inline">
+            <label class="col-form-label label-fixed">RAW Data Folder</label>
+            <div class="field-flex d-flex align-items-center gap-8">
               <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple style="display:none;">
               <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
-              <span id="raw_label_{{ forloop.counter }}" class="ml-2"></span>
+              <span id="raw_label_{{ forloop.counter }}" class="ml-2 small text-muted"></span>
               {{ step_form.raw_data_folder }}
             </div>
-            <div class="form-check mt-2">
+          </div>
+          <div class="form-row-inline">
+            <label class="col-form-label label-fixed">Full Structure</label>
+            <div class="field-flex checkbox-inline">
               {{ step_form.full_structure }} {{ step_form.full_structure.label_tag }}
             </div>
-          {% else %}
-            {{ step_form.as_p }}
-          {% endif %}
-        </div>
+          </div>
+        {% else %}
+          {% for f in step_form %}
+            {% if f.name != 'step_type' and f.name != 'target_folder' %}
+              <div class="form-row-inline">
+                <label for="{{ f.id_for_label }}" class="col-form-label label-fixed">{{ f.label }}</label>
+                <div class="field-flex">
+                  {{ f }}
+                  {% if f.help_text %}
+                    <small class="form-text text-muted">{{ f.help_text }}</small>
+                  {% endif %}
+                  {% if f.errors %}
+                    <div class="invalid-feedback d-block">{{ f.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
       {% endfor %}
     {% endif %}
 
     {% if video_forms %}
-      <h4 class="mt-4 mb-3">Video Order</h4>
+      <hr class="my-4">
+      <h4 class="mb-3">Video Order</h4>
       <ul id="video-list" class="list-group mb-4">
         {% for form in video_forms %}
           <li class="list-group-item d-flex align-items-center" draggable="true">
@@ -148,7 +194,14 @@
       </ul>
     {% endif %}
 
-    <button type="submit" class="btn btn-primary mt-2">Run Workflow</button>
+    <!-- Actions aligned to field width -->
+    <div class="form-row-inline mt-3">
+      <div class="label-fixed"></div>
+      <div class="field-flex d-flex">
+        <a href="{% url 'workflow_dashboard' %}" class="btn btn-danger mr-2">Cancel</a>
+        <button type="submit" class="btn btn-primary flex-fill">Run Workflow</button>
+      </div>
+    </div>
   </form>
 </div>
 
@@ -165,30 +218,51 @@
 .run-form-container::-webkit-scrollbar-thumb{ background:var(--brand-green); border-radius:8px; }
 .run-form-container::-webkit-scrollbar-thumb:hover{ background:var(--brand-green-dark); }
 
-/* Consistent wider field widths */
-.form-control,
-select.form-control,
-textarea.form-control{
-  width:100% !important;
-  max-width:720px;
+/* Two-column inline layout */
+.form-row-inline{
+  display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; flex-wrap:nowrap;
 }
-textarea.form-control{ resize:none; }
+.label-fixed{ width:220px; text-align:left; margin:0; }
+.field-flex{ flex:1 1 auto; max-width:820px; }
 
-/* Comfortable spacing & label weight */
-.form-group label{ font-weight:500; }
-.form-group{ margin-bottom:1.25rem; }
-.form-check{ margin-bottom:1.25rem; }
+/* Uniform dark inputs — match Workflow selector width */
+.run-form .field-flex .form-control,
+.run-form .field-flex select,
+.run-form .field-flex textarea{
+  width:100%;
+  max-width:820px;
+  background: var(--sidebar-bg,#0f222d);
+  color:#e7eff2;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;
+  padding:.5rem .75rem;
+}
+.run-form .field-flex textarea{ resize:vertical; }
+
+/* Radios inline */
+.options-inline input[type="radio"]{ margin-right:.35rem; }
+.options-inline label{ margin-right:1rem; margin-bottom:0; }
+
+/* Checkbox inline */
+.checkbox-inline label{ margin-left:.35rem; margin-bottom:0; }
+
+/* No outlines/titles for step areas */
+.step-block{ background: transparent; border: none; padding: 0; }
+
+/* Small gap helper */
+.gap-8 > * + *{ margin-left:.5rem; }
 </style>
 
 <script>
 function updatePickers() {
+  // "True" = same path (single folder); "False" = different output (two folders)
   const selected = document.querySelector('input[name="use_input_path"]:checked');
   if (!selected) return;
   const same = selected.value;
   const single = document.getElementById('single-folder');
   const two = document.getElementById('two-folders');
   if (same === 'True') {
-    single.style.display = 'block';
+    single.style.display = 'flex';
     two.style.display = 'none';
   } else {
     single.style.display = 'none';
@@ -209,8 +283,10 @@ document.addEventListener('DOMContentLoaded', function(){
     if (this.files.length) {
       const file = this.files[0];
       const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
-      document.getElementById('id_input_path').value = path;
-      document.getElementById('id_output_path').value = path;
+      const inField = document.getElementById('id_input_path');
+      const outField = document.getElementById('id_output_path');
+      if (inField) inField.value = path;
+      if (outField) outField.value = path;
       document.getElementById('input_folder_label').textContent = path;
     }
   });
@@ -224,7 +300,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if (this.files.length) {
       const file = this.files[0];
       const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
-      document.getElementById('id_input_path').value = path;
+      const inField = document.getElementById('id_input_path');
+      if (inField) inField.value = path;
       document.getElementById('input_folder_label2').textContent = path;
     }
   });
@@ -234,7 +311,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if (this.files.length) {
       const file = this.files[0];
       const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
-      document.getElementById('id_output_path').value = path;
+      const outField = document.getElementById('id_output_path');
+      if (outField) outField.value = path;
       document.getElementById('output_folder_label').textContent = path;
     }
   });
@@ -244,14 +322,14 @@ document.addEventListener('DOMContentLoaded', function(){
     picker.addEventListener('change', function(){
       if (this.files.length) {
         const file = this.files[0];
-        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const thePath = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
         const counter = this.id.split('_')[2];
         const inputId = 'id_form-' + (counter - 1) + '-raw_data_folder';
         const labelId = 'raw_label_' + counter;
         const input = document.getElementById(inputId);
-        if (input) input.value = path;
+        if (input) input.value = thePath;
         const label = document.getElementById(labelId);
-        if (label) label.textContent = path;
+        if (label) label.textContent = thePath;
       }
     });
   });
