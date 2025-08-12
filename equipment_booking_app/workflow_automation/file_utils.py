@@ -124,15 +124,27 @@ def trim_video(src: str, dst: str, start: int, end: int) -> str:
 
 
 def generate_video_preview(src: str, dst: str) -> str:
-    """Create a single preview frame from ``src`` using ffmpeg."""
+    """Create a single preview frame from ``src`` using ffmpeg.
+
+    The frame is taken from the video's midpoint as reported by ``ffprobe``.
+    If ``ffprobe`` is unavailable or fails, a frame from the 2-second mark is
+    used instead.
+    """
     if ffmpeg_exists():
+        timestamp = "00:00:02"
+        duration = get_video_duration(src)
+        if duration > 0:
+            midpoint = duration / 2
+            hours, remainder = divmod(midpoint, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            timestamp = f"{int(hours):02d}:{int(minutes):02d}:{seconds:06.3f}"
         cmd = [
             "ffmpeg",
             "-y",
             "-i",
             src,
             "-ss",
-            "00:00:02",
+            timestamp,
             "-frames:v",
             "1",
             dst,
