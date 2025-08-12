@@ -15,6 +15,7 @@ from . import file_utils, views
 from .log_writer import write_workflow_log
 from types import SimpleNamespace
 from unittest.mock import patch
+import subprocess
 import shutil
 import tempfile
 from datetime import datetime
@@ -47,6 +48,33 @@ class FileUtilsTests(TestCase):
             self.assertEqual(len(paths), 1)
             self.assertTrue(paths[0].startswith(os.path.join(out_root, "SITE")))
             self.assertTrue(os.path.exists(paths[0] + ".convert"))
+
+
+    @patch("workflow_automation.file_utils.ffmpeg_exists", return_value=True)
+    @patch("workflow_automation.file_utils.subprocess.run")
+    @patch("workflow_automation.file_utils.subprocess.check_output")
+    def test_generate_video_preview_midpoint(
+        self, mock_check_output, mock_run, mock_exists
+    ):
+        mock_check_output.return_value = b"10.0"
+        file_utils.generate_video_preview("in.mp4", "out.jpg")
+        cmd = mock_run.call_args[0][0]
+        ss_val = cmd[cmd.index("-ss") + 1]
+        self.assertEqual(ss_val, "00:00:05.000")
+
+    @patch("workflow_automation.file_utils.ffmpeg_exists", return_value=True)
+    @patch("workflow_automation.file_utils.subprocess.run")
+    @patch(
+        "workflow_automation.file_utils.subprocess.check_output",
+        side_effect=subprocess.CalledProcessError(1, "ffprobe"),
+    )
+    def test_generate_video_preview_ffprobe_failure(
+        self, mock_check_output, mock_run, mock_exists
+    ):
+        file_utils.generate_video_preview("in.mp4", "out.jpg")
+        cmd = mock_run.call_args[0][0]
+        ss_val = cmd[cmd.index("-ss") + 1]
+        self.assertEqual(ss_val, "00:00:02")
 
 
 class WorkflowMatchTests(TestCase):
