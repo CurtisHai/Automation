@@ -141,7 +141,7 @@
 
     {% if step_pairs %}
       {% for step, step_form in step_pairs %}
-        {% if step.step_type == 'setup_structure' %}
+        {% if step_form.raw_data_folder %}
           <div class="form-row-inline">
             <label class="col-form-label label-fixed">RAW Data Folder</label>
             <div class="field-flex d-flex align-items-center gap-8">
@@ -157,24 +157,23 @@
               {{ step_form.full_structure }} {{ step_form.full_structure.label_tag }}
             </div>
           </div>
-        {% else %}
-          {% for f in step_form %}
-            {% if f.name != 'step_type' and f.name != 'target_folder' %}
-              <div class="form-row-inline">
-                <label for="{{ f.id_for_label }}" class="col-form-label label-fixed">{{ f.label }}</label>
-                <div class="field-flex">
-                  {{ f }}
-                  {% if f.help_text %}
-                    <small class="form-text text-muted">{{ f.help_text }}</small>
-                  {% endif %}
-                  {% if f.errors %}
-                    <div class="invalid-feedback d-block">{{ f.errors|striptags }}</div>
-                  {% endif %}
-                </div>
-              </div>
-            {% endif %}
-          {% endfor %}
         {% endif %}
+        {% for f in step_form %}
+          {% if f.name != 'raw_data_folder' and f.name != 'full_structure' %}
+            <div class="form-row-inline">
+              <label for="{{ f.id_for_label }}" class="col-form-label label-fixed">{{ f.label }}</label>
+              <div class="field-flex">
+                {{ f }}
+                {% if f.help_text %}
+                  <small class="form-text text-muted">{{ f.help_text }}</small>
+                {% endif %}
+                {% if f.errors %}
+                  <div class="invalid-feedback d-block">{{ f.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
       {% endfor %}
     {% endif %}
 
