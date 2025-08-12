@@ -22,6 +22,7 @@ urlpatterns = [
     path('manage-notice/', views.manage_notice, name='manage_notice'),
     path('remove_notice/', views.remove_notice, name='remove_notice'),
     path('security-notice/', views.security_notice, name='security_notice'),
+    path('demo/video-preview/', views.demo_video_review, name='demo_video_preview'),
     path('workflows/mine/', views.my_workflows, name='my_workflows'),
     path('workflows/shared/', views.shared_workflow_list_view, name='shared_workflows'),
     path('workflows/<int:workflow_id>/request-review/', views.request_review, name='request_review'),
