@@ -8,6 +8,7 @@ from datetime import timedelta
 from django.db.models import Q
 import os
 import logging
+from django.templatetags.static import static
 
 from .models import (
     Booking,
@@ -84,6 +85,27 @@ def home(request):
 def equipment_dashboard(request):
     """Placeholder dashboard for equipment booking."""
     return render(request, "workflow_automation/equipment_dashboard.html")
+
+
+@login_required
+def demo_video_review(request):
+    """Display a demo video preview using a static image."""
+    if request.method == "POST":
+        form = VideoReviewForm(request.POST)
+        if form.is_valid():
+            messages.success(request, "Demo complete")
+            return redirect("home")
+    else:
+        form = VideoReviewForm(initial={"zone_id": "Demo"})
+
+    context = {
+        "preview_url": static("images/Demo Video Snip.png"),
+        "crop_start": 0,
+        "crop_end": 0,
+        "audio_removed": False,
+        "form": form,
+    }
+    return render(request, "workflow_automation/video_review.html", context)
 
 
 def signup(request):
