@@ -1,5 +1,10 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-{% include 'components/data_table.html' with title=is_superuser|yesno:"All Previous Bookings,Your Previous Bookings" columns=columns rows=rows empty_text='No previous bookings available.' %}
+{% include 'components/data_table.html' with
+title=is_superuser|yesno:'All Previous Bookings,Your Previous Bookings'
+columns=columns
+rows=rows
+empty_text='No previous bookings available.'
+%}
 {% endblock %}
