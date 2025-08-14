@@ -168,7 +168,7 @@ class Workflow(models.Model):
 
 
 class WorkflowStep(models.Model):
-    STEP_CHOICES = [
+    ACTION_CHOICES = [
         ("setup_structure", "Setup Folder Structure"),
         ("convert_360_video", "Convert Media"),
         ("rename", "Rename Files"),
@@ -178,7 +178,7 @@ class WorkflowStep(models.Model):
     ]
 
     workflow = models.ForeignKey(Workflow, related_name="steps", on_delete=models.CASCADE)
-    step_type = models.CharField(max_length=50, choices=STEP_CHOICES)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     order = models.PositiveIntegerField()
     config = models.JSONField(default=dict, blank=True)
     crop_start_seconds = models.FloatField(default=0)
@@ -189,7 +189,7 @@ class WorkflowStep(models.Model):
         ordering = ["order"]
 
     def __str__(self):
-        return f"{self.get_step_type_display()} ({self.order})"
+        return f"{self.get_action_display()} ({self.order})"
 
 
 class WorkflowRun(models.Model):

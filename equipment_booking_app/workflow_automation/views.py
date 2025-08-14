@@ -585,7 +585,7 @@ def create_workflow(request, workflow_id=None):
 
                     WorkflowStep.objects.create(
                         workflow=workflow,
-                        step_type=code,
+                        action=code,
                         order=int(order),
                         config=config,
                         crop_start_seconds=float(config.get("crop_start_seconds", 0) or 0),
@@ -599,10 +599,10 @@ def create_workflow(request, workflow_id=None):
     else:
         wf_form = WorkflowForm()
 
-    steps_map = {s.step_type: s for s in workflow.steps.all()} if workflow else {}
+    steps_map = {s.action: s for s in workflow.steps.all()} if workflow else {}
     context = {
         "form": wf_form,
-        "step_choices": WorkflowStep.STEP_CHOICES,
+        "step_choices": WorkflowStep.ACTION_CHOICES,
         "workflow": workflow,
         "steps_map": steps_map,
     }
@@ -754,7 +754,7 @@ def use_shared_workflow(request, workflow_id):
     for step in workflow.steps.all():
         WorkflowStep.objects.create(
             workflow=new_wf,
-            step_type=step.step_type,
+            action=step.action,
             order=step.order,
         )
     messages.success(request, 'Workflow copied to your account.')
@@ -780,7 +780,7 @@ def build_step_formset(workflow):
     if not workflow:
         return []
     return [
-        StepSettingsForm(prefix=f"form-{idx}", step_type=s.step_type, initial=s.config)
+        StepSettingsForm(prefix=f"form-{idx}", action=s.action, initial=s.config)
         for idx, s in enumerate(workflow.steps.all())
     ]
 
@@ -818,10 +818,10 @@ def run_workflow(request, workflow_id=None):
 
     if request.method == "POST":
         # Final run is triggered when the hidden step fields are included in the
-        # POST body (form-0-step_type etc.) which only happens after the user
+        # POST body (form-0-action etc.) which only happens after the user
         # confirms the folder selection.  In that case we validate all forms and
         # execute the workflow steps immediately.
-        is_run_request = "form-0-step_type" in request.POST
+        is_run_request = "form-0-action" in request.POST
 
         if is_run_request:
             form = RunWorkflowForm(
@@ -841,7 +841,7 @@ def run_workflow(request, workflow_id=None):
                     step_form = StepSettingsForm(
                         request.POST,
                         prefix=f"form-{idx}",
-                        step_type=step.step_type,
+                        action=step.action,
                         initial=step.config,
                     )
                     if step_form.is_valid():

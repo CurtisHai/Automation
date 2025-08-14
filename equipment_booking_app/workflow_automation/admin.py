@@ -47,8 +47,8 @@ class WorkflowAdmin(admin.ModelAdmin):
 
 
 class WorkflowStepAdmin(admin.ModelAdmin):
-    list_display = ("workflow", "step_type", "order")
-    list_filter = ("workflow", "step_type")
+    list_display = ("workflow", "action", "order")
+    list_filter = ("workflow", "action")
     search_fields = ("workflow__name",)
 
 

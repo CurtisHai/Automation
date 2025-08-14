@@ -142,7 +142,7 @@ class WorkflowForm(forms.ModelForm):
 class WorkflowStepForm(forms.ModelForm):
     class Meta:
         model = WorkflowStep
-        fields = ['step_type', 'order']
+        fields = ['action', 'order']
 
 
 WorkflowStepFormSet = forms.modelformset_factory(
@@ -213,19 +213,19 @@ class RunWorkflowForm(forms.Form):
 class StepSettingsForm(forms.Form):
     """Dynamic form for per-step configuration."""
 
-    step_type = forms.CharField(widget=forms.HiddenInput())
+    action = forms.CharField(widget=forms.HiddenInput())
 
-    def __init__(self, *args, step_type=None, **kwargs):
+    def __init__(self, *args, action=None, **kwargs):
         initial = kwargs.setdefault("initial", {})
-        if step_type:
-            initial.setdefault("step_type", step_type)
+        if action:
+            initial.setdefault("action", action)
         else:
-            step_type = initial.get("step_type")
+            action = initial.get("action")
 
         super().__init__(*args, **kwargs)
 
-        self.step_type = step_type
-        if step_type == "trim":
+        self.action = action
+        if action == "trim":
             self.fields["start_seconds"] = forms.IntegerField(
                 label="Seconds from Start",
                 required=False,
@@ -238,24 +238,24 @@ class StepSettingsForm(forms.Form):
                 initial=0,
                 help_text="Select how many seconds to trim from start/end",
             )
-        elif step_type == "rename":
+        elif action == "rename":
             self.fields["rename_pattern"] = forms.CharField(
                 label="Rename Pattern",
                 required=False,
                 help_text="Enable smart renaming using file path and timestamp",
             )
-        elif step_type == "convert_360_video":
+        elif action == "convert_360_video":
             self.fields["convert_format"] = forms.ChoiceField(
                 label="Convert To",
                 choices=[("", "Leave unchanged"), ("mp4", "MP4"), ("avi", "AVI")],
                 required=False,
             )
-        elif step_type == "organize_files":
+        elif action == "organize_files":
             self.fields["target_folder"] = forms.CharField(
                 label="Target Folder",
                 required=False,
             )
-        elif step_type == "setup_structure":
+        elif action == "setup_structure":
             self.fields["raw_data_folder"] = forms.CharField(
                 label="Raw Data Folder",
                 required=True,
@@ -269,7 +269,7 @@ class StepSettingsForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        if self.step_type == "trim":
+        if self.action == "trim":
             start = cleaned.get("start_seconds") or 0
             end = cleaned.get("end_seconds") or 0
             if start < 0:

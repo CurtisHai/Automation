@@ -294,7 +294,7 @@ class FinalizeVideoTests(TestCase):
             user = User.objects.create(username="fin")
             wf = Workflow.objects.create(name="WF", created_by=user)
             step = wf.steps.create(
-                step_type="convert_360_video",
+                action="convert_360_video",
                 order=1,
                 config={},
             )

@@ -10,17 +10,17 @@
     <ul>
     {% for step in wf.steps.all %}
       <li>
-        {{ step.get_step_type_display }}
-        {% if step.step_type == 'convert_360_video' and step.config.convert_format %}
+        {{ step.get_action_display }}
+        {% if step.action == 'convert_360_video' and step.config.convert_format %}
             (convert to {{ step.config.convert_format }})
         {% endif %}
-        {% if step.step_type == 'trim' %}
+        {% if step.action == 'trim' %}
             (crop {{ step.config.start_seconds }}-{{ step.config.end_seconds }})
         {% endif %}
-        {% if step.step_type == 'rename' and step.config.rename_pattern %}
+        {% if step.action == 'rename' and step.config.rename_pattern %}
             (pattern: {{ step.config.rename_pattern }})
         {% endif %}
-        {% if step.step_type == 'remove_audio' or step.remove_audio %}
+        {% if step.action == 'remove_audio' or step.remove_audio %}
             (remove audio)
         {% endif %}
       </li>
