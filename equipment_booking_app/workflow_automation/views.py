@@ -595,6 +595,11 @@ def security_notice(request):
     return render(request, 'workflow_automation/security_notice.html')
 
 
+def page_not_found(request, exception):
+    """Display a user-friendly 404 page for invalid URLs."""
+    return render(request, '404.html', status=404)
+
+
 @login_required
 def workflow_dashboard(request):
     workflows = Workflow.objects.filter(is_published=True)

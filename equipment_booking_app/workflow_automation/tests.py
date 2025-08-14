@@ -522,3 +522,11 @@ class LauncherAccessTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse("login"), response.url)
 
+
+class NotFoundPageTests(TestCase):
+    def test_custom_404_template_used(self):
+        response = self.client.get('/nonexistent-page/')
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, '404.html')
+        self.assertContains(response, 'Page Not Found', status_code=404)
+
