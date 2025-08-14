@@ -1,20 +1,11 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-{% include 'components/data_table.html' with
-title=is_superuser|yesno:'All Upcoming Bookings,Your Upcoming Bookings'
-columns=upcoming_columns
-rows=upcoming_rows
-empty_text='No upcoming bookings available.'
-row_actions='workflow_automation/partials/booking_row_actions.html'
-%}
+<div class="mb-5">
+  {% include 'components/data_table.html' with title=is_superuser|yesno:"All Upcoming Bookings,Your Upcoming Bookings" columns=upcoming_columns rows=upcoming_rows empty_text='No upcoming bookings available.' row_actions='workflow_automation/partials/booking_row_actions.html' %}
+</div>
 
-{% include 'components/data_table.html' with
-title='Previous Bookings'
-columns=previous_columns
-rows=previous_rows
-empty_text='No previous bookings available.'
-%}
+{% include 'components/data_table.html' with title='Previous Bookings' columns=previous_columns rows=previous_rows empty_text='No previous bookings available.' %}
 
 <div class="text-center mt-4 mb-5">
   <form action="{% url 'previous_bookings' %}" method="post" style="display:inline;">
