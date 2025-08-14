@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
-from django.utils.html import linebreaks
+from django.utils.html import strip_tags
 from datetime import timedelta
 from django.db.models import Q
 import os
@@ -453,7 +453,7 @@ def user_messages(request):
             {
                 "subject": m.subject,
                 "created_at": timezone.localtime(m.created_at).strftime("%d %b %Y %H:%M"),
-                "content": linebreaks(m.content),
+                "content": strip_tags(m.content),
             }
         )
 
