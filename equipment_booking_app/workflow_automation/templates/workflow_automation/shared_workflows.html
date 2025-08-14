@@ -1,95 +1,12 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-<h2 class="text-center mb-4">Shared Workflows</h2>
-
-<form method="get" class="form-inline mb-3 justify-content-center">
-  <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name or tag" class="form-control mr-2">
-  <button type="submit" class="btn btn-primary">Search</button>
-</form>
-
-<style>
-  /* --- minimal reuse of your dark table style, full-width --- */
-  .tables-wide { width:100%; }
-
-  .table-wrap{
-    background: var(--chip-bg,#192d38);
-    border-radius:12px;
-    overflow:auto;                       /* internal scroll */
-    max-height:calc(100vh - 260px);
-    box-shadow:0 0 0 1px rgba(5,229,96,.14) inset, 0 8px 24px rgba(0,0,0,.25);
-    scrollbar-width: thin;
-    scrollbar-color: var(--brand-green,#05e560) rgba(255,255,255,.08);
-  }
-  .table-wrap::-webkit-scrollbar{ width:8px; height:8px; }
-  .table-wrap::-webkit-scrollbar-track{ background:rgba(255,255,255,.08); border-radius:8px; }
-  .table-wrap::-webkit-scrollbar-thumb{ background:var(--brand-green,#05e560); border-radius:8px; }
-  .table-wrap::-webkit-scrollbar-thumb:hover{ background:var(--brand-green-dark,#04c04b); }
-
-  .table-modern{
-    width:100%;
-    margin:0;
-    border-collapse:separate; border-spacing:0;
-    color:#e7eff2;
-  }
-  .table-modern thead th{
-    position:sticky; top:0; z-index:2;
-    background:linear-gradient(90deg, rgba(5,229,96,.22), rgba(5,229,96,.12)), var(--sidebar-bg,#0f222d);
-    color:#eaf8f0; font-weight:600; text-align:center;
-    padding:.9rem 1.25rem;
-    border-bottom:1px solid rgba(5,229,96,.35);
-  }
-  .table-modern thead th:first-child{ border-top-left-radius:12px; }
-  .table-modern thead th:last-child{ border-top-right-radius:12px; }
-
-  .table-modern tbody td{
-    padding:.9rem 1.25rem; text-align:center; vertical-align:middle;
-    border-top:1px solid rgba(255,255,255,.06);
-  }
-  .table-modern tbody tr:nth-child(even){ background:rgba(255,255,255,.03); }
-  .table-modern tbody tr:hover{ background:rgba(5,229,96,.08); }
-  .table-modern tbody tr:last-child td:first-child{ border-bottom-left-radius:12px; }
-  .table-modern tbody tr:last-child td:last-child{ border-bottom-right-radius:12px; }
-
-  /* readable description */
-  .td-description{ text-align:left; white-space:normal; word-break:break-word; }
-  .td-name, .td-author{ text-align:left; }
-  .col-actions-wide{ min-width:220px; }
-</style>
-
-<div class="container-fluid px-0 tables-wide">
-  <div class="table-wrap scroll-y">
-    <table class="table table-modern">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Author</th>
-          <th class="col-actions-wide">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for wf in workflows %}
-        <tr>
-          <td class="td-name">{{ wf.name }}</td>
-          <td class="td-description">{{ wf.description }}</td>
-          <td class="td-author">
-            {% if wf.published_by %}{{ wf.published_by.username }}
-            {% elif wf.created_by %}{{ wf.created_by.username }}
-            {% else %}-{% endif %}
-          </td>
-          <td>
-            <form method="post" action="{% url 'use_shared_workflow' wf.id %}" class="d-inline">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-primary">Download</button>
-            </form>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4" class="text-center">No shared workflows.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+{% include 'components/data_table.html' with
+title='Shared Workflows'
+columns=columns
+rows=rows
+empty_text='No shared workflows.'
+toolbar_actions='workflow_automation/partials/shared_workflows_toolbar.html'
+row_actions='workflow_automation/partials/shared_workflow_row_actions.html'
+%}
 {% endblock %}
