@@ -1,7 +1,7 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-<div class="mb-5">
+<div class="mb-5 w-100">
   {% include 'components/data_table.html' with title=is_superuser|yesno:"All Upcoming Bookings,Your Upcoming Bookings" columns=upcoming_columns rows=upcoming_rows empty_text='No upcoming bookings available.' row_actions='workflow_automation/partials/booking_row_actions.html' %}
 </div>
 
