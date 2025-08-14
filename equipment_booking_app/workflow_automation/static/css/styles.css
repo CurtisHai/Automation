@@ -68,6 +68,12 @@ main {
   text-align: center;
   overflow-y: auto;
   padding-bottom: 0;
+  padding-top: 2rem;
+}
+
+/* Ensure top spacing across all pages regardless of Bootstrap defaults */
+main.container {
+  padding-top: 2rem;
 }
 
 h1,

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<h1 class="text-center mt-4">Automation Dashboard</h1>
+<h1 class="text-center">Automation Dashboard</h1>
 
 <style>
   /* Polished green CTA buttons */
@@ -31,7 +31,7 @@
   .btn-automation.btn-lg{ padding-top:.9rem; padding-bottom:.9rem; }
 </style>
 
-<section class="mt-4">
+<section>
   {% if user.is_authenticated %}
     <h4 class="text-center mb-4">Welcome {{ user.username }}</h4>
 
