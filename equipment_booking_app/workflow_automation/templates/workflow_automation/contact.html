@@ -2,73 +2,107 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Submit Question or Workflow</h2>
+  <h2 class="text-center mb-4">Submit Question or Workflow</h2>
 
-    <!-- Card for styling the content, similar to booking form design -->
-    <div class="card p-4 content-box mb-5" style="color: #fff;">
-        
-        <!-- Check if the user is authenticated -->
-        {% if user.is_authenticated %}
-            
-            <!-- Check if the user has a valid email associated with their account -->
-            {% if user.email %}
-                <p>Use the form below to ask a question or submit one of your saved workflows for review.</p>
+  <!-- Scrolls internally; page itself does not scroll -->
+  <div class="card p-4 content-box mb-5 scroll-y contact-form-container">
 
-                <!-- Display form errors if there are any -->
-                {% if form.errors %}
-                <div class="alert alert-danger">
-                    <p>Please correct the following errors:</p>
-                    <ul>
-                        {% for field, errors in form.errors.items %}
-                            <li>{{ field }}: {{ errors }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
+    {% if user.is_authenticated %}
 
-                <!-- Contact form for users with a valid email -->
-                <form method="post" action="{% url 'contact' %}">
-                    {% csrf_token %}
-                    
-                    <!-- Bootstrap grid for form alignment -->
-                    <div class="form-group row mb-3 justify-content-center">
-                        <label for="subject" class="col-2 text-right">Subject:</label>
-                        <div class="col-8">
-                            {{ form.subject }}
-                        </div>
-                    </div>
+      {% if user.email %}
+        <p>Use the form below to ask a question or submit one of your saved workflows for review.</p>
 
-                    <div class="form-group row mb-3 justify-content-center">
-                        <label for="content" class="col-2 text-right">Message:</label>
-                        <div class="col-8">
-                            {{ form.content }}
-                        </div>
-                    </div>
-
-                    <div class="form-group row mb-3 justify-content-center">
-                        <label for="workflow" class="col-2 text-right">Attach Workflow:</label>
-                        <div class="col-8">
-                            {{ form.workflow }}
-                        </div>
-                    </div>
-
-                    <!-- Submit button centered -->
-                    <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-automation mt-4">Send Message</button>
-                    </div>
-                </form>
-            
-            <!-- If the user doesn't have an email -->
-            {% else %}
-                <p class="text-danger">You need to have an email associated with your account to send a message.</p>
-                <a href="{% url 'accounts' %}" class="btn btn-secondary">Add your email here</a>
-            {% endif %}
-
-        <!-- For unauthenticated users -->
-        {% else %}
-            <p>If you would like to inquire about the booking app or need assistance creating an account, please contact <a href="mailto:support@atkinsrealisbookings.com">support@atkinsrealisbookings.com</a>.</p>
-            <p>Alternatively, if you have an account, please <a href="{% url 'login' %}">Login</a> to access the support features.</p>
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            <p>Please correct the following errors:</p>
+            <ul class="mb-0">
+              {% for field, errors in form.errors.items %}
+                <li><strong>{{ field|capfirst }}</strong>: {{ errors|striptags }}</li>
+              {% endfor %}
+            </ul>
+          </div>
         {% endif %}
-    </div>
+
+        <form method="post" action="{% url 'contact' %}">
+          {% csrf_token %}
+
+          <!-- Subject -->
+          <div class="form-row-inline">
+            <label for="{{ form.subject.id_for_label }}" class="col-form-label label-fixed">Subject</label>
+            <div class="field-flex">
+              {{ form.subject }}
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="form-row-inline">
+            <label for="{{ form.content.id_for_label }}" class="col-form-label label-fixed">Message</label>
+            <div class="field-flex">
+              {{ form.content }}
+            </div>
+          </div>
+
+          <!-- Attach Workflow -->
+          <div class="form-row-inline">
+            <label for="{{ form.workflow.id_for_label }}" class="col-form-label label-fixed">Attach Workflow</label>
+            <div class="field-flex">
+              {{ form.workflow }}
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="form-row-inline mt-3">
+            <div class="label-fixed"></div>
+            <div class="field-flex d-flex">
+              <button type="submit" class="btn btn-automation w-100">Send Message</button>
+            </div>
+          </div>
+        </form>
+
+      {% else %}
+        <p class="text-danger">You need to have an email associated with your account to send a message.</p>
+        <a href="{% url 'accounts' %}" class="btn btn-secondary">Add your email here</a>
+      {% endif %}
+
+    {% else %}
+      <p>If you would like to inquire about the booking app or need assistance creating an account, please contact <a href="mailto:support@atkinsrealisbookings.com">support@atkinsrealisbookings.com</a>.</p>
+      <p>Alternatively, if you have an account, please <a href="{% url 'login' %}">Login</a> to access the support features.</p>
+    {% endif %}
+
+  </div>
 </div>
+
+<style>
+/* Internal scroll (green slim bar) */
+.contact-form-container{
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-green) rgba(255,255,255,0.08);
+}
+.contact-form-container::-webkit-scrollbar{ width:8px; }
+.contact-form-container::-webkit-scrollbar-track{ background:rgba(255,255,255,0.08); border-radius:8px; }
+.contact-form-container::-webkit-scrollbar-thumb{ background:var(--brand-green); border-radius:8px; }
+.contact-form-container::-webkit-scrollbar-thumb:hover{ background:var(--brand-green-dark); }
+
+/* Two-column inline layout */
+.form-row-inline{
+  display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; flex-wrap:nowrap;
+}
+.label-fixed{ width:220px; text-align:left; margin:0; }
+.field-flex{ flex:1 1 auto; max-width:820px; }
+
+/* Keep default light form styles, just control sizing */
+.field-flex .form-control,
+.field-flex select,
+.field-flex textarea{
+  width:100%;
+  max-width:820px;
+}
+
+/* Make message box taller */
+textarea#{{ form.content.id_for_label }} {
+  min-height: 10em;
+}
+</style>
 {% endblock %}
