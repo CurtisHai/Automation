@@ -2,21 +2,107 @@
 
 {% block content %}
 <h2 class="text-center mb-4">Video QA Review</h2>
-<div class="content-box" style="color:#192d38;">
-    <img src="{{ preview_url }}" class="img-fluid mb-3" alt="Video preview">
-    <p class="mb-2"><strong>Edit</strong><br>
-        Cropping: {{ crop_start }}s start, {{ crop_end }}s end<br>
-        Audio: {% if audio_removed %}Removed{% else %}Kept{% endif %}
-    </p>
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            {{ form.zone_id.label_tag }} {{ form.zone_id }}
-        </div>
-        <div class="form-check mb-3">
-            {{ form.flag_manual_edit }} {{ form.flag_manual_edit.label_tag }}
-        </div>
-        <button type="submit" class="btn btn-primary">Confirm and Continue</button>
-    </form>
+
+<style>
+  .qa-card{
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-green) rgba(255,255,255,0.08);
+  }
+  .qa-card::-webkit-scrollbar{ width:8px; }
+  .qa-card::-webkit-scrollbar-track{ background:rgba(255,255,255,0.08); border-radius:8px; }
+  .qa-card::-webkit-scrollbar-thumb{ background:var(--brand-green); border-radius:8px; }
+  .qa-card::-webkit-scrollbar-thumb:hover{ background:var(--brand-green-dark); }
+
+  .qa-card, .qa-card * { color:#e7eff2; }
+
+  .qa-preview{
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+
+  .qa-meta{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;
+    padding:.75rem 1rem;
+  }
+
+  .form-row-inline{
+    display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; flex-wrap:nowrap;
+  }
+  .form-row-inline .label-fixed{ width:220px; text-align:left; margin:0; }
+  .form-row-inline .field-flex{ flex:1 1 auto; max-width:820px; }
+
+  .qa-form .field-flex .form-control,
+  .qa-form .field-flex select{
+    width:100%;
+    max-width:820px;
+    background:var(--sidebar-bg,#0f222d);
+    color:#e7eff2;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:10px;
+    padding:.5rem .75rem;
+  }
+
+  /* radios inline */
+  .options-inline input[type="radio"]{ margin-right:.35rem; }
+  .options-inline label{ margin-right:1.25rem; margin-bottom:0; }
+</style>
+
+<div class="card p-4 content-box mb-5 qa-card">
+  <img src="{{ preview_url }}" class="img-fluid mb-3 qa-preview" alt="Video preview">
+
+  <div class="qa-meta mb-4">
+    <div class="d-flex flex-wrap">
+      <div class="mr-4 mb-2"><strong>Cropping:</strong> {{ crop_start }}s start, {{ crop_end }}s end</div>
+      <div class="mb-2"><strong>Audio:</strong> {% if audio_removed %}Removed{% else %}Kept{% endif %}</div>
+    </div>
+  </div>
+
+  <form method="post" class="qa-form">
+    {% csrf_token %}
+
+    <div class="form-row-inline">
+      <label for="{{ form.zone_id.id_for_label }}" class="col-form-label label-fixed">Zone</label>
+      <div class="field-flex">
+        {{ form.zone_id }}
+      </div>
+    </div>
+
+    <!-- Manual Edit: Yes / No radios -->
+    {% with v=form.flag_manual_edit.value|stringformat:"s" %}
+    <div class="form-row-inline">
+      <label id="lbl_manual_edit" class="col-form-label label-fixed">Manual Edit</label>
+      <div class="field-flex options-inline" role="group" aria-labelledby="lbl_manual_edit">
+        <label for="{{ form.flag_manual_edit.id_for_label }}_yes">
+          <input id="{{ form.flag_manual_edit.id_for_label }}_yes"
+                 type="radio"
+                 name="{{ form.flag_manual_edit.html_name }}"
+                 value="True" {% if v == 'True' %}checked{% endif %}>
+          Yes
+        </label>
+        <label for="{{ form.flag_manual_edit.id_for_label }}_no">
+          <input id="{{ form.flag_manual_edit.id_for_label }}_no"
+                 type="radio"
+                 name="{{ form.flag_manual_edit.html_name }}"
+                 value="False" {% if v != 'True' %}checked{% endif %}>
+          No
+        </label>
+      </div>
+    </div>
+    {% endwith %}
+
+    <div class="form-row-inline mt-3">
+      <div class="label-fixed"></div>
+      <div class="field-flex">
+        <button type="submit" class="btn btn-primary w-100">Confirm and Continue</button>
+      </div>
+    </div>
+  </form>
 </div>
 {% endblock %}
