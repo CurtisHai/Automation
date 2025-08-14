@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
-from django.utils.html import linebreaks
 from datetime import timedelta
 from django.db.models import Q
 import os
@@ -440,31 +439,7 @@ def user_messages(request):
         Message.objects.filter(sender=request.user, workflow__isnull=True)
         .order_by('-created_at')
     )
-
-    columns = [
-        {"key": "subject", "label": "Subject"},
-        {"key": "created_at", "label": "Date Sent"},
-        {"key": "content", "label": "Message"},
-    ]
-
-    rows = []
-    for m in msgs:
-        rows.append(
-            {
-                "subject": m.subject,
-                "created_at": timezone.localtime(m.created_at).strftime("%d %b %Y %H:%M"),
-                "content": linebreaks(m.content),
-            }
-        )
-
-    return render(
-        request,
-        'workflow_automation/user_messages.html',
-        {
-            'columns': columns,
-            'rows': rows,
-        },
-    )
+    return render(request, 'workflow_automation/user_messages.html', {'user_messages': msgs})
 
 @user_passes_test(lambda u: u.is_superuser)
 def inbox(request):
