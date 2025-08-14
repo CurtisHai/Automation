@@ -4,6 +4,7 @@
 .data-table-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem; }
 
 .table-wrap{
+  width:100%;
   background: var(--chip-bg,#192d38);
   border-radius:12px;
   overflow:auto;
