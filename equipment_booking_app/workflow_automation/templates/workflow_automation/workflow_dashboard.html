@@ -1,56 +1,64 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-<h2 class="text-center mb-4">Automation Workflows</h2>
-<a href="{% url 'create_workflow' %}" class="btn btn-primary mb-3">Create New Workflow</a>
-<a href="{% url 'run_workflow' %}" class="btn btn-secondary mb-3">Run Workflow</a>
-<a href="{% url 'run_rename' %}" class="btn btn-secondary mb-3">Run Rename Tool</a>
-<a href="{% url 'run_convert' %}" class="btn btn-secondary mb-3">Run Convert Tool</a>
-<a href="{% url 'run_zip' %}" class="btn btn-secondary mb-3">Run Zip Tool</a>
+<div class="automation-header mb-4">
+  <h2 class="page-title text-center">Automation Workflows</h2>
+</div>
+
+<!-- Quick actions -->
+<div class="quick-actions d-flex flex-wrap gap-2 mb-4">
+  <a href="{% url 'create_workflow' %}" class="btn btn-brand-primary">Create New Workflow</a>
+  <a href="{% url 'run_workflow' %}" class="btn btn-brand-secondary">Run Workflow</a>
+  <a href="{% url 'run_rename' %}" class="btn btn-brand-secondary">Run Rename Tool</a>
+  <a href="{% url 'run_convert' %}" class="btn btn-brand-secondary">Run Convert Tool</a>
+  <a href="{% url 'run_zip' %}" class="btn btn-brand-secondary">Run Zip Tool</a>
+</div>
 
 {% if workflows %}
-    <ul class="list-group">
+  <!-- Your Workflows (no white box) -->
+  <ul class="list-group workflow-list no-box">
     {% for workflow in workflows %}
-        <li class="list-group-item" style="color:#192d38;">
-            <strong>{{ workflow.name }}</strong> - {{ workflow.description }}
-            <ul class="mb-2">
-                {% for step in workflow.steps.all %}
-                <li>{{ step.order }}. {{ step.get_action_display }}</li>
-                {% endfor %}
-            </ul>
-        </li>
+
     {% endfor %}
-    </ul>
-{% elif recent_runs %}
+  </ul>
+
+{% else %}
+  {% if recent_runs %}
+    <!-- Recent Runs (no white box) -->
     <div class="table-responsive">
-    <table class="table table-striped table-bordered table-hover w-100" style="background-color:#ffffff;">
-        <thead style="background-image: linear-gradient(to right, #05E560, #B9FF00); text-align:center;">
-            <tr><th>Name</th><th>Last Used</th><th>Actions</th></tr>
+      <table class="table table-striped table-hover brand-table no-box-table">
+        <thead class="brand-thead text-center">
+          <tr>
+            <th>Name</th>
+            <th>Last Used</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
         {% for run in recent_runs %}
-            <tr class="text-center">
-                <td>
-                    {{ run.workflow.name }}
-                    {% if run.workflow.from_shared %}
-                    <span class="badge bg-secondary">shared</span>
-                    {% else %}
-                    <span class="badge bg-success">mine</span>
-                    {% endif %}
-                </td>
-                <td>{{ run.started_at|date:"Y-m-d H:i" }}</td>
-                <td>
-                    {% if not run.workflow.from_shared %}
-                    <a href="{% url 'edit_workflow' run.workflow.id %}" class="btn btn-sm btn-warning">Edit</a>
-                    {% endif %}
-                    <a href="{% url 'run_workflow_specific' run.workflow.id %}" class="btn btn-sm btn-success ml-1">Run</a>
-                </td>
-            </tr>
+          <tr class="text-center align-middle">
+            <td>
+              {{ run.workflow.name }}
+              {% if run.workflow.from_shared %}
+                <span class="badge tag-shared">shared</span>
+              {% else %}
+                <span class="badge tag-mine">mine</span>
+              {% endif %}
+            </td>
+            <td>{{ run.started_at|date:"Y-m-d H:i" }}</td>
+            <td class="d-flex justify-content-center gap-2">
+              {% if not run.workflow.from_shared %}
+                <a href="{% url 'edit_workflow' run.workflow.id %}" class="btn btn-sm btn-outline-warning">Edit</a>
+              {% endif %}
+              <a href="{% url 'run_workflow_specific' run.workflow.id %}" class="btn btn-sm btn-brand-primary">Run</a>
+            </td>
+          </tr>
         {% endfor %}
         </tbody>
-    </table>
+      </table>
     </div>
-{% else %}
-    <p>No workflows defined.</p>
+  {% else %}
+    <p class="text-muted">No workflows defined.</p>
+  {% endif %}
 {% endif %}
 {% endblock %}
