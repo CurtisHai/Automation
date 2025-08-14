@@ -48,6 +48,10 @@
                 <i class="fas fa-user-circle"></i>
                 <span class="sidebar-label">Profile</span>
             </a>
+            <a href="{% url 'user_messages' %}" class="nav-link" title="My Messages" aria-label="My Messages">
+                <i class="fas fa-envelope-open"></i>
+                <span class="sidebar-label">My Messages</span>
+            </a>
             {% if user.is_superuser %}
             <a href="{% url 'inbox' %}" class="nav-link" title="Inbox" aria-label="Inbox">
                 <i class="fas fa-inbox"></i>

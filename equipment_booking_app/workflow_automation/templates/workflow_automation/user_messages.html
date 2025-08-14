@@ -1,5 +1,40 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
+
+<section>
+    {% if user.is_authenticated %}
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 g-3 mb-4 text-center justify-content-center">
+            <div class="col d-flex">
+                <a href="{% url 'create_booking' %}" class="btn btn-automation btn-lg flex-fill">Create Booking</a>
+            </div>
+            <div class="col d-flex">
+                <a href="{% url 'my_bookings' %}" class="btn btn-automation btn-lg flex-fill">My Bookings</a>
+            </div>
+            <div class="col d-flex">
+                <a href="{% url 'user_messages' %}" class="btn btn-automation btn-lg flex-fill">Previous Messages</a>
+            </div>
+            <div class="col d-flex">
+                <a href="{% url 'previous_bookings' %}" class="btn btn-automation btn-lg flex-fill">Previous Bookings</a>
+            </div>
+            {% if user.is_superuser %}
+            <div class="col d-flex">
+                <a href="{% url 'inbox' %}" class="btn btn-automation btn-lg flex-fill">Inbox</a>
+            </div>
+            <div class="col d-flex">
+                <a href="{% url 'user_accounts' %}" class="btn btn-automation btn-lg flex-fill">User Accounts</a>
+            </div>
+            {% endif %}
+            {% if user.is_staff %}
+            <div class="col d-flex">
+                <a href="{% url 'admin:index' %}" class="btn btn-automation btn-lg flex-fill">Admin Tools</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</section>
+
 {% include 'components/data_table.html' with title='Previous Messages' columns=columns rows=rows empty_text='You have not sent any messages.' %}
 {% endblock %}
