@@ -1,12 +1,5 @@
 {% extends 'workflow_automation/base.html' %}
 
 {% block content %}
-{% include 'components/data_table.html' with
-title='Shared Workflows'
-columns=columns
-rows=rows
-empty_text='No shared workflows.'
-toolbar_actions='workflow_automation/partials/shared_workflows_toolbar.html'
-row_actions='workflow_automation/partials/shared_workflow_row_actions.html'
-%}
+{% include 'components/data_table.html' with title='Shared Workflows' columns=columns rows=rows empty_text='No shared workflows.' toolbar_actions='workflow_automation/partials/shared_workflows_toolbar.html' row_actions='workflow_automation/partials/shared_workflow_row_actions.html' %}
 {% endblock %}
