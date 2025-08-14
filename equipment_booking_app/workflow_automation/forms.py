@@ -175,16 +175,31 @@ class RunWorkflowForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+        self.user = kwargs.pop("user", None)
         wf_qs = kwargs.pop("workflow_queryset", None)
         super().__init__(*args, **kwargs)
+
         if wf_qs is not None:
             self.fields["workflow"].queryset = wf_qs
-        elif user:
-            self.fields["workflow"].queryset = Workflow.objects.filter(created_by=user)
-            profile = Profile.objects.filter(user=user).first()
+        elif self.user:
+            self.fields["workflow"].queryset = Workflow.objects.filter(created_by=self.user)
+
+        if self.user:
+            profile = Profile.objects.filter(user=self.user).first()
             if profile and profile.initials:
                 self.fields["initials"].initial = profile.initials
+                self.fields["initials"].widget.attrs["readonly"] = True
+                existing = self.fields["initials"].widget.attrs.get("class", "")
+                self.fields["initials"].widget.attrs["class"] = (
+                    existing + " form-control"
+                ).strip()
+
+    def clean_initials(self):
+        if self.user:
+            profile = Profile.objects.filter(user=self.user).first()
+            if profile and profile.initials:
+                return profile.initials
+        return self.cleaned_data.get("initials", "")
 
     def clean(self):
         cleaned = super().clean()
