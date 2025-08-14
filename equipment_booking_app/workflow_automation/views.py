@@ -163,20 +163,66 @@ def create_booking(request):
 def booking_list(request):
     # Display current and past bookings based on user type
     current_time = timezone.now()
+    if request.user.is_superuser:
+        bookings_qs = Booking.objects.filter(start_time__gte=current_time)
+        previous_qs = Booking.objects.filter(end_time__lt=current_time)
+    else:
+        bookings_qs = Booking.objects.filter(user=request.user, start_time__gte=current_time)
+        previous_qs = Booking.objects.filter(user=request.user, end_time__lt=current_time)
 
     if request.user.is_superuser:
-        bookings = Booking.objects.filter(start_time__gte=current_time)
-        previous_bookings = Booking.objects.filter(end_time__lt=current_time)
+        upcoming_columns = [
+            {"key": "user", "label": "User"},
+            {"key": "item", "label": "Item"},
+            {"key": "start_time", "label": "Start Time"},
+            {"key": "end_time", "label": "End Time"},
+        ]
+        previous_columns = list(upcoming_columns)
     else:
-        bookings = Booking.objects.filter(user=request.user, start_time__gte=current_time)
-        previous_bookings = Booking.objects.filter(user=request.user, end_time__lt=current_time)
+        upcoming_columns = [
+            {"key": "item", "label": "Item"},
+            {"key": "start_time", "label": "Start Time"},
+            {"key": "end_time", "label": "End Time"},
+        ]
+        previous_columns = list(upcoming_columns)
 
-    return render(request, 'workflow_automation/booking_list.html', {
-        'bookings': bookings,
-        'previous_bookings': previous_bookings,
-        'is_superuser': request.user.is_superuser,
-        'current_time': current_time
-    })
+    upcoming_rows = []
+    for b in bookings_qs:
+        upcoming_rows.append(
+            {
+                "id": b.id,
+                "user": b.user.username,
+                "item": b.equipment.name,
+                "start_time": timezone.localtime(b.start_time).strftime("%d %b %Y %H:%M"),
+                "end_time": timezone.localtime(b.end_time).strftime("%d %b %Y %H:%M"),
+                "can_edit": request.user.is_superuser
+                or (b.start_time > current_time and b.user == request.user),
+                "can_delete": request.user.is_superuser,
+            }
+        )
+
+    previous_rows = []
+    for b in previous_qs:
+        previous_rows.append(
+            {
+                "user": b.user.username,
+                "item": b.equipment.name,
+                "start_time": timezone.localtime(b.start_time).strftime("%d %b %Y %H:%M"),
+                "end_time": timezone.localtime(b.end_time).strftime("%d %b %Y %H:%M"),
+            }
+        )
+
+    return render(
+        request,
+        'workflow_automation/booking_list.html',
+        {
+            'is_superuser': request.user.is_superuser,
+            'upcoming_columns': upcoming_columns,
+            'upcoming_rows': upcoming_rows,
+            'previous_columns': previous_columns,
+            'previous_rows': previous_rows,
+        },
+    )
 
 
 @login_required
@@ -307,14 +353,41 @@ def previous_bookings(request):
     current_time = timezone.now()
 
     if request.user.is_superuser:
-        previous_bookings = Booking.objects.filter(end_time__lt=current_time)
+        previous_qs = Booking.objects.filter(end_time__lt=current_time)
+        columns = [
+            {"key": "user", "label": "User"},
+            {"key": "item", "label": "Item"},
+            {"key": "start_time", "label": "Start Time"},
+            {"key": "end_time", "label": "End Time"},
+        ]
     else:
-        previous_bookings = Booking.objects.filter(user=request.user, end_time__lt=current_time)
+        previous_qs = Booking.objects.filter(user=request.user, end_time__lt=current_time)
+        columns = [
+            {"key": "item", "label": "Item"},
+            {"key": "start_time", "label": "Start Time"},
+            {"key": "end_time", "label": "End Time"},
+        ]
 
-    return render(request, 'workflow_automation/previous_bookings.html', {
-        'previous_bookings': previous_bookings,
-        'is_superuser': request.user.is_superuser
-    })
+    rows = []
+    for b in previous_qs:
+        rows.append(
+            {
+                "user": b.user.username,
+                "item": b.equipment.name,
+                "start_time": timezone.localtime(b.start_time).strftime("%d %b %Y %H:%M"),
+                "end_time": timezone.localtime(b.end_time).strftime("%d %b %Y %H:%M"),
+            }
+        )
+
+    return render(
+        request,
+        'workflow_automation/previous_bookings.html',
+        {
+            'columns': columns,
+            'rows': rows,
+            'is_superuser': request.user.is_superuser,
+        },
+    )
 
 
 @login_required
@@ -729,10 +802,31 @@ def shared_workflow_list_view(request):
             ).distinct()
         else:
             workflows = workflows.filter(name__icontains=query)
+    columns = [
+        {"key": "name", "label": "Name", "td_class": "td-name"},
+        {"key": "description", "label": "Description", "td_class": "td-description"},
+        {"key": "author", "label": "Author", "td_class": "td-author"},
+    ]
+    rows = []
+    for wf in workflows:
+        author = (
+            wf.published_by.username
+            if wf.published_by
+            else wf.created_by.username if wf.created_by else "-"
+        )
+        rows.append(
+            {
+                "id": wf.id,
+                "name": wf.name,
+                "description": wf.description,
+                "author": author,
+            }
+        )
+
     return render(
         request,
         "workflow_automation/shared_workflows.html",
-        {"workflows": workflows, "search_query": query},
+        {"columns": columns, "rows": rows, "search_query": query},
     )
 
 
