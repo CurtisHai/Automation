@@ -11,6 +11,7 @@ from django.contrib.messages import get_messages
 from django.urls import reverse
 from .models import Workflow, Profile, Message
 from .workflow_runner import WorkflowRunner
+from .forms import RunWorkflowForm
 from . import file_utils, views
 from .log_writer import write_workflow_log
 from types import SimpleNamespace
@@ -108,6 +109,31 @@ class RunWorkflowNoMatchTests(TestCase):
         response = self.client.post(reverse("run_workflow"), data)
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(any("No workflow matched" in str(m) for m in messages))
+
+
+class RunWorkflowInitialsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="runner2", password="pass")
+        Profile.objects.create(user=self.user, initials="AB")
+        self.wf = Workflow.objects.create(name="MyFlow", created_by=self.user)
+
+    def test_initials_from_profile_and_readonly(self):
+        form = RunWorkflowForm(
+            data={
+                "workflow": self.wf.id,
+                "input_path": "/tmp/foo",
+                "use_input_path": "True",
+                "output_path": "/tmp/foo",
+                "project_code": "",
+                "initials": "ZZ",
+                "pause_between_steps": False,
+            },
+            user=self.user,
+            workflow_queryset=Workflow.objects.filter(created_by=self.user),
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["initials"], "AB")
+        self.assertIn("readonly", form.fields["initials"].widget.attrs)
 
 
 class GenerateNextFilenameTests(TestCase):
