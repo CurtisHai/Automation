@@ -158,7 +158,10 @@
             </div>
           </div>
         {% endif %}
-        {% for f in step_form %}
+        {% for hidden in step_form.hidden_fields %}
+          {{ hidden }}
+        {% endfor %}
+        {% for f in step_form.visible_fields %}
           {% if f.name != 'raw_data_folder' and f.name != 'full_structure' %}
             <div class="form-row-inline">
               <label for="{{ f.id_for_label }}" class="col-form-label label-fixed">{{ f.label }}</label>

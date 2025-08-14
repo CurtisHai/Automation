@@ -126,11 +126,11 @@ class WorkflowRunner:
         if self.current_step < len(self.step_configs):
             config = self.step_configs[self.current_step]
 
-        method = getattr(self, f"run_{step.step_type}", self.run_default)
+        method = getattr(self, f"run_{step.action}", self.run_default)
 
         if self._last_step_index != self.current_step:
             self.logs.append(
-                f"Running step {step.order}: {step.get_step_type_display()}..."
+                f"Running step {step.order}: {step.get_action_display()}..."
             )
             self._last_step_index = self.current_step
 
@@ -165,7 +165,7 @@ class WorkflowRunner:
         video_steps = {"convert_360_video", "remove_audio", "trim"}
         if full:
             subfolders = None
-        elif any(s.step_type in video_steps for s in self.workflow.steps.all()):
+        elif any(s.action in video_steps for s in self.workflow.steps.all()):
             subfolders = ["3V - 360 Videos"]
         else:
             subfolders = ["3P - 360 Photos"]

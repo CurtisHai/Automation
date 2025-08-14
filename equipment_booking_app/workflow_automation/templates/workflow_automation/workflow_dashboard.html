@@ -15,7 +15,7 @@
             <strong>{{ workflow.name }}</strong> - {{ workflow.description }}
             <ul class="mb-2">
                 {% for step in workflow.steps.all %}
-                <li>{{ step.order }}. {{ step.get_step_type_display }}</li>
+                <li>{{ step.order }}. {{ step.get_action_display }}</li>
                 {% endfor %}
             </ul>
         </li>

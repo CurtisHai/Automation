@@ -25,7 +25,7 @@ def _worker(run_id: int, configs, video_map):
         run.save()
         while runner.current_step < total:
             step_obj = workflow.steps.all()[runner.current_step]
-            run.current_action = step_obj.get_step_type_display()
+            run.current_action = step_obj.get_action_display()
             run.current_step = runner.current_step
             run.log = "\n".join(runner.logs)
             run.save()
