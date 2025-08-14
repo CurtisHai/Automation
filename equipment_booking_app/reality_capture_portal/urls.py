@@ -9,3 +9,5 @@ urlpatterns = [
     re_path(r'^(?:admin|secure-admin)/?$', automation_views.security_notice),
     path('', include('workflow_automation.urls')),
 ]
+
+handler404 = 'workflow_automation.views.page_not_found'
