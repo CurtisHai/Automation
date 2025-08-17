@@ -71,6 +71,34 @@
       {{ form.output_path }}
     </div>
 
+    <!-- Input Folder -->
+    <div class="form-row-inline">
+      <label class="col-form-label label-fixed">Input Folder</label>
+      <div class="field-flex d-flex align-items-center gap-8">
+        <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+        <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
+        <span id="input_folder_label" class="ml-2 small text-muted">{{ input_folder }}</span>
+      </div>
+    </div>
+
+    <!-- Use Input Folder for Output -->
+    <div class="form-row-inline">
+      <label class="col-form-label label-fixed">Is your output the same as your input folder?</label>
+      <div class="field-flex options-inline">
+        {{ form.use_input_path }}
+      </div>
+    </div>
+
+    <!-- Output Folder -->
+    <div class="form-row-inline" id="output-folder-row">
+      <label class="col-form-label label-fixed">Output Folder</label>
+      <div class="field-flex d-flex align-items-center gap-8">
+        <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+        <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
+        <span id="output_folder_label" class="ml-2 small text-muted">{{ output_folder }}</span>
+      </div>
+    </div>
+
     <!-- Initials -->
     <div class="form-row-inline">
       <label for="id_initials" class="col-form-label label-fixed">Initials</label>
@@ -217,6 +245,54 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+  // Root input folder selection
+  const inputPicker = document.getElementById('input_folder_picker');
+  const inputBtn = document.getElementById('input_folder_btn');
+  const inputLabel = document.getElementById('input_folder_label');
+  if (inputPicker && inputBtn) {
+    inputBtn.addEventListener('click', () => inputPicker.click());
+    inputPicker.addEventListener('change', function(){
+      if (this.files.length){
+        const file = this.files[0];
+        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const inputField = document.getElementById('id_input_path');
+        if (inputField) inputField.value = path;
+        if (inputLabel) inputLabel.textContent = path;
+      }
+    });
+  }
+
+  // Destination output folder selection
+  const outputPicker = document.getElementById('output_folder_picker');
+  const outputBtn = document.getElementById('output_folder_btn');
+  const outputLabel = document.getElementById('output_folder_label');
+  const outputRow = document.getElementById('output-folder-row');
+  if (outputPicker && outputBtn) {
+    outputBtn.addEventListener('click', () => outputPicker.click());
+    outputPicker.addEventListener('change', function(){
+      if (this.files.length){
+        const file = this.files[0];
+        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const outputField = document.getElementById('id_output_path');
+        if (outputField) outputField.value = path;
+        if (outputLabel) outputLabel.textContent = path;
+      }
+    });
+  }
+
+  // Toggle output folder based on selection
+  const useInputRadios = document.querySelectorAll('input[name="use_input_path"]');
+  const toggleOutput = () => {
+    const selected = document.querySelector('input[name="use_input_path"]:checked');
+    if (selected && selected.value === 'False') {
+      if (outputRow) outputRow.style.display = '';
+    } else {
+      if (outputRow) outputRow.style.display = 'none';
+    }
+  };
+  useInputRadios.forEach(r => r.addEventListener('change', toggleOutput));
+  toggleOutput();
+
   // RAW folder pickers in step settings (if present)
   document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
     picker.addEventListener('change', function(){
