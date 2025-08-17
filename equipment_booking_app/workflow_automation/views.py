@@ -955,8 +955,11 @@ def run_workflow(request, workflow_id=None):
                 user=request.user,
                 workflow_queryset=user_wfs,
             )
-            video_formset = VideoOrderFormSet(request.POST, prefix="video")
-            if form.is_valid() and video_formset.is_valid():
+            video_formset = VideoOrderFormSet(
+                request.POST if "video-TOTAL_FORMS" in request.POST else None,
+                prefix="video",
+            )
+            if form.is_valid() and (not video_formset.is_bound or video_formset.is_valid()):
                 workflow = form.cleaned_data["workflow"]
                 input_folder = form.cleaned_data["input_path"]
                 output_folder = form.cleaned_data["output_path"]
@@ -977,12 +980,13 @@ def run_workflow(request, workflow_id=None):
 
                 if len(step_forms) == workflow.steps.count():
                     video_map = {}
-                    for vf in video_formset:
-                        if vf.cleaned_data.get("file_name"):
-                            video_map[vf.cleaned_data["file_name"]] = {
-                                "zone": vf.cleaned_data.get("zone_id", ""),
-                                "order": int(vf.cleaned_data.get("order", 0)),
-                            }
+                    if video_formset.is_bound:
+                        for vf in video_formset:
+                            if vf.cleaned_data.get("file_name"):
+                                video_map[vf.cleaned_data["file_name"]] = {
+                                    "zone": vf.cleaned_data.get("zone_id", ""),
+                                    "order": int(vf.cleaned_data.get("order", 0)),
+                                }
 
                     # Create DB record for the run
                     pause = form.cleaned_data.get("pause_between_steps", False)

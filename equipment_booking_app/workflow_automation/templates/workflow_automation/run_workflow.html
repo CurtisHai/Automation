@@ -156,7 +156,7 @@
       {% endfor %}
     {% endif %}
 
-    {% if video_forms %}
+    {% if video_forms and video_forms|length > 1 %}
       <hr class="my-4">
       <h4 class="mb-3">Video Order</h4>
       <ul id="video-list" class="list-group mb-4">
