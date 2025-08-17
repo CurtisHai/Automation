@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
+  if (typeof RUN_ID === 'undefined' || RUN_ID === null) {
+    return;
+  }
   const bar = document.getElementById('wf-progress-bar');
   const action = document.getElementById('wf-current-action');
   const logList = document.getElementById('wf-log');

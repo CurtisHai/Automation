@@ -76,8 +76,10 @@ def home(request):
         pending_count = Workflow.objects.filter(awaiting_review=True).count()
         if pending_count:
             messages.info(request, f"You have {pending_count} workflow review requests pending.")
+    run_id = request.session.pop("active_run_id", None)
     context = {
         "pending_count": pending_count,
+        "run_id": run_id,
     }
     return render(request, "workflow_automation/home.html", context)
 
@@ -1002,9 +1004,11 @@ def run_workflow(request, workflow_id=None):
                         if video_map:
                             request.session[f"run_{run.id}_video_map"] = video_map
                         request.session.modified = True
+                        request.session["active_run_id"] = run.id
                         return redirect("workflow_progress", run_id=run.id)
                     workflow_task.start_workflow(run, configs, video_map)
-                    return redirect("workflow_progress", run_id=run.id)
+                    request.session["active_run_id"] = run.id
+                    return redirect("home")
 
             # If validation fails fall through to redisplay the form
             StepFormSet = build_step_formset(workflow)
