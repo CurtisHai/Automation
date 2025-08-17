@@ -89,6 +89,20 @@
         <div id="demo-complete" class="alert alert-success d-none">Demo complete</div>
       </div>
 
+      <div id="wf-container" class="content-box mt-2 {% if not run_id %}d-none{% endif %}" style="color:#192d38;">
+        <div class="progress mb-3">
+          <div id="wf-progress-bar" class="progress-bar" role="progressbar" style="width:0%">0%</div>
+        </div>
+        <p id="wf-current-action" class="mb-3"></p>
+        <ul id="wf-log" class="list-group mb-3"></ul>
+        <div id="wf-error" class="alert alert-danger d-none"></div>
+        <div id="wf-complete" class="alert alert-success d-none">Complete</div>
+      </div>
+
+      <script>
+        const RUN_ID = {{ run_id|default:'null' }};
+      </script>
+      <script src="{% static 'js/workflow_progress.js' %}"></script>
       <script src="{% static 'js/demo_workflow.js' %}"></script>
     </div>
   {% else %}
