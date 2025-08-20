@@ -52,18 +52,6 @@
 {% endblock %}
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    function getDirPath(file){
-        if (file.path){
-            const idx = file.path.lastIndexOf(file.name);
-            return file.path.substring(0, idx).replace(/[\\/]+$/, '');
-        }
-        if (file.webkitRelativePath){
-            const rel = file.webkitRelativePath;
-            const idx = rel.lastIndexOf('/');
-            return idx !== -1 ? rel.substring(0, idx) : rel;
-        }
-        return '';
-    }
     const rawPicker = document.getElementById('raw_folder_picker');
     document.getElementById('raw_folder_btn').addEventListener('click', function(){
         rawPicker.click();
@@ -84,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     outputPicker.addEventListener('change', function(){
         if (this.files.length){
-            const path = getDirPath(this.files[0]);
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
             document.getElementById('id_output_folder').value = path;
             document.getElementById('output_folder_label').textContent = path;
             const base = path.replace(/[\\/]+$/, '').split(/[\\/]/).pop();
@@ -99,7 +88,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     rawPicker.addEventListener('change', function(){
         if (this.files.length){
-            const path = getDirPath(this.files[0]);
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
             document.getElementById('id_raw_data_folder').value = path;
             document.getElementById('raw_folder_label').textContent = path;
         }
