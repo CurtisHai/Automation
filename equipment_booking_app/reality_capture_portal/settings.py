@@ -97,3 +97,5 @@ LOGIN_URL = 'login'
 
 # Restrict accessible filesystem locations for directory browsing
 ALLOWED_FS_ROOTS = []
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
