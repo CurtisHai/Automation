@@ -84,10 +84,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'workflow_automation/static'),
-]
+# Django already locates `static/` directories inside each app via
+# ``AppDirectoriesFinder``. Including ``workflow_automation/static`` in
+# ``STATICFILES_DIRS`` caused every asset to be discovered twice, leading to
+# warnings during ``collectstatic`` and 404s when one of the duplicates was
+# skipped. Clearing the list avoids the duplication and lets Django serve the
+# app's static files normally.
+STATICFILES_DIRS: list[str] = []
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
