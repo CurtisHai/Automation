@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_fs
+from . import views
 
 urlpatterns = [
     path('', views.launcher, name='launcher'),
@@ -43,7 +43,5 @@ urlpatterns = [
     path('run-x3001-test/', views.run_x3001_test, name='run_x3001_test'),
     path('progress-status/', views.progress_status, name='progress_status'),
     path('progress-control/', views.progress_control, name='progress_control'),
-    path('api/fs/list', views_fs.list_fs, name='fs_list'),
-    path('start-workflow/', views.start_workflow, name='start_workflow'),
     path('messages/<int:message_id>/', views.message_detail, name='message_detail'),
 ]
