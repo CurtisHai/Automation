@@ -40,6 +40,7 @@ urlpatterns = [
     path('run-rename/', views.run_rename_view, name='run_rename'),
     path('run-convert/', views.run_convert_view, name='run_convert'),
     path('run-zip/', views.run_zip_view, name='run_zip'),
+    path('run-x3001-test/', views.run_x3001_test, name='run_x3001_test'),
     path('progress-status/', views.progress_status, name='progress_status'),
     path('progress-control/', views.progress_control, name='progress_control'),
     path('messages/<int:message_id>/', views.message_detail, name='message_detail'),

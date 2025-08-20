@@ -9,7 +9,9 @@ from datetime import timedelta
 from django.db.models import Q
 import os
 import logging
+import subprocess
 from django.templatetags.static import static
+from django.conf import settings
 
 from .models import (
     Booking,
@@ -1246,6 +1248,18 @@ def run_zip_view(request):
         messages.info(request, "Zipping started")
         return redirect("run_zip")
     return render(request, "workflow_automation/run_zip.html", {"form": form})
+
+
+@login_required
+def run_x3001_test(request):
+    """Execute the temporary Renamer_x3001.exe test script."""
+    exe_path = settings.BASE_DIR.parent / "Renamer_x3001.exe"
+    try:
+        subprocess.Popen([str(exe_path)])
+        messages.info(request, "Renamer_x3001.exe executed")
+    except Exception as exc:
+        messages.error(request, f"Failed to run test executable: {exc}")
+    return redirect("workflow_dashboard")
 
 
 def progress_status(request):
