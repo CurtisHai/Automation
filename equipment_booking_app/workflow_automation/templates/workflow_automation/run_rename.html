@@ -5,23 +5,17 @@
 <div class="card p-4 content-box mb-4">
     <form method="post">
         {% csrf_token %}
-        <div style="display:none;">
+
+        <div class="form-group">
+            {{ form.raw_data_folder.label_tag }}
             {{ form.raw_data_folder }}
+            <button type="button" class="btn btn-secondary mt-2" data-fs-browser data-fs-target="id_raw_data_folder">Browse…</button>
+        </div>
+
+        <div class="form-group">
+            {{ form.output_folder.label_tag }}
             {{ form.output_folder }}
-        </div>
-
-        <div class="form-group">
-            <label>Select RAW Data Folder</label><br>
-            <input type="file" id="raw_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-            <button type="button" class="btn btn-secondary" id="raw_folder_btn">Browse</button>
-            <span id="raw_folder_label" class="ml-2">{{ raw_folder }}</span>
-        </div>
-
-        <div class="form-group">
-            <label>Select Output Folder</label><br>
-            <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-            <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
-            <span id="output_folder_label" class="ml-2"></span>
+            <button type="button" class="btn btn-secondary mt-2" data-fs-browser data-fs-target="id_output_folder">Browse…</button>
         </div>
 
         <div id="additional-fields" style="display:none;">
@@ -48,19 +42,9 @@
         {% endfor %}
     </ul>
     {% endif %}
-</div>
-{% endblock %}
+{% include 'workflow_automation/folder_browser_modal.html' %}
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    const rawPicker = document.getElementById('raw_folder_picker');
-    document.getElementById('raw_folder_btn').addEventListener('click', function(){
-        rawPicker.click();
-    });
-
-    const outputPicker = document.getElementById('output_folder_picker');
-    document.getElementById('output_folder_btn').addEventListener('click', function(){
-        outputPicker.click();
-    });
     function checkVisibility(){
         const raw = document.getElementById('id_raw_data_folder').value;
         const out = document.getElementById('id_output_folder').value;
@@ -70,12 +54,9 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     }
 
-    outputPicker.addEventListener('change', function(){
-        if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_output_folder').value = path;
-            document.getElementById('output_folder_label').textContent = path;
+    document.getElementById('id_output_folder').addEventListener('input', function(){
+        const path = this.value;
+        if(path){
             const base = path.replace(/[\\/]+$/, '').split(/[\\/]/).pop();
             const suggestion = `${base}-3V-{timestamp}{ext}`;
             const renameField = document.getElementById('id_rename_pattern');
@@ -86,15 +67,8 @@ document.addEventListener('DOMContentLoaded', function(){
         checkVisibility();
     });
 
-    rawPicker.addEventListener('change', function(){
-        if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_raw_data_folder').value = path;
-            document.getElementById('raw_folder_label').textContent = path;
-        }
-        checkVisibility();
-    });
+    document.getElementById('id_raw_data_folder').addEventListener('input', checkVisibility);
     checkVisibility();
 });
 </script>
+{% endblock %}

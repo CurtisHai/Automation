@@ -5,53 +5,18 @@
 <div class="card p-4 content-box mb-4">
     <form method="post">
         {% csrf_token %}
-        <div style="display:none;">
+        <div class="form-group">
+            {{ form.input_path.label_tag }}
             {{ form.input_path }}
+            <button type="button" class="btn btn-secondary mt-2" data-fs-browser data-fs-target="id_input_path">Browse…</button>
+        </div>
+        <div class="form-group">
+            {{ form.output_zip.label_tag }}
             {{ form.output_zip }}
-        </div>
-        <div class="form-group">
-            <label>Select Input Folder</label><br>
-            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-            <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
-            <span id="input_folder_label" class="ml-2"></span>
-        </div>
-        <div class="form-group">
-            <label>Select Output Folder</label><br>
-            <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-            <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
-            <span id="output_folder_label" class="ml-2"></span>
+            <button type="button" class="btn btn-secondary mt-2" data-fs-browser data-fs-target="id_output_zip">Browse…</button>
         </div>
         <button type="submit" class="btn btn-primary">Run Zip</button>
     </form>
 </div>
+{% include 'workflow_automation/folder_browser_modal.html' %}
 {% endblock %}
-
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    const inputPicker = document.getElementById('input_folder_picker');
-    document.getElementById('input_folder_btn').addEventListener('click', function(){
-        inputPicker.click();
-    });
-    inputPicker.addEventListener('change', function(){
-        if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_input_path').value = path;
-            document.getElementById('input_folder_label').textContent = path;
-        }
-    });
-
-    const outputPicker = document.getElementById('output_folder_picker');
-    document.getElementById('output_folder_btn').addEventListener('click', function(){
-        outputPicker.click();
-    });
-    outputPicker.addEventListener('change', function(){
-        if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
-            document.getElementById('id_output_zip').value = path;
-            document.getElementById('output_folder_label').textContent = path;
-        }
-    });
-});
-</script>

@@ -1,5 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
+
+from utils.paths import resolve_user_path_or_raise
 from .models import Booking, Profile, Equipment, Message, Notice, Workflow, WorkflowStep
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -201,6 +203,22 @@ class RunWorkflowForm(forms.Form):
                 return profile.initials
         return self.cleaned_data.get("initials", "")
 
+    def clean_input_path(self):
+        path = self.cleaned_data.get("input_path", "")
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
+
+    def clean_output_path(self):
+        path = self.cleaned_data.get("output_path", "")
+        if not path:
+            return path
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
+
     def clean(self):
         cleaned = super().clean()
         if cleaned.get("use_input_path"):
@@ -290,15 +308,50 @@ class RenameToolForm(forms.Form):
     full_name = forms.CharField(label="Full Name", max_length=100)
     rename_pattern = forms.CharField(label="Rename Pattern", required=False)
 
+    def clean_raw_data_folder(self):
+        path = self.cleaned_data.get("raw_data_folder", "")
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
+
+    def clean_output_folder(self):
+        path = self.cleaned_data.get("output_folder", "")
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
+
 
 class ConvertToolForm(forms.Form):
     input_path = forms.CharField(label="Input Folder", max_length=255)
     format = forms.ChoiceField(label="Format", choices=[("mp4", "MP4"), ("avi", "AVI")])
 
+    def clean_input_path(self):
+        path = self.cleaned_data.get("input_path", "")
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
+
 
 class ZipToolForm(forms.Form):
     input_path = forms.CharField(label="Input Folder", max_length=255)
     output_zip = forms.CharField(label="Output Zip", max_length=255)
+
+    def clean_input_path(self):
+        path = self.cleaned_data.get("input_path", "")
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
+
+    def clean_output_zip(self):
+        path = self.cleaned_data.get("output_zip", "")
+        try:
+            return resolve_user_path_or_raise(path)
+        except ValueError as exc:
+            raise ValidationError(str(exc))
 
 
 class VideoReviewForm(forms.Form):
