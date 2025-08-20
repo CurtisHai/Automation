@@ -27,12 +27,8 @@ class WorkflowRunner:
         use_date_suffix=False,
     ):
         self.workflow = workflow
-        # Always resolve paths to their absolute form so directory lookups
-        # are consistent regardless of the server's working directory.
-        self.input_path = os.path.abspath(input_path)
-        self.output_path = os.path.abspath(output_path) if output_path else self.input_path
-        if not os.path.isdir(self.input_path):
-            raise FileNotFoundError(f"Input path {self.input_path} does not exist")
+        self.input_path = input_path
+        self.output_path = output_path or input_path
         self.project_code = project_code
         self.initials = initials
         self.step_configs = step_configs or []

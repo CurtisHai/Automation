@@ -27,8 +27,6 @@ def _worker(raw_folder: str, output_folder: str, initials: str, full_name: str, 
     progress.set_status("done")
 
 def start_rename(raw_folder: str, output_folder: str, initials: str, full_name: str, pattern: str = ""):
-    raw_folder = os.path.abspath(raw_folder)
-    output_folder = os.path.abspath(output_folder)
     thread = threading.Thread(target=_worker, args=(raw_folder, output_folder, initials, full_name, pattern), daemon=True)
     thread.start()
     return thread

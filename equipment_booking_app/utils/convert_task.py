@@ -32,7 +32,6 @@ def _worker(input_path: str, fmt: str):
     progress.set_status("done")
 
 def start_convert(input_path: str, fmt: str):
-    input_path = os.path.abspath(input_path)
     thread = threading.Thread(target=_worker, args=(input_path, fmt), daemon=True)
     thread.start()
     return thread

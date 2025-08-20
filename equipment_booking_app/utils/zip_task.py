@@ -45,8 +45,6 @@ def _worker(rcp_pairs: list[tuple[str, str]], input_path: str, output_folder: st
 
 
 def start_zip(input_path: str, output_folder: str, completed: list[str] | None = None):
-    input_path = os.path.abspath(input_path)
-    output_folder = os.path.abspath(output_folder)
     rcp_pairs = _collect_rcp_pairs(input_path)
     file_names = [name for name, _ in rcp_pairs]
 
