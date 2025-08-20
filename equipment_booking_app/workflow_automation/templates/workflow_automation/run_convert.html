@@ -5,10 +5,14 @@
 <div class="card p-4 content-box mb-4">
     <form method="post">
         {% csrf_token %}
-        <div class="form-group">
-            {{ form.input_path.label_tag }}
+        <div style="display:none;">
             {{ form.input_path }}
-            <button type="button" class="btn btn-secondary mt-2" data-fs-browser data-fs-target="id_input_path">Browse…</button>
+        </div>
+        <div class="form-group">
+            <label>Select Input Folder</label><br>
+            <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
+            <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
+            <span id="input_folder_label" class="ml-2"></span>
         </div>
         <div class="form-group">
             {{ form.format.label_tag }}
@@ -25,5 +29,21 @@
     </ul>
     {% endif %}
 </div>
-{% include 'workflow_automation/folder_browser_modal.html' %}
 {% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const inputPicker = document.getElementById('input_folder_picker');
+    document.getElementById('input_folder_btn').addEventListener('click', function(){
+        inputPicker.click();
+    });
+    inputPicker.addEventListener('change', function(){
+        if (this.files.length){
+            const file = this.files[0];
+            const path = file.path || file.webkitRelativePath.split('/')[0];
+            document.getElementById('id_input_path').value = path;
+            document.getElementById('input_folder_label').textContent = path;
+        }
+    });
+});
+</script>

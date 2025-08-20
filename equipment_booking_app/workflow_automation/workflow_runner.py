@@ -3,13 +3,11 @@
 import os
 import shutil
 from datetime import datetime
-
 from . import file_utils
 from automation_core.utils.video_converter import (
     insta360_convert,
     gopro_convert,
 )
-from utils.paths import resolve_user_path_or_raise
 
 
 class WorkflowRunner:
@@ -29,12 +27,8 @@ class WorkflowRunner:
         use_date_suffix=False,
     ):
         self.workflow = workflow
-        self.input_path = resolve_user_path_or_raise(input_path)
-        self.output_path = resolve_user_path_or_raise(output_path or input_path)
-        if not os.path.isdir(self.input_path):
-            raise FileNotFoundError(f"Input path does not exist: {self.input_path}")
-        if not os.path.isdir(self.output_path):
-            raise FileNotFoundError(f"Output path does not exist: {self.output_path}")
+        self.input_path = input_path
+        self.output_path = output_path or input_path
         self.project_code = project_code
         self.initials = initials
         self.step_configs = step_configs or []
