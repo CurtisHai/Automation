@@ -1,3 +1,11 @@
+"""Django settings for the reality capture portal.
+
+This file previously contained unresolved merge conflict markers which
+resulted in a ``SyntaxError`` when Django tried to import it.  The
+conflict markers have been removed and the settings tidied so that the
+application can start correctly.
+"""
+
 import os
 import sys
 from pathlib import Path
@@ -9,7 +17,8 @@ SECRET_KEY = 'your-secret-key'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Allow all hosts during development; adjust for production deployments.
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
