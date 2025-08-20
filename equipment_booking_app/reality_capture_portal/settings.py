@@ -94,3 +94,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom settings
 LOGIN_URL = 'login'
+
+# Restrict accessible filesystem locations for directory browsing
+ALLOWED_FS_ROOTS = []
