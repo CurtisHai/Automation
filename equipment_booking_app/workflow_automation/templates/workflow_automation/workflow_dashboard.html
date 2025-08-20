@@ -1,4 +1,5 @@
 {% extends 'workflow_automation/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="automation-header mb-4">
@@ -14,6 +15,15 @@
   <a href="{% url 'run_zip' %}" class="btn btn-brand-secondary">Run Zip Tool</a>
   <a href="{% url 'run_x3001_test' %}" class="btn btn-danger">Run EXE Test</a>
 </div>
+
+<div id="task-progress-container" class="content-box mt-2 d-none" style="color:#192d38;">
+  <div class="progress mb-3">
+    <div id="task-progress-bar" class="progress-bar" role="progressbar" style="width:0%">0%</div>
+  </div>
+  <p id="task-current" class="mb-3"></p>
+</div>
+
+<script src="{% static 'js/task_progress.js' %}"></script>
 
 {% if workflows %}
   <!-- Your Workflows (no white box) -->

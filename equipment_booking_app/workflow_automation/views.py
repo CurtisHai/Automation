@@ -42,7 +42,16 @@ from .forms import (
     StepSettingsForm,
 )
 
-from utils import rename, converter, zipper, progress, zip_task, workflow_task
+from utils import (
+    rename,
+    converter,
+    zipper,
+    progress,
+    zip_task,
+    workflow_task,
+    rename_task,
+    convert_task,
+)
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 import threading
@@ -1188,10 +1197,7 @@ def run_rename_view(request):
     if not profile.initials:
         messages.error(request, "Please input your initials on the account page to continue.")
         return redirect("accounts")
-
     form = RenameToolForm(request.POST or None, initial={"user_initials": profile.initials})
-    files = []
-    selected_folder = ""
     if request.method == "POST" and form.is_valid():
         raw_folder = form.cleaned_data["raw_data_folder"]
         output_folder = form.cleaned_data["output_folder"]
@@ -1204,15 +1210,11 @@ def run_rename_view(request):
         ):
             form.add_error("raw_data_folder", "Selected folder has no valid files")
         else:
-            files = rename.run_rename(raw_folder, output_folder, initials, full_name, pattern)
-            messages.success(request, "Rename completed")
-            selected_folder = raw_folder
+            rename_task.start_rename(raw_folder, output_folder, initials, full_name, pattern)
+            messages.info(request, "Rename started")
+            return redirect("workflow_dashboard")
 
-    return render(
-        request,
-        "workflow_automation/run_rename.html",
-        {"form": form, "files": files, "raw_folder": selected_folder},
-    )
+    return render(request, "workflow_automation/run_rename.html", {"form": form})
 
 
 @login_required
@@ -1221,15 +1223,19 @@ def run_convert_view(request):
     if not profile.initials:
         messages.error(request, "Please input your initials on the account page to continue.")
         return redirect("accounts")
-
     form = ConvertToolForm(request.POST or None)
-    files = []
     if request.method == "POST" and form.is_valid():
         input_path = form.cleaned_data["input_path"]
         fmt = form.cleaned_data["format"]
-        files = converter.convert_directory(input_path, fmt)
-        messages.success(request, "Conversion completed")
-    return render(request, "workflow_automation/run_convert.html", {"form": form, "files": files})
+        if not os.path.isdir(input_path) or not any(
+            os.path.isfile(os.path.join(input_path, f)) for f in os.listdir(input_path)
+        ):
+            form.add_error("input_path", "Selected folder has no valid files")
+        else:
+            convert_task.start_convert(input_path, fmt)
+            messages.info(request, "Conversion started")
+            return redirect("workflow_dashboard")
+    return render(request, "workflow_automation/run_convert.html", {"form": form})
 
 
 @login_required
@@ -1238,15 +1244,19 @@ def run_zip_view(request):
     if not profile.initials:
         messages.error(request, "Please input your initials on the account page to continue.")
         return redirect("accounts")
-
     form = ZipToolForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         input_path = form.cleaned_data["input_path"]
         output_folder = form.cleaned_data["output_zip"]
-        os.makedirs(output_folder, exist_ok=True)
-        zip_task.start_zip(input_path, output_folder)
-        messages.info(request, "Zipping started")
-        return redirect("run_zip")
+        if not os.path.isdir(input_path) or not any(
+            os.path.isfile(os.path.join(input_path, f)) for f in os.listdir(input_path)
+        ):
+            form.add_error("input_path", "Selected folder has no valid files")
+        else:
+            os.makedirs(output_folder, exist_ok=True)
+            zip_task.start_zip(input_path, output_folder)
+            messages.info(request, "Zipping started")
+            return redirect("workflow_dashboard")
     return render(request, "workflow_automation/run_zip.html", {"form": form})
 
 
