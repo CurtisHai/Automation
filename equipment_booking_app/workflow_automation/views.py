@@ -972,8 +972,8 @@ def run_workflow(request, workflow_id=None):
             )
             if form.is_valid() and (not video_formset.is_bound or video_formset.is_valid()):
                 workflow = form.cleaned_data["workflow"]
-                input_folder = form.cleaned_data["input_path"]
-                output_folder = form.cleaned_data["output_path"]
+                input_folder = os.path.abspath(form.cleaned_data["input_path"])
+                output_folder = os.path.abspath(form.cleaned_data["output_path"])
 
                 # Build per-step config forms
                 step_forms = []
@@ -1199,8 +1199,8 @@ def run_rename_view(request):
         return redirect("accounts")
     form = RenameToolForm(request.POST or None, initial={"user_initials": profile.initials})
     if request.method == "POST" and form.is_valid():
-        raw_folder = form.cleaned_data["raw_data_folder"]
-        output_folder = form.cleaned_data["output_folder"]
+        raw_folder = os.path.abspath(form.cleaned_data["raw_data_folder"])
+        output_folder = os.path.abspath(form.cleaned_data["output_folder"])
         initials = form.cleaned_data["user_initials"]
         full_name = form.cleaned_data["full_name"]
         pattern = form.cleaned_data.get("rename_pattern", "")
@@ -1225,7 +1225,7 @@ def run_convert_view(request):
         return redirect("accounts")
     form = ConvertToolForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        input_path = form.cleaned_data["input_path"]
+        input_path = os.path.abspath(form.cleaned_data["input_path"])
         fmt = form.cleaned_data["format"]
         if not os.path.isdir(input_path) or not any(
             os.path.isfile(os.path.join(input_path, f)) for f in os.listdir(input_path)
@@ -1246,8 +1246,8 @@ def run_zip_view(request):
         return redirect("accounts")
     form = ZipToolForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        input_path = form.cleaned_data["input_path"]
-        output_folder = form.cleaned_data["output_zip"]
+        input_path = os.path.abspath(form.cleaned_data["input_path"])
+        output_folder = os.path.abspath(form.cleaned_data["output_zip"])
         if not os.path.isdir(input_path) or not any(
             os.path.isfile(os.path.join(input_path, f)) for f in os.listdir(input_path)
         ):

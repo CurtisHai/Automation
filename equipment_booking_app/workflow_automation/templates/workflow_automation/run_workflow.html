@@ -245,6 +245,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+  function getDirPath(file){
+    if (file.path){
+      const idx = file.path.lastIndexOf(file.name);
+      return file.path.substring(0, idx).replace(/[\\/]+$/, '');
+    }
+    if (file.webkitRelativePath){
+      const rel = file.webkitRelativePath;
+      const idx = rel.lastIndexOf('/');
+      return idx !== -1 ? rel.substring(0, idx) : rel;
+    }
+    return '';
+  }
+
   // Root input folder selection
   const inputPicker = document.getElementById('input_folder_picker');
   const inputBtn = document.getElementById('input_folder_btn');
@@ -253,8 +266,7 @@ document.addEventListener('DOMContentLoaded', function(){
     inputBtn.addEventListener('click', () => inputPicker.click());
     inputPicker.addEventListener('change', function(){
       if (this.files.length){
-        const file = this.files[0];
-        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const path = getDirPath(this.files[0]);
         const inputField = document.getElementById('id_input_path');
         if (inputField) inputField.value = path;
         if (inputLabel) inputLabel.textContent = path;
@@ -271,8 +283,7 @@ document.addEventListener('DOMContentLoaded', function(){
     outputBtn.addEventListener('click', () => outputPicker.click());
     outputPicker.addEventListener('change', function(){
       if (this.files.length){
-        const file = this.files[0];
-        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const path = getDirPath(this.files[0]);
         const outputField = document.getElementById('id_output_path');
         if (outputField) outputField.value = path;
         if (outputLabel) outputLabel.textContent = path;
@@ -297,8 +308,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
     picker.addEventListener('change', function(){
       if (this.files.length) {
-        const file = this.files[0];
-        const thePath = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
+        const thePath = getDirPath(this.files[0]);
         const counter = this.id.split('_')[2];
         const inputId = 'id_form-' + (counter - 1) + '-raw_data_folder';
         const labelId = 'raw_label_' + counter;

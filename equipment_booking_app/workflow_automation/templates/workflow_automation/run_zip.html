@@ -28,14 +28,25 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+    function getDirPath(file){
+        if (file.path){
+            const idx = file.path.lastIndexOf(file.name);
+            return file.path.substring(0, idx).replace(/[\\/]+$/, '');
+        }
+        if (file.webkitRelativePath){
+            const rel = file.webkitRelativePath;
+            const idx = rel.lastIndexOf('/');
+            return idx !== -1 ? rel.substring(0, idx) : rel;
+        }
+        return '';
+    }
     const inputPicker = document.getElementById('input_folder_picker');
     document.getElementById('input_folder_btn').addEventListener('click', function(){
         inputPicker.click();
     });
     inputPicker.addEventListener('change', function(){
         if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
+            const path = getDirPath(this.files[0]);
             document.getElementById('id_input_path').value = path;
             document.getElementById('input_folder_label').textContent = path;
         }
@@ -47,8 +58,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     outputPicker.addEventListener('change', function(){
         if (this.files.length){
-            const file = this.files[0];
-            const path = file.path || file.webkitRelativePath.split('/')[0];
+            const path = getDirPath(this.files[0]);
             document.getElementById('id_output_zip').value = path;
             document.getElementById('output_folder_label').textContent = path;
         }
