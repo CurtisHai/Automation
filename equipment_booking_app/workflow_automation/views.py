@@ -57,6 +57,8 @@ from django.views.decorators.http import require_POST
 import threading
 from . import file_utils
 from .log_writer import write_workflow_log
+from .workflow_runner import WorkflowRunner
+from utils.paths import resolve_user_path_or_raise
 
 # Number of allowed failed attempts before locking an account
 LOCKOUT_THRESHOLD = 5
@@ -1270,6 +1272,21 @@ def run_x3001_test(request):
     except Exception as exc:
         messages.error(request, f"Failed to run test executable: {exc}")
     return redirect("workflow_dashboard")
+
+
+@login_required
+def start_workflow(request):
+    """Simple example view demonstrating path validation with ``WorkflowRunner``."""
+    form = RunWorkflowForm(request.POST or None, user=request.user, workflow_queryset=Workflow.objects.filter(created_by=request.user))
+    if request.method == "POST" and form.is_valid():
+        workflow = form.cleaned_data["workflow"]
+        input_path = resolve_user_path_or_raise(form.cleaned_data["input_path"])
+        output_path = resolve_user_path_or_raise(form.cleaned_data["output_path"])
+        runner = WorkflowRunner(workflow, input_path, output_path)
+        runner.run()
+        messages.success(request, "Workflow started")
+        return redirect("workflow_dashboard")
+    return render(request, "workflow_automation/start_workflow.html", {"form": form})
 
 
 def progress_status(request):

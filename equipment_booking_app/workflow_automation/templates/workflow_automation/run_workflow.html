@@ -65,19 +65,12 @@
       </div>
     </div>
 
-    <!-- Hidden fields (kept for backend binding if needed) -->
-    <div style="display:none;">
-      {{ form.input_path }}
-      {{ form.output_path }}
-    </div>
-
     <!-- Input Folder -->
     <div class="form-row-inline">
       <label class="col-form-label label-fixed">Input Folder</label>
       <div class="field-flex d-flex align-items-center gap-8">
-        <input type="file" id="input_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-        <button type="button" class="btn btn-secondary" id="input_folder_btn">Browse</button>
-        <span id="input_folder_label" class="ml-2 small text-muted">{{ input_folder }}</span>
+        {{ form.input_path }}
+        <button type="button" class="btn btn-secondary" data-fs-browser data-fs-target="id_input_path">Browse…</button>
       </div>
     </div>
 
@@ -93,9 +86,8 @@
     <div class="form-row-inline" id="output-folder-row">
       <label class="col-form-label label-fixed">Output Folder</label>
       <div class="field-flex d-flex align-items-center gap-8">
-        <input type="file" id="output_folder_picker" webkitdirectory mozdirectory directory multiple style="display:none;">
-        <button type="button" class="btn btn-secondary" id="output_folder_btn">Browse</button>
-        <span id="output_folder_label" class="ml-2 small text-muted">{{ output_folder }}</span>
+        {{ form.output_path }}
+        <button type="button" class="btn btn-secondary" data-fs-browser data-fs-target="id_output_path">Browse…</button>
       </div>
     </div>
 
@@ -121,10 +113,8 @@
           <div class="form-row-inline">
             <label class="col-form-label label-fixed">RAW Data Folder</label>
             <div class="field-flex d-flex align-items-center gap-8">
-              <input type="file" id="raw_picker_{{ forloop.counter }}" webkitdirectory mozdirectory directory multiple style="display:none;">
-              <button type="button" class="btn btn-secondary" onclick="document.getElementById('raw_picker_{{ forloop.counter }}').click()">Browse</button>
-              <span id="raw_label_{{ forloop.counter }}" class="ml-2 small text-muted"></span>
               {{ step_form.raw_data_folder }}
+              <button type="button" class="btn btn-secondary" data-fs-browser data-fs-target="id_form-{{ forloop.counter0 }}-raw_data_folder">Browse…</button>
             </div>
           </div>
           <div class="form-row-inline">
@@ -245,42 +235,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  // Root input folder selection
-  const inputPicker = document.getElementById('input_folder_picker');
-  const inputBtn = document.getElementById('input_folder_btn');
-  const inputLabel = document.getElementById('input_folder_label');
-  if (inputPicker && inputBtn) {
-    inputBtn.addEventListener('click', () => inputPicker.click());
-    inputPicker.addEventListener('change', function(){
-      if (this.files.length){
-        const file = this.files[0];
-        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
-        const inputField = document.getElementById('id_input_path');
-        if (inputField) inputField.value = path;
-        if (inputLabel) inputLabel.textContent = path;
-      }
-    });
-  }
-
-  // Destination output folder selection
-  const outputPicker = document.getElementById('output_folder_picker');
-  const outputBtn = document.getElementById('output_folder_btn');
-  const outputLabel = document.getElementById('output_folder_label');
   const outputRow = document.getElementById('output-folder-row');
-  if (outputPicker && outputBtn) {
-    outputBtn.addEventListener('click', () => outputPicker.click());
-    outputPicker.addEventListener('change', function(){
-      if (this.files.length){
-        const file = this.files[0];
-        const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
-        const outputField = document.getElementById('id_output_path');
-        if (outputField) outputField.value = path;
-        if (outputLabel) outputLabel.textContent = path;
-      }
-    });
-  }
-
-  // Toggle output folder based on selection
   const useInputRadios = document.querySelectorAll('input[name="use_input_path"]');
   const toggleOutput = () => {
     const selected = document.querySelector('input[name="use_input_path"]:checked');
@@ -292,23 +247,6 @@ document.addEventListener('DOMContentLoaded', function(){
   };
   useInputRadios.forEach(r => r.addEventListener('change', toggleOutput));
   toggleOutput();
-
-  // RAW folder pickers in step settings (if present)
-  document.querySelectorAll('input[id^="raw_picker_"]').forEach(function(picker){
-    picker.addEventListener('change', function(){
-      if (this.files.length) {
-        const file = this.files[0];
-        const thePath = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : '');
-        const counter = this.id.split('_')[2];
-        const inputId = 'id_form-' + (counter - 1) + '-raw_data_folder';
-        const labelId = 'raw_label_' + counter;
-        const input = document.getElementById(inputId);
-        if (input) input.value = thePath;
-        const label = document.getElementById(labelId);
-        if (label) label.textContent = thePath;
-      }
-    });
-  });
 
   // Drag & drop ordering for videos
   const videoList = document.getElementById('video-list');
@@ -334,4 +272,5 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 </script>
+{% include 'workflow_automation/folder_browser_modal.html' %}
 {% endblock %}
