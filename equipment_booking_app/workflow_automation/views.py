@@ -880,6 +880,22 @@ shared_workflows = shared_workflow_list_view
 
 
 @login_required
+def delete_shared_workflow(request, workflow_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("You are not allowed to delete shared workflows.")
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid request method.")
+
+    workflow = get_object_or_404(Workflow, id=workflow_id, is_published=True)
+    workflow.is_published = False
+    workflow.published_by = None
+    workflow.published_at = None
+    workflow.save(update_fields=["is_published", "published_by", "published_at"])
+    messages.success(request, f"Shared workflow '{workflow.name}' has been removed.")
+    return redirect("shared_workflows")
+
+
+@login_required
 def use_shared_workflow(request, workflow_id):
     workflow = get_object_or_404(Workflow, id=workflow_id, is_published=True)
     workflow.downloaded_by.add(request.user)

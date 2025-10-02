@@ -1,4 +1,12 @@
-<form method="post" action="{% url 'use_shared_workflow' row.id %}" class="d-inline">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-sm btn-primary">Download</button>
-</form>
+<div class="d-flex flex-wrap align-items-center">
+  <form method="post" action="{% url 'use_shared_workflow' row.id %}" class="mr-2 mb-2">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-sm btn-primary">Download</button>
+  </form>
+  {% if request.user.is_staff %}
+    <form method="post" action="{% url 'delete_shared_workflow' row.id %}" class="mb-2" onsubmit="return confirm('Remove this shared workflow?');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+    </form>
+  {% endif %}
+</div>

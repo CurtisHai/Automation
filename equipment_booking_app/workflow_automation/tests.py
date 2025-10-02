@@ -468,6 +468,34 @@ class WorkflowDeleteTests(TestCase):
         self.assertFalse(Workflow.objects.filter(id=self.wf.id).exists())
 
 
+class SharedWorkflowAdminActionsTests(TestCase):
+    def setUp(self):
+        self.publisher = User.objects.create_user(username="publisher", password="pass")
+        self.staff = User.objects.create_user(username="staff", password="pass", is_staff=True)
+        self.regular = User.objects.create_user(username="regular", password="pass")
+        self.workflow = Workflow.objects.create(
+            name="Shared",
+            created_by=self.publisher,
+            is_published=True,
+            published_by=self.publisher,
+        )
+
+    def test_staff_can_remove_shared_workflow(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(reverse("delete_shared_workflow", args=[self.workflow.id]))
+        self.assertRedirects(response, reverse("shared_workflows"))
+        self.workflow.refresh_from_db()
+        self.assertFalse(self.workflow.is_published)
+        self.assertIsNone(self.workflow.published_by)
+
+    def test_regular_user_cannot_remove_shared_workflow(self):
+        self.client.force_login(self.regular)
+        response = self.client.post(reverse("delete_shared_workflow", args=[self.workflow.id]))
+        self.assertEqual(response.status_code, 403)
+        self.workflow.refresh_from_db()
+        self.assertTrue(self.workflow.is_published)
+
+
 class MessageResponseTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
